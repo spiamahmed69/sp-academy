@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { GraduationCap, LogIn, Menu, Moon, Search, Sun, X } from 'lucide-react'
+import { GraduationCap, LayoutDashboard, LogIn, LogOut, Menu, Moon, Search, Sun, X } from 'lucide-react'
 import type { Theme } from '../hooks/useTheme'
+import { useAuth } from '../contexts/AuthContext'
 
 const NAV_LINKS = [
   { to: '/courses', label: 'কোর্সসমূহ' },
@@ -18,6 +19,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const navigate = useNavigate()
+  const { user, profile, logout } = useAuth()
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,9 +82,31 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
           {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </button>
 
-        <Link to="/login" className="btn-primary hidden !px-4 !py-2 text-sm sm:inline-flex">
-          <LogIn className="h-4 w-4" /> লগইন
-        </Link>
+        {user ? (
+          <>
+            <Link to="/dashboard" className="btn-primary hidden !px-4 !py-2 text-sm sm:inline-flex">
+              <LayoutDashboard className="h-4 w-4" /> ড্যাশবোর্ড
+            </Link>
+            <Link
+              to="/profile"
+              aria-label="প্রোফাইল"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-sm font-extrabold text-white"
+            >
+              {(profile?.displayName || user.email || '?').trim().charAt(0).toUpperCase()}
+            </Link>
+            <button
+              onClick={() => void logout()}
+              aria-label="লগআউট"
+              className="cursor-pointer rounded-full p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]"
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
+          </>
+        ) : (
+          <Link to="/login" className="btn-primary hidden !px-4 !py-2 text-sm sm:inline-flex">
+            <LogIn className="h-4 w-4" /> লগইন
+          </Link>
+        )}
 
         <button
           onClick={() => setOpen((o) => !o)}
@@ -126,9 +150,15 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
                 {l.label}
               </NavLink>
             ))}
-            <Link to="/login" onClick={() => setOpen(false)} className="btn-primary mt-2 justify-center text-sm">
-              <LogIn className="h-4 w-4" /> লগইন / রেজিস্টার
-            </Link>
+            {user ? (
+              <Link to="/dashboard" onClick={() => setOpen(false)} className="btn-primary mt-2 justify-center text-sm">
+                <LayoutDashboard className="h-4 w-4" /> ড্যাশবোর্ড
+              </Link>
+            ) : (
+              <Link to="/login" onClick={() => setOpen(false)} className="btn-primary mt-2 justify-center text-sm">
+                <LogIn className="h-4 w-4" /> লগইন / রেজিস্টার
+              </Link>
+            )}
           </nav>
         </div>
       )}

@@ -23,11 +23,31 @@ GitHub push, no Vercel deploy.
 
 **Files:** `src/` (see README.md), `DESIGN_SYSTEM.md`, `docs/architecture.md`.
 
+## Phase 2 — DONE (this repo)
+
+**Scope:** Firebase config (env-only, `src/firebase/config.ts`), Auth wiring
+(email/password, Google, password reset, logout, `AuthContext`), user profiles
+(`users/{uid}` + `students/{uid}`, always `student` at registration), roles
+(`super_admin, admin, moderator, teacher, student` — `src/lib/roles.ts`),
+protected + role-based route guards, `/dashboard` overview and `/profile`
+settings pages, `firestore.rules` v1 draft, `docs/firebase-setup.md`.
+
+**Honest demo mode:** no Firebase project exists yet, so without
+`VITE_FIREBASE_*` env vars the auth pages say so clearly and never fake a
+login. To go live, follow `docs/firebase-setup.md` (create project, enable
+Email/Password + Google, create Firestore in `asia-southeast1`, publish
+`firestore.rules`, set the first admin via custom claim) and add the six
+`VITE_FIREBASE_*` vars to `.env.local` + Vercel.
+
+**Files:** `src/firebase/`, `src/contexts/AuthContext.tsx`,
+`src/components/ProtectedRoute.tsx`, `src/pages/Dashboard.tsx`,
+`src/pages/Profile.tsx`, `firestore.rules`, `docs/firebase-setup.md`.
+
 ## Phases 2–10 (planned, not implemented)
 
 | Phase | Scope | Key deliverables |
 | --- | --- | --- |
-| 2 | Firebase + Auth | Firebase config, email/Google/phone auth, registration, profiles, roles via custom claims + trusted role records, Firestore rules v1 |
+| 2 | Firebase + Auth — DONE | Firebase config, email/Google auth, registration, profiles, roles, Firestore rules v1 |
 | 3 | Course management | Course CRUD, categories, chapters/lessons, pricing, coupons, enrollment, reviews |
 | 4 | Student dashboard | Overview, My Courses, Continue Learning, video player + progress, notes/PDFs, certificates |
 | 5 | Teacher dashboard | Assigned courses/lessons, live-class scheduling, attendance |

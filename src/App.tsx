@@ -17,6 +17,9 @@ import Blog, { BlogDetails } from './pages/Blog'
 import { About, Contact, Faq } from './pages/Info'
 import { Privacy, Refund, Terms } from './pages/Legal'
 import { ForgotPassword, Login, Register } from './pages/Auth'
+import Dashboard from './pages/Dashboard'
+import Profile from './pages/Profile'
+import { ProtectedRoute } from './components/ProtectedRoute'
 import NotFound from './pages/NotFound'
 import Categories from './pages/Categories'
 
@@ -82,6 +85,22 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

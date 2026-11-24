@@ -6,11 +6,12 @@ Online education platform for students, teachers, and institutions in Bangladesh
 SSC, HSC, admission, job preparation, live classes, exams, books, and an AI study
 assistant. Bengali + English, prices in BDT (৳).
 
-> **Phase 1 is done.** This repo currently contains the **public website + design
-> system only** — a real, working React codebase with routing, search/filters,
-> forms, loading/empty/error states, toasts, and light/dark themes. There is **no
-> backend, no Firebase, no auth, no payment, and no real AI yet**. Those arrive in
-> Phases 2–10 (see `docs/architecture.md`).
+> **Phase 1 is done, and Phase 2 (Firebase Auth + roles) is done in code.**
+> The public website + design system work, and auth is fully wired — but **no
+> Firebase project exists yet**, so the live site runs in honest demo mode
+> until the project is created and the `VITE_FIREBASE_*` env vars are set
+> (see `docs/firebase-setup.md`). There is still **no backend, no payment,
+> and no real AI**. Those arrive in Phases 3–10 (see `docs/architecture.md`).
 
 ## Quick start
 
@@ -59,9 +60,28 @@ auth pages state clearly that login/registration do not work yet (Phase 2).
 
 Do not present this Phase 1 site to users as a live, purchasable platform.
 
+## What is built (Phase 2)
+
+- **Firebase config** — `src/firebase/config.ts`, env-only (`VITE_FIREBASE_*`),
+  lazy init, honest "not configured" demo mode (never a fake login).
+- **Authentication** — email/password register + login, Google sign-in, password
+  reset, logout, `AuthContext` with auth state; `/login`, `/register`,
+  `/forgot-password` are real when Firebase is configured.
+- **Profiles + roles** — `users/{uid}` + `students/{uid}` in Firestore, new users
+  are always `student`; roles `super_admin / admin / moderator / teacher /
+  student` with guards (`src/lib/roles.ts`, `ProtectedRoute`); roles are never
+  self-assigned — only an admin grants them (see `docs/firebase-setup.md` §6).
+- **Dashboard + profile** — `/dashboard` (protected overview, sample enrolments
+  labelled নমুনা) and `/profile` (edit own name/phone; email + role read-only).
+- **Firestore rules** — `firestore.rules` v1 draft (own-doc only, role locked to
+  `student` on create, admin-only role/permission writes).
+- **Docs** — `docs/firebase-setup.md` (exact console steps to create the project).
+
 ## What is NOT done yet
 
-- **Phase 2** — Firebase Auth, Firestore, roles, student registration
+- **Firebase project itself** — not created yet; needs the console steps in
+  `docs/firebase-setup.md` + the six `VITE_FIREBASE_*` env vars (local
+  `.env.local` and Vercel).
 - **Phase 3** — Course management, enrollment
 - **Phase 4** — Student dashboard, video learning, progress
 - **Phase 5** — Teacher dashboard, live-class scheduling
@@ -70,13 +90,13 @@ Do not present this Phase 1 site to users as a live, purchasable platform.
 - **Phase 8** — Payments (bKash/Nagad/SSLCommerz/Card/COD), bookstore orders, coupons
 - **Phase 9** — AI Study Assistant, notifications, support tickets
 - **Phase 10** — Security audit, testing, SEO, performance, production deployment
-- No GitHub push and no Vercel deployment have been done in Phase 1 (local only).
 
 ## Environment variables
 
-Copy `.env.example` to `.env.local` when Phase 2 starts. Phase 1 uses **no**
-environment variables at runtime. The `.env.example` contains empty placeholders
-only — including `IMGBB_API_KEY=`, which is a **backend server-side placeholder**
+Copy `.env.example` to `.env.local` when the Firebase project exists (see
+`docs/firebase-setup.md`). Without the six `VITE_FIREBASE_*` vars the app runs
+in honest demo mode. The `.env.example` contains empty placeholders only —
+including `IMGBB_API_KEY=`, which is a **backend server-side placeholder**
 (see `docs/architecture.md` § Media / ImgBB). Never put a real key in the frontend,
 in a `VITE_*` variable, in browser requests, or in GitHub.
 

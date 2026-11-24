@@ -1,0 +1,105 @@
+/**
+ * SP Academy — Firestore security rules (Phase 2 draft, v1).
+ *
+ * Principles:
+ * - Auth is required for all writes; public reads only where the Phase 1
+ *   public website needs them (published courses/books/blogs — Phase 3 will
+ *   tighten these to status == 'published').
+ * - A user can read/write ONLY their own users/{uid} and students/{uid} docs.
+ * - Roles are NEVER self-assigned: users/{uid}.role can be set only at
+ *   creation (role == 'student') or changed by an admin (custom claim or an
+ *   admin's trusted write). Clients cannot grant themselves a privileged role.
+ * - `roles` and `permissions` collections are admin-only (read: signed-in
+ *   users may read role definitions for UI labels; write: admins only).
+ * - These rules are the enforcement layer. Client-side guards
+ *   (src/components/ProtectedRoute.tsx, src/lib/roles.ts) are UI only.
+ *
+ * HOW TO PUBLISH (see docs/firebase-setup.md):
+ *   Firebase console → Firestore Database → Rules → paste this file → Publish.
+ *   Test with the Rules Playground before publishing.
+ */
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function role() {
+      return signedIn() && request.auth.token.role is string
+        ? request.auth.token.role
+        : 'student';
+    }
+
+    function isAdmin() {
+      return role() == 'admin' || role() == 'super_admin';
+    }
+
+    function isSuperAdmin() {
+      return role() == 'super_admin';
+    }
+
+    // ---- users: own doc only; role can only be 'student' on create ----
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create: if isSelf(uid)
+        && request.resource.data.role == 'student'
+        && request.resource.data.email is string
+        && request.resource.data.uid == uid;
+      // Owner may update name/phone only — never their own role.
+      allow update: if isSelf(uid)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'email', 'uid']);
+      allow update: if isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // ---- students: own record only; admins may read ----
+    match /students/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create: if isSelf(uid);
+      allow update: if isSelf(uid) || isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // ---- roles / permissions: read by signed-in users, write by admins ----
+    match /roles/{roleId} {
+      allow read: if signedIn();
+      allow write: if isSuperAdmin();
+    }
+    match /permissions/{permId} {
+      allow read: if signedIn();
+      allow write: if isSuperAdmin();
+    }
+
+    // ---- Phase 1 public content (read-only for now; writes locked) ----
+    // Phase 3 will open writes to course owners/admins and restrict reads
+    // to published documents (status == 'published').
+    match /courses/{courseId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /courseCategories/{categoryId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /books/{bookId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ---- everything else: deny by default ----
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
