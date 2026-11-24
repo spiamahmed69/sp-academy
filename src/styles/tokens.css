@@ -1,0 +1,85 @@
+/* SP Academy design tokens — reference-inspired (bondipathshala.education layout
+   language), original SP Academy identity. Screenshot-pixel samples, 2026-11-24.
+   Do NOT use the rejected navy+gold theme (#182C4C / #F0B84B). */
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Page & surfaces */
+  --color-page: #f5fafe;
+  --color-page-2: #f4f9fe;
+  --color-surface: #ffffff;
+  --color-surface-2: #eaf6ff;
+  /* Brand blues (reference-inspired) */
+  --color-primary: #2396f6;
+  --color-primary-dark: #1a7fd6;
+  --color-primary-light: #59b1f9;
+  --color-primary-soft: #eaf6ff;
+  /* CTA orange */
+  --color-cta: #fd9a2a;
+  --color-cta-from: #ff8a1e;
+  --color-cta-to: #f97316;
+  /* Text */
+  --color-heading: #213549;
+  --color-heading-deep: #12283f;
+  --color-body: #5b6b82;
+  --color-muted: #7b8aa0;
+  /* Footer */
+  --color-footer: #01367f;
+  --color-wave-top: #caeeff;
+  --color-wave-band: #1e9ff2;
+  /* Hero */
+  --color-hero-from: #eaf6ff;
+  --color-hero-to: #d6ecfc;
+  /* Category gradients */
+  --grad-cat-blue: linear-gradient(135deg, #38bdf8, #2563eb);
+  --grad-cat-green: linear-gradient(135deg, #4ade80, #16a34a);
+  --grad-cat-purple: linear-gradient(135deg, #c084fc, #7c3aed);
+  --grad-cat-orange: linear-gradient(135deg, #fb923c, #ea580c);
+  --grad-cat-violet: linear-gradient(135deg, #a78bfa, #6d28d9);
+  --grad-cat-teal: linear-gradient(135deg, #2dd4bf, #0d9488);
+  --grad-cat-pink: linear-gradient(135deg, #f472b6, #db2777);
+  --grad-cat-amber: linear-gradient(135deg, #fbbf24, #d97706);
+  /* Radii, shadows, spacing */
+  --radius-card: 16px;
+  --radius-pill: 9999px;
+  --radius-lg: 20px;
+  --shadow-card: 0 6px 24px rgba(18, 40, 63, 0.08);
+  --shadow-card-hover: 0 14px 36px rgba(18, 40, 63, 0.14);
+  --shadow-pill: 0 8px 30px rgba(18, 40, 63, 0.1);
+  --section-y: clamp(4rem, 8vw, 6rem);
+  --container: 80rem;
+  /* Fonts */
+  --font-bn: 'Hind Siliguri', 'Noto Sans Bengali', 'Inter', system-ui, sans-serif;
+  --font-en: 'Inter', 'Hind Siliguri', system-ui, sans-serif;
+}
+
+.dark {
+  --color-page: #0b1526;
+  --color-page-2: #0e1a30;
+  --color-surface: #12233c;
+  --color-surface-2: #16304f;
+  --color-heading: #eaf2fb;
+  --color-heading-deep: #ffffff;
+  --color-body: #a9bad0;
+  --color-muted: #7e93ad;
+  --color-hero-from: #12233c;
+  --color-hero-to: #163a5e;
+  --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.35);
+  --shadow-card-hover: 0 14px 36px rgba(0, 0, 0, 0.45);
+  --shadow-pill: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+@theme inline {
+  --color-page: var(--color-page);
+  --color-surface: var(--color-surface);
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-primary-light: var(--color-primary-light);
+  --color-cta: var(--color-cta);
+  --color-heading: var(--color-heading);
+  --color-body: var(--color-body);
+  --color-muted: var(--color-muted);
+  --color-footer: var(--color-footer);
+  --font-bn: var(--font-bn);
+  --font-en: var(--font-en);
+}

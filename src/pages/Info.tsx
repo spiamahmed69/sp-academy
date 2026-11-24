@@ -1,0 +1,171 @@
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { ChevronDown, GraduationCap, Mail, MapPin, Target, Users } from 'lucide-react'
+import { DemoNotice, PageHero } from '../components/ui'
+import { useToast } from '../lib/toast'
+
+export function About() {
+  return (
+    <div>
+      <PageHero
+        eyebrow="আমাদের সম্পর্কে"
+        title="SP Academy সম্পর্কে"
+        subtitle="Learn Today, Lead Tomorrow — বাংলাদেশের শিক্ষার্থীদের জন্য মানসম্মত অনলাইন শিক্ষা।"
+      />
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="grid gap-5 md:grid-cols-3">
+          {[
+            { icon: Target, title: 'আমাদের লক্ষ্য', text: 'দেশের প্রতিটি শিক্ষার্থীর কাছে মানসম্মত শিক্ষা পৌঁছে দেওয়া — শহর কিংবা গ্রাম, সবাই সমান সুযোগ পাবে।' },
+            { icon: GraduationCap, title: 'আমাদের পদ্ধতি', text: 'লাইভ ক্লাস, রেকর্ডেড লেকচার, নোট, মডেল টেস্ট ও AI সহায়তা — সব মিলিয়ে সম্পূর্ণ শেখার অভিজ্ঞতা।' },
+            { icon: Users, title: 'আমাদের কমিউনিটি', text: 'শিক্ষার্থী, শিক্ষক ও অভিভাবক — একসঙ্গে শেখার একটি বন্ধুত্বপূর্ণ কমিউনিটি গড়ে তোলাই আমাদের স্বপ্ন।' },
+          ].map((c) => (
+            <div key={c.title} className="card card-hover p-6">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-primary-soft)] text-[var(--color-primary)]">
+                <c.icon className="h-6 w-6" />
+              </span>
+              <h2 className="mt-4 text-lg font-bold">{c.title}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--color-body)]">{c.text}</p>
+            </div>
+          ))}
+        </div>
+        <div className="card mt-8 p-6 leading-relaxed text-[var(--color-body)] sm:p-8">
+          <p>
+            SP Academy একটি অনলাইন শিক্ষা প্ল্যাটফর্ম, যা বাংলাদেশের শিক্ষার্থীদের জন্য তৈরি। এই ওয়েবসাইটটি
+            বর্তমানে Phase 1-এ আছে — পাবলিক ওয়েবসাইট ও ডিজাইন সিস্টেম তৈরি হয়েছে। লগইন, কোর্সে ভর্তি, পেমেন্ট,
+            লাইভ ক্লাস ও পরীক্ষার মতো কার্যকর ফিচারগুলো পরের ধাপগুলোতে (Phase 2–10) যুক্ত হবে।
+          </p>
+          <p className="mt-3">
+            এই পেজের পরিসংখ্যান, শিক্ষক প্রোফাইল ও মতামত নমুনা হিসেবে দেওয়া হয়েছে; এগুলো আসল তথ্য নয়।
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const contactSchema = z.object({
+  name: z.string().min(2, 'নাম কমপক্ষে ২ অক্ষরের হতে হবে'),
+  email: z.string().email('সঠিক ইমেইল ঠিকানা দিন'),
+  subject: z.string().min(3, 'বিষয় কমপক্ষে ৩ অক্ষরের হতে হবে'),
+  message: z.string().min(10, 'বার্তা কমপক্ষে ১০ অক্ষরের হতে হবে'),
+})
+type ContactForm = z.infer<typeof contactSchema>
+
+export function Contact() {
+  const { push } = useToast()
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ContactForm>({ resolver: zodResolver(contactSchema) })
+
+  const onSubmit = () => {
+    push('বার্তা পাঠানো হয়েছে (ডেমো) — আসল সাপোর্ট সিস্টেম Phase 9-এ আসবে।', 'success')
+    reset()
+  }
+
+  const fieldCls =
+    'w-full rounded-2xl border border-blue-100 bg-white px-4 py-3 text-sm outline-none focus:border-[var(--color-primary)] dark:border-slate-700 dark:bg-[#12233c]'
+
+  return (
+    <div>
+      <PageHero
+        eyebrow="যোগাযোগ"
+        title="আমাদের সঙ্গে যোগাযোগ করুন"
+        subtitle="কোর্স, ভর্তি বা যেকোনো প্রশ্নে বার্তা পাঠান — এটি ডেমো ফর্ম।"
+      />
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-3 lg:px-8">
+        <div className="space-y-4">
+          <div className="card flex items-start gap-3 p-5">
+            <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-primary)]" />
+            <div>
+              <h2 className="font-bold">ঠিকানা</h2>
+              <p className="text-sm text-[var(--color-body)]">ঢাকা, বাংলাদেশ (বিস্তারিত ঠিকানা শীঘ্রই যুক্ত হচ্ছে)</p>
+            </div>
+          </div>
+          <div className="card flex items-start gap-3 p-5">
+            <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-primary)]" />
+            <div>
+              <h2 className="font-bold">ইমেইল</h2>
+              <p className="text-sm text-[var(--color-body)]">যোগাযোগের ইমেইল শীঘ্রই যুক্ত হচ্ছে</p>
+            </div>
+          </div>
+          <DemoNotice>ফোন নম্বর এখনো প্রকাশ করা হয়নি — সাপোর্ট টিকিট সিস্টেম Phase 9-এ আসবে।</DemoNotice>
+        </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="card p-6 lg:col-span-2" noValidate>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="contact-name" className="mb-1.5 block text-sm font-bold">
+                নাম
+              </label>
+              <input id="contact-name" {...register('name')} className={fieldCls} placeholder="আপনার নাম" />
+              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="contact-email" className="mb-1.5 block text-sm font-bold">
+                ইমেইল
+              </label>
+              <input id="contact-email" type="email" {...register('email')} className={fieldCls} placeholder="you@example.com" />
+              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
+            </div>
+          </div>
+          <div className="mt-4">
+            <label htmlFor="contact-subject" className="mb-1.5 block text-sm font-bold">
+              বিষয়
+            </label>
+            <input id="contact-subject" {...register('subject')} className={fieldCls} placeholder="বিষয় লিখুন" />
+            {errors.subject && <p className="mt-1 text-sm text-red-600">{errors.subject.message}</p>}
+          </div>
+          <div className="mt-4">
+            <label htmlFor="contact-message" className="mb-1.5 block text-sm font-bold">
+              বার্তা
+            </label>
+            <textarea id="contact-message" {...register('message')} rows={5} className={fieldCls} placeholder="আপনার বার্তা লিখুন..." />
+            {errors.message && <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>}
+          </div>
+          <button type="submit" disabled={isSubmitting} className="btn-cta mt-5 cursor-pointer disabled:opacity-60">
+            বার্তা পাঠান
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+const FAQS = [
+  { q: 'SP Academy-তে কীভাবে ভর্তি হবো?', a: 'কোর্সের পেজ থেকে "ভর্তি হোন" বোতামে ক্লিক করলেই ভর্তি প্রক্রিয়া শুরু হবে। তবে Phase 1-এ ভর্তি ও পেমেন্ট এখনো চালু হয়নি — এটি চালু হবে Phase 2 ও Phase 8-এ।' },
+  { q: 'ফ্রি কোর্স কি সত্যিই ফ্রি?', a: 'হ্যাঁ, ফ্রি কোর্সগুলোতে কোনো পেমেন্ট লাগবে না। তবে Phase 1-এ এগুলো নমুনা হিসেবে দেখানো হয়েছে; আসল ফ্রি কনটেন্ট Phase 2-এ আসবে।' },
+  { q: 'লাইভ ক্লাস মিস করলে কী হবে?', a: 'প্রতিটি লাইভ ক্লাসের রেকর্ডিং থাকবে, যাতে পরে যেকোনো সময় দেখা যায়। রেকর্ডিং সুবিধা Phase 5-এ চালু হবে।' },
+  { q: 'পরীক্ষার ফলাফল কীভাবে পাবো?', a: 'MCQ পরীক্ষার ফল স্বয়ংক্রিয়ভাবে প্রকাশ হবে, CQ-র ফল শিক্ষক মূল্যায়নের পর। ফলাফল পেজ থেকে রোল নম্বর দিয়ে ফল দেখা যাবে।' },
+  { q: 'পেমেন্টের মাধ্যম কী কী থাকবে?', a: 'বিকাশ, নগদ, SSLCommerz, কার্ড ও ক্যাশ অন ডেলিভারি — সব পেমেন্ট সার্ভার-সাইড যাচাইসহ Phase 8-এ আসবে।' },
+  { q: 'সার্টিফিকেট কীভাবে পাবো?', a: 'কোর্স সম্পূর্ণ করলে ও শর্ত পূরণ হলে সার্টিফিকেট পাওয়া যাবে। সার্টিফিকেট ব্যবস্থা Phase 4 ও 6-এ আসবে।' },
+]
+
+export function Faq() {
+  const [open, setOpen] = useState<number | null>(0)
+  return (
+    <div>
+      <PageHero eyebrow="সাধারণ জিজ্ঞাসা" title="FAQ" subtitle="সবচেয়ে বেশি জিজ্ঞাসা করা প্রশ্নের উত্তর।" />
+      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <div className="space-y-3">
+          {FAQS.map((f, i) => (
+            <div key={f.q} className="card overflow-hidden">
+              <button
+                onClick={() => setOpen(open === i ? null : i)}
+                aria-expanded={open === i}
+                className="flex w-full cursor-pointer items-center justify-between gap-4 p-5 text-left"
+              >
+                <span className="font-bold">{f.q}</span>
+                <ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${open === i ? 'rotate-180' : ''}`} />
+              </button>
+              {open === i && <p className="border-t border-slate-100 px-5 py-4 text-sm leading-relaxed text-[var(--color-body)] dark:border-slate-700">{f.a}</p>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
