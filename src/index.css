@@ -5,6 +5,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 110px;
 }
 
 body {
@@ -102,6 +103,13 @@ input, select, textarea {
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-up { animation: fade-up 0.5s ease both; }
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float { animation: float-y 4s ease-in-out infinite; }
+.animate-float-slow { animation: float-y 6s ease-in-out infinite; }
 
 @keyframes shimmer {
   0% { background-position: -400px 0; }

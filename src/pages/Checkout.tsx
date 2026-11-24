@@ -4,12 +4,12 @@
  * Flow: delivery details (Zod-validated) → payment method → place order.
  *
  * HONESTY: online payments (bKash / Nagad / card) are NOT verified here —
- * there is no backend yet (Phase 10). Choosing one places the order as
+ * there is no backend yet. Choosing one places the order as
  * 'pending_verification' and the UI says so in plain words; it NEVER
  * shows a fake successful payment, a fake transaction id, or a fake
  * confirmation. COD orders are created with paymentStatus 'cod_due'.
  * A course in the order does NOT enroll the student — enrollment is
- * activated server-side after payment verification (Phase 10).
+ * activated server-side after payment verification (backend).
  */
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -33,7 +33,7 @@ import { formatBDT } from '../lib/format'
 import { useToast } from '../lib/toast'
 import { Breadcrumbs, DemoNotice, EmptyState, PageHero } from '../components/ui'
 
-const checkoutSchema = z.object({
+const checkoutSchemaBase = z.object({
   name: z.string().trim().min(1, 'নাম দিতে হবে।'),
   phone: z.string().trim().refine((v) => isValidBdPhone(v), 'সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন (01XXXXXXXXX)।'),
   address: z.string().trim(),
@@ -41,7 +41,7 @@ const checkoutSchema = z.object({
   paymentMethod: z.enum(['bkash', 'nagad', 'card', 'cod']),
 })
 
-type CheckoutForm = z.infer<typeof checkoutSchema>
+type CheckoutForm = z.infer<typeof checkoutSchemaBase>
 
 const inputClass =
   'w-full rounded-2xl border border-blue-100 bg-white px-4 py-3 text-sm outline-none focus:border-[var(--color-primary)] dark:border-slate-700 dark:bg-[#12233c]'
@@ -53,19 +53,36 @@ export default function Checkout() {
   const { items, totals, clearCart } = useCart()
   const [busy, setBusy] = useState(false)
 
+  const hasCourse = useMemo(() => items.some((it) => it.kind === 'course'), [items])
+  const hasBook = useMemo(() => items.some((it) => it.kind === 'book'), [items])
+
+  // Address/district are required for COD, and for any order containing a
+  // book (books are delivered) — even with online payment.
+  const schema = useMemo(
+    () =>
+      checkoutSchemaBase.superRefine((v, ctx) => {
+        const needsAddress = v.paymentMethod === 'cod' || hasBook
+        if (needsAddress && !v.address.trim()) {
+          ctx.addIssue({ code: 'custom', path: ['address'], message: 'ডেলিভারির ঠিকানা দিতে হবে।' })
+        }
+        if (needsAddress && !v.district.trim()) {
+          ctx.addIssue({ code: 'custom', path: ['district'], message: 'জেলা দিতে হবে।' })
+        }
+      }),
+    [hasBook],
+  )
+
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
   } = useForm<CheckoutForm>({
-    resolver: zodResolver(checkoutSchema),
+    resolver: zodResolver(schema),
     defaultValues: { name: '', phone: '', address: '', district: '', paymentMethod: 'cod' },
   })
 
   const paymentMethod = watch('paymentMethod') as PaymentMethod
-  const hasCourse = useMemo(() => items.some((it) => it.kind === 'course'), [items])
-  const hasBook = useMemo(() => items.some((it) => it.kind === 'book'), [items])
   const selectedMethod = PAYMENT_METHODS.find((m) => m.id === paymentMethod)
   // A signed-in user placing a real order needs Firebase; otherwise this is a demo order.
   const isDemo = !configured
@@ -156,14 +173,14 @@ export default function Checkout() {
                 </div>
                 <div className="sm:col-span-2">
                   <label htmlFor="co-address" className="mb-1.5 block text-sm font-bold">
-                    ঠিকানা {paymentMethod === 'cod' ? '*' : '(কোর্সের জন্য ঐচ্ছিক)'}
+                    ঠিকানা {paymentMethod === 'cod' || hasBook ? '*' : '(কোর্সের জন্য ঐচ্ছিক)'}
                   </label>
                   <textarea id="co-address" {...register('address')} rows={2} placeholder="বাসা/রোড, এলাকা, থানা" className={inputClass} />
                   {errors.address && <p className="mt-1 text-xs text-red-600">{errors.address.message}</p>}
                 </div>
                 <div>
                   <label htmlFor="co-district" className="mb-1.5 block text-sm font-bold">
-                    জেলা {paymentMethod === 'cod' ? '*' : '(কোর্সের জন্য ঐচ্ছিক)'}
+                    জেলা {paymentMethod === 'cod' || hasBook ? '*' : '(কোর্সের জন্য ঐচ্ছিক)'}
                   </label>
                   <input id="co-district" {...register('district')} placeholder="যেমন: ঢাকা" className={inputClass} />
                   {errors.district && <p className="mt-1 text-xs text-red-600">{errors.district.message}</p>}
@@ -208,7 +225,7 @@ export default function Checkout() {
               {selectedMethod && isOnlinePaymentMethod(selectedMethod.id) && (
                 <p className="mt-4 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
                   <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                  অনলাইন পেমেন্টের যাচাইকরণ এখনো চালু হয়নি (ব্যাকএন্ড Phase 10-এ আসছে)। অর্ডারটি
+                  অনলাইন পেমেন্টের যাচাইকরণ এখনো চালু হয়নি (ব্যাকএন্ডে আসছে)। অর্ডারটি
                   &quot;পেমেন্ট যাচাইয়ের অপেক্ষায়&quot; হিসেবে জমা হবে — এখনো কোনো টাকা কাটা হয়নি, কোনো
                   পেমেন্ট নিশ্চিত হয়নি, আর কোনো ট্রানজাকশন আইডি দেওয়া হবে না। যাচাই সম্পন্ন হলে অর্ডার
                   নিশ্চিত করা হবে।
@@ -217,7 +234,7 @@ export default function Checkout() {
               {hasCourse && (
                 <p className="mt-3 flex items-start gap-2 rounded-xl bg-blue-50 px-3 py-2.5 text-xs leading-relaxed text-[var(--color-body)] dark:bg-slate-800">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-primary)]" />
-                  কোর্সের ভর্তি এই অর্ডারে চালু হবে না — পেমেন্ট যাচাইয়ের পর ব্যাকএন্ড (Phase 10) থেকে
+                  কোর্সের ভর্তি এই অর্ডারে চালু হবে না — পেমেন্ট যাচাইয়ের পর ব্যাকএন্ড থেকে
                   ভর্তি সক্রিয় করা হবে। ফ্রি কোর্সে ভর্তি হতে কোর্স পেজ থেকে ফ্রি ভর্তি হোন।
                 </p>
               )}

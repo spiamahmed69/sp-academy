@@ -6,7 +6,8 @@ import {
   PlayCircle, Share2, ShoppingCart, Star, Users,
 } from 'lucide-react'
 import { categories, coursesByTeacher, getTeacherById } from '../data/sample'
-import { formatBDT } from '../lib/format'
+import { formatBDT, toBanglaDigits } from '../lib/format'
+import { isWishlisted, toggleWishlist } from '../lib/wishlist'
 import { useToast } from '../lib/toast'
 import { useAuth } from '../contexts/AuthContext'
 import { useCart } from '../contexts/CartContext'
@@ -106,7 +107,7 @@ export default function Courses() {
           </div>
         </div>
 
-        <div className="mb-8 flex gap-2 overflow-x-auto pb-2 no-scrollbar" role="tablist" aria-label="ক্যাটাগরি ফিল্টার">
+        <div className="mb-8 flex flex-wrap gap-2" role="tablist" aria-label="ক্যাটাগরি ফিল্টার">
           <button onClick={() => applyCategory('all')} className={`shrink-0 cursor-pointer rounded-full px-4 py-2 text-sm font-bold ${category === 'all' ? 'bg-[var(--color-primary)] text-white' : 'bg-white text-[var(--color-heading)] shadow-sm dark:bg-[#12233c]'}`}>
             সবগুলো
           </button>
@@ -149,12 +150,26 @@ export default function Courses() {
         {!isLoading && !isError && filtered.length > 0 && (
           <>
             <p className="mb-4 text-sm text-[var(--color-body)]">
-              {filtered.length}টি কোর্স পাওয়া গেছে{source === 'sample' ? ' (নমুনা)' : ''}
+              {toBanglaDigits(filtered.length)}টি কোর্স পাওয়া গেছে{source === 'sample' ? ' (নমুনা)' : ''}
             </p>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {filtered.map((c) => (
                 <CourseCard key={c.id} course={c} />
               ))}
+            </div>
+            <div className="mt-10 rounded-3xl bg-[var(--color-primary-soft)] p-6 text-center sm:p-8">
+              <h2 className="text-xl font-extrabold">খুঁজে পাচ্ছেন না?</h2>
+              <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-[var(--color-body)]">
+                ফ্রি কোর্স দিয়ে শুরু করুন, অথবা AI সহায়ককে জিজ্ঞেস করুন কোন কোর্স আপনার জন্য ভালো হবে।
+              </p>
+              <div className="mt-5 flex flex-wrap justify-center gap-3">
+                <Link to="/free-courses" className="btn-primary text-sm">
+                  ফ্রি কোর্স দেখুন
+                </Link>
+                <Link to="/ai-assistant" className="btn-outline bg-white text-sm">
+                  AI সহায়ককে জিজ্ঞেস করুন
+                </Link>
+              </div>
             </div>
           </>
         )}
@@ -186,6 +201,12 @@ export function CourseDetails() {
   const [demoCompleted, setDemoCompleted] = useState<string[]>([])
   const [enrollBusy, setEnrollBusy] = useState(false)
   const [toggleBusy, setToggleBusy] = useState<string | null>(null)
+  const [wishlisted, setWishlisted] = useState(false)
+
+  useEffect(() => {
+    if (!course) return
+    setWishlisted(isWishlisted(course.id))
+  }, [course])
 
   useEffect(() => {
     if (!course || configured) return
@@ -252,7 +273,7 @@ export function CourseDetails() {
     if (!course.isFree) {
       // Paid course → cart, then checkout. No fake purchase, no fake
       // enrollment: the order stays 'pending' until payment verification
-      // (Phase 10 backend), and the UI says so at checkout.
+      // (backend), and the UI says so at checkout.
       const price = course.discountPrice && course.discountPrice > 0 && course.discountPrice < course.price ? course.discountPrice : course.price
       addItem({ kind: 'course', refId: course.id, title: course.title, unitPrice: price, quantity: 1 })
       push(`"${course.title}" কার্টে যোগ হয়েছে — চেকআউটে পেমেন্ট বেছে নিন।`, 'success')
@@ -285,7 +306,34 @@ export function CourseDetails() {
     }
   }
 
-  const wishlist = () => push('উইশলিস্টে যোগ হয়েছে (ডেমো) — লগইনের পর সংরক্ষিত হবে।', 'success')
+  const toggleWish = () => {
+    const saved = toggleWishlist(course.id)
+    setWishlisted(saved)
+    push(
+      saved ? 'উইশলিস্টে যোগ হয়েছে — এই ব্রাউজারে সংরক্ষিত।' : 'উইশলিস্ট থেকে সরানো হয়েছে।',
+      'success',
+    )
+  }
+
+  const shareCourse = async () => {
+    const url = window.location.href
+    try {
+      await navigator.clipboard.writeText(url)
+      push('লিংক কপি হয়েছে।', 'success')
+    } catch {
+      try {
+        const ta = document.createElement('textarea')
+        ta.value = url
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand('copy')
+        document.body.removeChild(ta)
+        push('লিংক কপি হয়েছে।', 'success')
+      } catch {
+        push('লিংক কপি করা যায়নি — ঠিকানা বার থেকে কপি করুন।', 'error')
+      }
+    }
+  }
 
   const openLesson = (lesson: LessonView) => {
     if (lesson.isPreview || enrolled) {
@@ -337,13 +385,13 @@ export function CourseDetails() {
           <p className="mt-3 max-w-2xl leading-relaxed text-[var(--color-body)]">{course.description}</p>
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--color-body)]">
             <span className="flex items-center gap-1">
-              <Star className="h-4 w-4 fill-amber-400 text-amber-400" /> {course.rating} ({course.reviews} রিভিউ)
+              <Star className="h-4 w-4 fill-amber-400 text-amber-400" /> {toBanglaDigits(course.rating)} ({toBanglaDigits(course.reviews)} রিভিউ)
             </span>
             <span className="flex items-center gap-1">
-              <Users className="h-4 w-4" /> {course.students.toLocaleString('en-IN')} শিক্ষার্থী
+              <Users className="h-4 w-4" /> {course.students.toLocaleString('bn-BD')} শিক্ষার্থী
             </span>
             <span className="flex items-center gap-1">
-              <Clock className="h-4 w-4" /> {course.durationWeeks} সপ্তাহ · {course.lessons} লেসন
+              <Clock className="h-4 w-4" /> {toBanglaDigits(course.durationWeeks)} সপ্তাহ · {toBanglaDigits(course.lessons)} লেসন
             </span>
             <span className="flex items-center gap-1">
               <BookOpen className="h-4 w-4" /> {course.language} · {course.levelBn}
@@ -509,24 +557,25 @@ export function CourseDetails() {
             {!course.isFree && !enrolled && (
               <p className="mt-3 rounded-xl bg-blue-50 px-3 py-2 text-center text-xs leading-relaxed text-[var(--color-body)] dark:bg-slate-800">
                 ভর্তি বোতামে ক্লিক করলে কোর্সটি কার্টে যাবে। অনলাইন পেমেন্টের যাচাইকরণ ব্যাকএন্ডে আসছে
-                (Phase 10) — অর্ডার পেন্ডিং থাকবে, যাচাই হলে ভর্তি সক্রিয় হবে।
+                — অর্ডার পেন্ডিং থাকবে, যাচাই হলে ভর্তি সক্রিয় হবে।
               </p>
             )}
-            <button onClick={wishlist} className="btn-outline mt-3 w-full">
-              <Heart className="h-4 w-4" /> উইশলিস্টে রাখুন
+            <button onClick={toggleWish} className="btn-outline mt-3 w-full" aria-pressed={wishlisted}>
+              <Heart className={`h-4 w-4 ${wishlisted ? 'fill-red-500 text-red-500' : ''}`} />
+              {wishlisted ? 'উইশলিস্টে আছে' : 'উইশলিস্টে রাখুন'}
             </button>
-            <button onClick={() => push('লিংক কপি হয়েছে (ডেমো)।', 'success')} className="btn-outline mt-3 w-full">
+            <button onClick={() => void shareCourse()} className="btn-outline mt-3 w-full">
               <Share2 className="h-4 w-4" /> শেয়ার করুন
             </button>
             <ul className="mt-6 space-y-2.5 text-sm text-[var(--color-body)]">
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-600" /> {course.lessons}টি ভিডিও লেসন
+                <CheckCircle2 className="h-4 w-4 text-green-600" /> {toBanglaDigits(course.lessons)}টি লেসন
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-600" /> PDF নোট ও রিসোর্স
+                <CheckCircle2 className="h-4 w-4 text-green-600" /> লেসন নোট ও অনুশীলনী (শিক্ষক যুক্ত করলে দেখা যাবে)
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-600" /> মডেল টেস্ট ও সার্টিফিকেট
+                <CheckCircle2 className="h-4 w-4 text-green-600" /> মডেল টেস্টে অংশ নেওয়ার সুযোগ
               </li>
               <li className="flex items-center gap-2">
                 <GraduationCap className="h-4 w-4 text-[var(--color-primary)]" /> যেকোনো ডিভাইসে শেখা যায়

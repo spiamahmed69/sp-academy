@@ -6,7 +6,7 @@
  * `carts/{uid}` (see src/firebase/cart.ts) so it survives device changes.
  * The cart NEVER contains prices the server trusts: the order service
  * re-derives every line total from the catalogue at checkout, and the
- * backend (Phase 10) re-validates prices + stock before any payment.
+ * backend re-validates prices + stock before any payment.
  *
  * Delivery: ৳60 per book order, FREE when the books subtotal is ৳1000 or
  * more. Course-only orders have no delivery fee (digital delivery).

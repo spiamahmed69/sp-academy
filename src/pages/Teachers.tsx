@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { BookOpen, Star, Users } from 'lucide-react'
-import { coursesByTeacher, getTeacherById, teachers } from '../data/sample'
+import { coursesByTeacher, getTeacherById, GRADIENTS, teachers } from '../data/sample'
+import { toBanglaDigits } from '../lib/format'
 import { CourseCard, TeacherCard } from '../components/cards'
 import { Breadcrumbs, ErrorState, PageHero, SampleBadge } from '../components/ui'
 
@@ -48,7 +49,10 @@ export function TeacherProfile() {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <Breadcrumbs items={[{ label: 'শিক্ষকবৃন্দ', to: '/teachers' }, { label: teacher.name }]} />
           <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-            <span className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-3xl font-extrabold text-white shadow-lg">
+            <span
+              className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full text-3xl font-extrabold text-white shadow-lg ring-4 ring-white dark:ring-[#12233c]"
+              style={{ background: GRADIENTS[teacher.gradient] }}
+            >
               {teacher.initials}
             </span>
             <div>
@@ -61,13 +65,13 @@ export function TeacherProfile() {
               </p>
               <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-[var(--color-body)]">
                 <span className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" /> {teacher.rating} রেটিং
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" /> {toBanglaDigits(teacher.rating)} রেটিং
                 </span>
                 <span className="flex items-center gap-1">
-                  <Users className="h-4 w-4" /> {teacher.students.toLocaleString('en-IN')} শিক্ষার্থী
+                  <Users className="h-4 w-4" /> {teacher.students.toLocaleString('bn-BD')} শিক্ষার্থী
                 </span>
                 <span className="flex items-center gap-1">
-                  <BookOpen className="h-4 w-4" /> {teacher.courses}টি কোর্স
+                  <BookOpen className="h-4 w-4" /> {toBanglaDigits(teacher.courses)}টি কোর্স
                 </span>
               </div>
             </div>

@@ -68,7 +68,7 @@ export function computeProgressPercent(completedCount: number, totalLessons: num
 /** Pure builder: the enrollment doc for a FREE course. Throws for paid courses. */
 export function buildFreeEnrollmentDoc(uid: string, course: Course): EnrollmentDoc {
   if (!course.isFree || course.price !== 0) {
-    throw new Error('এই কোর্সটি ফ্রি নয় — পেমেন্ট Phase 8-এ আসছে, এখন ভর্তি করা যাবে না।')
+    throw new Error('এই কোর্সটি ফ্রি নয় — পেইড কোর্স কার্টে যোগ করে চেকআউট করুন।')
   }
   return {
     userId: uid,

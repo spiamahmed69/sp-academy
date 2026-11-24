@@ -7,6 +7,7 @@ import { useToast } from '../lib/toast'
 import { useCart } from '../contexts/CartContext'
 import { useBookById, useBooks } from '../hooks/useBooks'
 import { BookCard } from '../components/cards'
+import { BookCoverArt } from '../components/CoverArt'
 import { Breadcrumbs, DemoNotice, EmptyState, ErrorState, PageHero, SampleBadge, SkeletonCard } from '../components/ui'
 
 export default function Books() {
@@ -154,14 +155,11 @@ export function BookDetails() {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <Breadcrumbs items={[{ label: 'বইয়ের দোকান', to: '/books' }, { label: book.title }]} />
           <div className="grid gap-8 md:grid-cols-3">
-            <div className="flex h-64 items-center justify-center overflow-hidden rounded-3xl bg-[var(--color-primary)] md:h-auto">
+            <div className="relative flex h-64 items-center justify-center overflow-hidden rounded-3xl md:h-auto">
               {book.coverImageUrl ? (
                 <img src={book.coverImageUrl} alt={`${book.title} — বইয়ের প্রচ্ছদ`} loading="lazy" className="h-full w-full object-cover" />
               ) : (
-                <span className="flex h-44 w-32 rotate-[-4deg] flex-col justify-between rounded-r-lg rounded-l-sm bg-white p-4 shadow-xl">
-                  <span className="text-sm leading-snug font-extrabold text-[var(--color-heading)]">{book.title}</span>
-                  <span className="text-xs text-[var(--color-muted)]">{book.author}</span>
-                </span>
+                <BookCoverArt book={book} large />
               )}
             </div>
             <div className="md:col-span-2">
@@ -194,7 +192,7 @@ export function BookDetails() {
               </div>
               <p className="mt-4 rounded-xl bg-blue-50 px-3 py-2 text-xs leading-relaxed text-[var(--color-body)] dark:bg-slate-800">
                 ডেলিভারি চার্জ ৳৬০ — ৳১০০০ বা তার বেশি বইয়ের অর্ডারে ডেলিভারি ফ্রি। ক্যাশ অন ডেলিভারিতে পণ্য
-                হাতে পেয়ে পরিশোধ করবেন; অনলাইন পেমেন্ট (বিকাশ/নগদ/কার্ড) যাচাইকরণ ব্যাকএন্ডে আসছে (Phase 10)।
+                হাতে পেয়ে পরিশোধ করবেন; অনলাইন পেমেন্ট (বিকাশ/নগদ/কার্ড) যাচাইকরণ ব্যাকএন্ডে আসছে।
               </p>
             </div>
           </div>

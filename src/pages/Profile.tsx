@@ -13,12 +13,13 @@ import { useAuth } from '../contexts/AuthContext'
 import { getFirebase } from '../firebase/config'
 import { updateUserProfile } from '../firebase/profiles'
 import { ROLE_LABELS } from '../lib/roles'
-import { Breadcrumbs, PageHero, SampleBadge } from '../components/ui'
+import { isValidBdPhone } from '../lib/cart'
+import { Breadcrumbs, PageHero } from '../components/ui'
 import { useToast } from '../lib/toast'
 
 const profileSchema = z.object({
   displayName: z.string().min(2, 'নাম কমপক্ষে ২ অক্ষরের হতে হবে'),
-  phone: z.string().min(11, 'সঠিক মোবাইল নম্বর দিন (১১ সংখ্যা)').max(14, 'সঠিক মোবাইল নম্বর দিন'),
+  phone: z.string().trim().refine((v) => isValidBdPhone(v), 'সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন (01XXXXXXXXX)।'),
 })
 type ProfileForm = z.infer<typeof profileSchema>
 
@@ -72,7 +73,6 @@ export default function Profile() {
                 <span className="inline-flex items-center gap-1 font-semibold text-[var(--color-primary)]">
                   <ShieldCheck className="h-4 w-4" /> {profile ? ROLE_LABELS[profile.role] : '—'}
                 </span>
-                <SampleBadge label="নমুনা প্রোফাইল" />
               </p>
             </div>
           </div>

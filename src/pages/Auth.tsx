@@ -14,6 +14,7 @@ import { Chrome, GraduationCap, LogIn, Mail, UserPlus } from 'lucide-react'
 import { DemoNotice, PageHero } from '../components/ui'
 import { useToast } from '../lib/toast'
 import { useAuth } from '../contexts/AuthContext'
+import { isValidBdPhone } from '../lib/cart'
 
 const inputCls =
   'w-full rounded-2xl border border-blue-100 bg-white px-4 py-3 text-sm outline-none focus:border-[var(--color-primary)] dark:border-slate-700 dark:bg-[#12233c]'
@@ -177,7 +178,7 @@ const registerSchema = z
   .object({
     name: z.string().min(2, 'নাম কমপক্ষে ২ অক্ষরের হতে হবে'),
     email: z.string().email('সঠিক ইমেইল ঠিকানা দিন'),
-    phone: z.string().min(11, 'সঠিক মোবাইল নম্বর দিন (১১ সংখ্যা)').max(14, 'সঠিক মোবাইল নম্বর দিন'),
+    phone: z.string().trim().refine((v) => isValidBdPhone(v), 'সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন (01XXXXXXXXX)।'),
     password: z.string().min(6, 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে'),
     confirmPassword: z.string(),
   })

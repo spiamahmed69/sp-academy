@@ -73,6 +73,20 @@ describe('validateCheckout', () => {
     })
     expect(validateCheckout(input)).toEqual([])
   })
+
+  it('requires a delivery address for book orders even with online payment', () => {
+    const input = checkout({
+      paymentMethod: 'bkash',
+      customer: { name: 'রাফি', phone: '01712345678', address: '', district: '' },
+    })
+    expect(validateCheckout(input)).toContain('ডেলিভারির ঠিকানা দিতে হবে।')
+    expect(validateCheckout(input)).toContain('জেলা দিতে হবে।')
+    const withAddress = checkout({
+      paymentMethod: 'bkash',
+      customer: { name: 'রাফি', phone: '01712345678', address: 'ঢাকা', district: 'ঢাকা' },
+    })
+    expect(validateCheckout(withAddress)).toEqual([])
+  })
 })
 
 describe('buildOrderDoc', () => {

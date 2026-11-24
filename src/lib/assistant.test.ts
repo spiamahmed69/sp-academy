@@ -41,10 +41,11 @@ describe('answerQuestion', () => {
     expect(a.text.length).toBeGreaterThan(0)
   })
 
-  it('answers certificate questions with the honest Phase 10 state', () => {
+  it('answers certificate questions with the honest backend-pending state', () => {
     const a = answerQuestion('সার্টিফিকেট কি পাবো?')
     expect(a.matchedId).toBe('certificate')
-    expect(a.text).toContain('Phase 10')
+    expect(a.text).toContain('ব্যাকএন্ড')
+    expect(a.text).not.toContain('Phase 10')
   })
 })
 

@@ -291,12 +291,15 @@ export function validateCheckout(input: CheckoutInput): string[] {
   if (!input.customer.name.trim()) errors.push('নাম দিতে হবে।')
   const phone = input.customer.phone.replace(/[\s-]/g, '')
   if (!/^01[3-9]\d{8}$/.test(phone)) errors.push('সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন (01XXXXXXXXX)।')
-  if (input.paymentMethod === 'cod') {
+  // A delivery address is required for COD, and for any order that
+  // contains a book (books are delivered) — even with online payment.
+  const needsAddress = input.paymentMethod === 'cod' || input.items.some((it) => it.kind === 'book')
+  if (needsAddress) {
     if (!input.customer.address.trim()) errors.push('ডেলিভারির ঠিকানা দিতে হবে।')
     if (!input.customer.district.trim()) errors.push('জেলা দিতে হবে।')
-    if (input.items.some((it) => it.kind === 'course')) {
-      errors.push('কোর্সের জন্য ক্যাশ অন ডেলিভারি প্রযোজ্য নয় — অনলাইন পেমেন্ট বেছে নিন।')
-    }
+  }
+  if (input.paymentMethod === 'cod' && input.items.some((it) => it.kind === 'course')) {
+    errors.push('কোর্সের জন্য ক্যাশ অন ডেলিভারি প্রযোজ্য নয় — অনলাইন পেমেন্ট বেছে নিন।')
   }
   return errors
 }

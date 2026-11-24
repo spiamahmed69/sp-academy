@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useCart } from '../contexts/CartContext'
 import { useMarkNotificationRead, useNotifications, useUnreadNotificationCount } from '../hooks/useNotifications'
 import { formatNotificationTime } from '../firebase/notifications'
+import { toBanglaDigits } from '../lib/format'
 import { canAccess } from '../lib/roles'
 
 const NAV_LINKS = [
@@ -43,7 +44,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
 
   return (
     <header className="sticky top-3 z-50 px-3 sm:px-4">
-      <div className="mx-auto flex max-w-7xl items-center gap-2 rounded-full border border-blue-100/70 bg-white/90 px-3 py-2 shadow-[var(--shadow-pill)] backdrop-blur-md dark:border-slate-700 dark:bg-[#12233c]/90 sm:gap-3 sm:px-4">
+      <div className="mx-auto flex max-w-7xl items-center gap-2 rounded-full border border-blue-100/70 bg-white px-3 py-2 shadow-[var(--shadow-pill)] sm:gap-3 sm:px-4 dark:border-slate-700 dark:bg-[#12233c]">
         <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="SP Academy হোম">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-primary)] text-white">
             <GraduationCap className="h-6 w-6" />
@@ -54,13 +55,13 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
           </span>
         </Link>
 
-        <nav className="ml-2 hidden flex-1 items-center justify-center gap-1 lg:flex" aria-label="প্রধান নেভিগেশন">
+        <nav className="ml-1 hidden flex-1 items-center justify-center gap-0.5 xl:flex" aria-label="প্রধান নেভিগেশন">
           {NAV_LINKS.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
               className={({ isActive }) =>
-                `rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
+                `rounded-full px-2.5 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
                   isActive
                     ? 'bg-[var(--color-primary)] text-white'
                     : 'text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]'
@@ -72,7 +73,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
           ))}
         </nav>
 
-        <form onSubmit={submitSearch} className="ml-auto hidden items-center md:flex" role="search">
+        <form onSubmit={submitSearch} className="ml-auto hidden items-center xl:flex" role="search">
           <label htmlFor="header-search" className="sr-only">
             কোর্স খুঁজুন
           </label>
@@ -81,18 +82,18 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="কোর্স খুঁজুন..."
-            className="w-36 rounded-full border border-blue-100 bg-[var(--color-page)] px-4 py-2 text-sm text-[var(--color-heading)] outline-none placeholder:text-[var(--color-muted)] focus:border-[var(--color-primary)] lg:w-44 dark:border-slate-700"
+            className="w-28 rounded-full border border-blue-100 bg-[var(--color-page)] px-4 py-2 text-sm text-[var(--color-heading)] outline-none placeholder:text-[var(--color-muted)] focus:border-[var(--color-primary)] 2xl:w-36 dark:border-slate-700"
           />
           <button type="submit" aria-label="খুঁজুন" className="-ml-9 cursor-pointer rounded-full p-1.5 text-[var(--color-primary)] hover:bg-blue-100">
             <Search className="h-4 w-4" />
           </button>
         </form>
 
-        <Link to="/cart" aria-label={`কার্ট — ${cartCount}টি আইটেম`} className="relative cursor-pointer rounded-full p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]">
+        <Link to="/cart" aria-label={`কার্ট — ${toBanglaDigits(cartCount)}টি আইটেম`} className="relative cursor-pointer rounded-full p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]">
           <ShoppingCart className="h-5 w-5" />
           {cartCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-cta-to)] px-1 text-[11px] font-extrabold text-white">
-              {cartCount}
+              {toBanglaDigits(cartCount)}
             </span>
           )}
         </Link>
@@ -199,15 +200,15 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
           onClick={() => setOpen((o) => !o)}
           aria-label={open ? 'মেনু বন্ধ করুন' : 'মেনু খুলুন'}
           aria-expanded={open}
-          className="cursor-pointer rounded-full p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)] lg:hidden"
+          className="cursor-pointer rounded-full p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)] xl:hidden"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {open && (
-        <div className="mx-auto mt-2 max-w-7xl rounded-3xl border border-blue-100 bg-white p-4 shadow-[var(--shadow-pill)] lg:hidden dark:border-slate-700 dark:bg-[#12233c]">
-          <form onSubmit={submitSearch} className="mb-3 flex gap-2 md:hidden" role="search">
+        <div className="mx-auto mt-2 max-w-7xl rounded-3xl border border-blue-100 bg-white p-4 shadow-[var(--shadow-pill)] xl:hidden dark:border-slate-700 dark:bg-[#12233c]">
+          <form onSubmit={submitSearch} className="mb-3 flex gap-2 xl:hidden" role="search">
             <label htmlFor="mobile-search" className="sr-only">
               কোর্স খুঁজুন
             </label>

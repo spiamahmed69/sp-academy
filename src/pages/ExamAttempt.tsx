@@ -6,7 +6,7 @@
  * Flow: intro → running (client countdown) → submitted.
  * - The timer is client-side for display; the submission time is the
  *   server timestamp written on submit. Full server-side enforcement
- *   (server timer, server scoring) arrives with the backend in Phase 10 —
+ *   (server timer, server scoring) arrives with the backend —
  *   the page says so plainly instead of pretending otherwise.
  * - The attempt page NEVER contains answer keys. In Firestore mode the
  *   questions come without answers and the submitted attempt stays
@@ -46,7 +46,7 @@ function formatDate(iso: string | null): string {
   if (!iso) return '—'
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })
+  return d.toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })
 }
 
 export default function ExamAttempt() {
@@ -260,7 +260,7 @@ export default function ExamAttempt() {
                 <span>
                   শুরু করলে টাইমার চলতে থাকবে — সময় শেষ হলে উত্তরপত্র স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে।
                   জমা দেওয়ার পর উত্তর বদলানো যাবে না। টাইমারটি এই ডিভাইসে চলছে; জমার সময় সার্ভার
-                  টাইমস্ট্যাম্পে রেকর্ড হয়। পূর্ণ সার্ভার-সাইড পরীক্ষা-নিয়ন্ত্রণ ব্যাকএন্ডে (Phase 10) আসছে।
+                  টাইমস্ট্যাম্পে রেকর্ড হয়। পূর্ণ সার্ভার-সাইড পরীক্ষা-নিয়ন্ত্রণ ব্যাকএন্ডে আসছে।
                 </span>
               </p>
             </div>
@@ -442,7 +442,7 @@ export function AttemptResultCard({
               ? ` — ${new Date(timestampMillis(attempt.submittedAt)).toLocaleString('bn-BD', { day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' })}`
               : ''}
             । শিক্ষক মূল্যায়ন করলে এখানে নম্বর দেখা যাবে। সার্ভার-সাইড স্বয়ংক্রিয় মূল্যায়ন ব্যাকএন্ডে
-            (Phase 10) আসছে।
+            আসছে।
           </span>
         </p>
       ) : (

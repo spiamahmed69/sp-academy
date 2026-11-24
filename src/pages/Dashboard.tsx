@@ -27,7 +27,7 @@ import { formatBDT, toBanglaDigits } from '../lib/format'
 function formatLiveClassTime(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleString('bn-BD', { day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' })
+  return d.toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' })
 }
 
 export default function Dashboard() {
@@ -85,10 +85,10 @@ export default function Dashboard() {
 
         <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: BookOpen, label: 'আমার কোর্স', value: String(enrolled.length) },
-            { icon: GraduationCap, label: 'সম্পন্ন লেসন', value: String(completedLessons) },
-            { icon: Trophy, label: 'সামগ্রিক অগ্রগতি', value: `${overallProgress}%` },
-            { icon: Award, label: 'সার্টিফিকেট', value: String(certificates?.length ?? 0) },
+            { icon: BookOpen, label: 'আমার কোর্স', value: toBanglaDigits(enrolled.length) },
+            { icon: GraduationCap, label: 'সম্পন্ন লেসন', value: toBanglaDigits(completedLessons) },
+            { icon: Trophy, label: 'সামগ্রিক অগ্রগতি', value: `${toBanglaDigits(overallProgress)}%` },
+            { icon: Award, label: 'সার্টিফিকেট', value: toBanglaDigits(certificates?.length ?? 0) },
           ].map((s) => (
             <div key={s.label} className="card flex items-center gap-4 p-5">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-primary-soft)]">
@@ -121,7 +121,7 @@ export default function Dashboard() {
               {!enrollmentsLoading && enrolled.length === 0 && (
                 <EmptyState
                   title="এখনো কোনো কোর্সে ভর্তি হননি"
-                  message="ফ্রি কোর্স দিয়ে শুরু করুন — পেইড কোর্সে ভর্তি Phase 8-এ (পেমেন্ট) চালু হবে।"
+                  message="ফ্রি কোর্স দিয়ে শুরু করুন — পেইড কোর্স কার্টে যোগ করে চেকআউট করতে হয়।"
                   action={
                     <Link to="/free-courses" className="btn-primary text-sm">
                       ফ্রি কোর্স দেখুন
@@ -189,7 +189,7 @@ export default function Dashboard() {
               {!certificatesLoading && (!certificates || certificates.length === 0) && (
                 <EmptyState
                   title="এখনো কোনো সার্টিফিকেট নেই"
-                  message="পরীক্ষায় উত্তীর্ণ হলে সার্টিফিকেট এখানে দেখা যাবে — সার্টিফিকেট ইস্যু ব্যাকএন্ডে (Phase 10) আসছে। এখানে কোনো নমুনা সার্টিফিকেট দেখানো হচ্ছে না।"
+                  message="পরীক্ষায় উত্তীর্ণ হলে সার্টিফিকেট এখানে দেখা যাবে — সার্টিফিকেট ইস্যু ব্যাকএন্ডে আসছে। এখানে কোনো নমুনা সার্টিফিকেট দেখানো হচ্ছে না।"
                   action={
                     <Link to="/exams" className="btn-primary text-sm">
                       পরীক্ষা দেখুন
@@ -261,7 +261,7 @@ export default function Dashboard() {
                       <p className="mt-0.5 flex items-center gap-1 text-xs text-[var(--color-muted)]">
                         <ClipboardList className="h-3.5 w-3.5" />{' '}
                         {ex.scheduledAt
-                          ? new Date(ex.scheduledAt).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long' })
+                          ? new Date(ex.scheduledAt).toLocaleDateString('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'long' })
                           : 'যেকোনো সময়'}{' '}
                         · {toBanglaDigits(ex.totalMarks)} নম্বর · {toBanglaDigits(ex.questionCount)}টি প্রশ্ন
                         {examsAreSample ? ' (নমুনা)' : ''}

@@ -10,7 +10,7 @@
  */
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Bot, FlaskConical, Send, Sparkles, User } from 'lucide-react'
+import { Bot, Send, Sparkles, User } from 'lucide-react'
 import { answerQuestion, suggestedQuestions, type HelperAnswer } from '../lib/assistant'
 import { Breadcrumbs, DemoNotice, PageHero } from '../components/ui'
 
@@ -59,16 +59,11 @@ export default function AiAssistant() {
         subtitle="কোর্স, ভর্তি, পরীক্ষা ও পেমেন্ট নিয়ে প্রশ্ন করুন — সহজ সহায়ক সাইটের নিজের তথ্য থেকে উত্তর দেবে।"
       />
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <Breadcrumbs items={[{ label: 'হোম', to: '/' }, { label: 'AI সহকারী' }]} />
+        <Breadcrumbs items={[{ label: 'AI সহকারী' }]} />
 
         <DemoNotice>
-          <span className="flex items-start gap-2">
-            <FlaskConical className="mt-0.5 h-4 w-4 shrink-0" />
-            <span>
-              এটি <strong>আসল AI নয়</strong> — একটি সহজ সহায়ক, যা শুধু SP Academy-র FAQ ও কোর্সের তালিকা থেকে উত্তর
-              দেয়। আসল AI সহকারী (ব্যাকএন্ড, সার্ভার-সাইড কী, রেট লিমিটসহ) Phase 10-এ আসছে।
-            </span>
-          </span>
+          এটি <strong>আসল AI নয়</strong> — একটি সহজ সহায়ক, যা শুধু SP Academy-র FAQ ও কোর্সের তালিকা থেকে উত্তর
+          দেয়। আসল AI সহকারী (ব্যাকএন্ড, সার্ভার-সাইড কী, রেট লিমিটসহ) ব্যাকএন্ডে আসছে।
         </DemoNotice>
 
         <div className="card mt-4 overflow-hidden">
@@ -143,8 +138,8 @@ export default function AiAssistant() {
                 placeholder="আপনার প্রশ্ন লিখুন... (যেমন: ফ্রি কোর্স কোনগুলো?)"
                 className="flex-1 rounded-full border border-blue-100 bg-white px-4 py-2.5 text-sm outline-none focus:border-[var(--color-primary)] dark:border-slate-700 dark:bg-slate-900"
               />
-              <button type="submit" aria-label="পাঠান" className="btn-primary !rounded-full !px-4 !py-2.5">
-                <Send className="h-4 w-4" />
+              <button type="submit" aria-label="পাঠান" className="btn-cta shrink-0 !px-5 !py-2.5 text-sm">
+                <Send className="h-4 w-4" /> পাঠান
               </button>
             </form>
             <p className="mt-3 text-xs leading-relaxed text-[var(--color-muted)]">

@@ -70,6 +70,13 @@ function formatDate(value: string): string {
   return d.toLocaleString('bn-BD', { day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' })
 }
 
+/** Scheduled class times are shown in Dhaka time, never UTC. */
+function formatClassDate(value: string): string {
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return value
+  return d.toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' })
+}
+
 function StatCard({ label, value, sub }: { label: string; value: number; sub?: string }) {
   return (
     <div className="card p-5">
@@ -337,15 +344,14 @@ export default function AdminDashboard() {
               role="tab"
               aria-selected={tab === t.id}
               onClick={() => setTab(t.id)}
-              className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors ${
+              className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-bold whitespace-nowrap transition-colors ${
                 tab === t.id
-                  ? 'bg-[var(--color-primary)] text-white'
-                  : 'bg-white text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)] dark:bg-[#12233c]'
+                  ? 'bg-[#2396f6] text-white shadow-md'
+                  : 'bg-white text-[var(--color-heading)] shadow-sm hover:bg-[var(--color-primary-soft)] dark:bg-[#12233c]'
               }`}
             >
-              <t.icon className="h-4 w-4" />
+              <t.icon className="h-4 w-4 shrink-0" />
               {t.label}
-              {source === 'sample' && <SampleBadge />}
             </button>
           ))}
         </div>
@@ -397,7 +403,7 @@ export default function AdminDashboard() {
             </div>
             <p className="border-b border-blue-100 bg-blue-50/50 px-4 py-3 text-xs leading-relaxed text-[var(--color-body)] dark:border-slate-700 dark:bg-slate-800/50">
               রোল বদলালে ব্যবহারকারীর Firestore প্রোফাইল আপডেট হয়। নিরাপত্তা নিয়মে ব্যবহৃত custom claim console / Admin
-              SDK দিয়ে সেট করতে হয় — Phase 10-এর ব্যাকএন্ডে দুটো একসাথে আপডেট হবে। নিজের রোল নিজে বদলানো যায় না, আর
+              SDK দিয়ে সেট করতে হয় — ব্যাকএন্ডে দুটো একসাথে আপডেট হবে। নিজের রোল নিজে বদলানো যায় না, আর
               শেষ সুপার অ্যাডমিনকে সরানো যায় না।
             </p>
             {usersQ.isPending ? (
@@ -464,7 +470,7 @@ export default function AdminDashboard() {
             {!isDemo && (
               <p className="border-t border-blue-100 px-4 py-3 text-xs leading-relaxed text-[var(--color-muted)] dark:border-slate-700">
                 নিষ্ক্রিয় অ্যাকাউন্ট নতুন ভর্তি বা পরীক্ষার চেষ্টা করতে পারে না (Firestore নিয়মে আটকানো)। সম্পূর্ণভাবে
-                লগইন বন্ধ করতে (Auth-level) ব্যাকএন্ড দরকার — Phase 10-এ আসছে।
+                লগইন বন্ধ করতে (Auth-level) ব্যাকএন্ড দরকার — ব্যাকএন্ডে আসছে।
               </p>
             )}
           </div>
@@ -654,7 +660,7 @@ export default function AdminDashboard() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-bold text-[var(--color-heading)]">{c.title}</p>
                       <p className="mt-0.5 text-xs text-[var(--color-muted)]">
-                        {c.teacherName} · {formatDate(c.startsAt)} ·{' '}
+                        {c.teacherName} · {formatClassDate(c.startsAt)} ·{' '}
                         {c.status === 'scheduled' ? 'আসন্ন' : c.status === 'live' ? 'চলছে' : c.status === 'ended' ? 'শেষ' : 'বাতিল'}
                       </p>
                     </div>
@@ -688,7 +694,7 @@ export default function AdminDashboard() {
               <h2 className="text-lg font-bold">অর্ডার ({(ordersQ.data?.orders ?? []).length.toLocaleString('bn-BD')})</h2>
               <p className="mt-1 text-xs text-[var(--color-muted)]">
                 বই ও কোর্সের অর্ডার — ডেলিভারির অবস্থা বদলানো যায়। পেমেন্টের অবস্থা এখান থেকে বদলানো যায় না:
-                অনলাইন পেমেন্ট যাচাই করে ব্যাকএন্ড (Phase 10) &apos;পরিশোধিত&apos; করবে।
+                অনলাইন পেমেন্ট যাচাই করে ব্যাকএন্ড &apos;পরিশোধিত&apos; করবে।
               </p>
             </div>
             {ordersQ.isPending ? (

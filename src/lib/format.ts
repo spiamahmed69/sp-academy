@@ -1,6 +1,6 @@
 /** Formatting helpers (BDT, Bangla digits). */
 export function formatBDT(amount: number): string {
-  return `৳${amount.toLocaleString('en-IN')}`
+  return `৳${amount.toLocaleString('bn-BD')}`
 }
 
 const BN_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯']

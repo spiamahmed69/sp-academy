@@ -43,7 +43,7 @@ function useCountdown(targetIso: string) {
 function formatClassDate(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
-  return `${d.toLocaleDateString('bn-BD', { weekday: 'long', day: 'numeric', month: 'long' })} · ${d.toLocaleTimeString('bn-BD', { hour: 'numeric', minute: '2-digit' })}`
+  return `${d.toLocaleDateString('bn-BD', { timeZone: 'Asia/Dhaka', weekday: 'long', day: 'numeric', month: 'long' })} · ${d.toLocaleTimeString('bn-BD', { timeZone: 'Asia/Dhaka', hour: 'numeric', minute: '2-digit' })}`
 }
 
 function JoinArea({ cls }: { cls: LiveClassView }) {
@@ -91,7 +91,7 @@ function LiveClassRow({ cls, source }: { cls: LiveClassView; source: 'firestore'
               </span>
               {cls.enrolledCount !== null && (
                 <span className="flex items-center gap-1">
-                  <Users className="h-4 w-4" /> {cls.enrolledCount.toLocaleString('en-IN')} জন ভর্তি
+                  <Users className="h-4 w-4" /> {cls.enrolledCount.toLocaleString('bn-BD')} জন ভর্তি
                   {source === 'sample' ? ' (নমুনা)' : ''}
                 </span>
               )}

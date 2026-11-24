@@ -8,8 +8,8 @@ import { toBanglaDigits } from '../lib/format'
 import { DemoNotice, EmptyState, ErrorState, PageHero, SampleBadge, SkeletonCard } from '../components/ui'
 
 const EXAM_TYPES = [
-  { icon: ListChecks, title: 'MCQ পরীক্ষা', text: 'বহুনির্বাচনী প্রশ্ন, স্বয়ংক্রিয় মূল্যায়ন।' },
-  { icon: FileText, title: 'CQ পরীক্ষা', text: 'সৃজনশীল প্রশ্ন, শিক্ষকের হাতে মূল্যায়ন।' },
+  { icon: ListChecks, title: 'MCQ পরীক্ষা', text: 'বহুনির্বাচনী প্রশ্ন; নমুনা পরীক্ষার ফল সাথে সাথে দেখা যায়, আসল পরীক্ষা শিক্ষক মূল্যায়ন করেন।' },
+  { icon: FileText, title: 'CQ পরীক্ষা', text: 'সৃজনশীল প্রশ্ন, শিক্ষকের হাতে মূল্যায়ন। (CQ প্রশ্ন তৈরি এখনো যুক্ত হয়নি — শুধু MCQ তৈরি করা যায়।)' },
   { icon: Trophy, title: 'মডেল টেস্ট', text: 'পূর্ণাঙ্গ সিলেবাসের মডেল টেস্ট ও মেধাতালিকা।' },
   { icon: Clock, title: 'প্র্যাকটিস টেস্ট', text: 'অধ্যায়ভিত্তিক ছোট টেস্ট, যেকোনো সময়।' },
 ]
@@ -18,7 +18,7 @@ function formatExamDate(iso: string | null): string {
   if (!iso) return 'যেকোনো সময়'
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })
+  return d.toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })
 }
 
 export default function Exams() {
@@ -33,7 +33,7 @@ export default function Exams() {
       <PageHero
         eyebrow="পরীক্ষা"
         title="অনলাইন পরীক্ষা"
-        subtitle="MCQ, মডেল টেস্ট ও প্র্যাকটিস টেস্ট — এখন পরীক্ষা দেওয়া যায়। উত্তরপত্র সার্ভারেই মূল্যায়ন হয়; উত্তর-চাবি শিক্ষার্থীর কাছে কখনো যায় না।"
+        subtitle="MCQ, মডেল টেস্ট ও প্র্যাকটিস টেস্ট — এখন পরীক্ষা দেওয়া যায়। আসল পরীক্ষার উত্তরপত্র শিক্ষক মূল্যায়ন করেন; উত্তর-চাবি শিক্ষার্থীর কাছে কখনো যায় না।"
       />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         {data?.source === 'sample' && (

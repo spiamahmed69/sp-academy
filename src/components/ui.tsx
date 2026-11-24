@@ -121,7 +121,7 @@ export function DemoNotice({ children }: { children?: ReactNode }) {
       <p>
         {children ?? (
           <>
-            এটি <strong>ডেমো পেজ</strong> — এখানকার তথ্য নমুনা। আসল লগইন, পেমেন্ট ও ড্যাশবোর্ড আসছে Phase 2–এ।
+            এটি <strong>ডেমো পেজ</strong> — এখানকার তথ্য নমুনা। Firebase সেটআপ শেষ হলে আসল লগইন, পেমেন্ট ও ড্যাশবোর্ড চালু হবে।
           </>
         )}
       </p>

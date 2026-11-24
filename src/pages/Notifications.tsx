@@ -28,7 +28,7 @@ export default function Notifications() {
     <div>
       <PageHero eyebrow="নোটিফিকেশন" title="আমার নোটিফিকেশন" subtitle="ভর্তি, পরীক্ষা, লাইভ ক্লাস, অর্ডার ও সাপোর্টের আপডেট এখানে দেখা যাবে।" />
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <Breadcrumbs items={[{ label: 'হোম', to: '/' }, { label: 'নোটিফিকেশন' }]} />
+        <Breadcrumbs items={[{ label: 'নোটিফিকেশন' }]} />
 
         {isDemo && (
           <p className="mb-4 flex items-center gap-2 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
@@ -36,7 +36,6 @@ export default function Notifications() {
             ডেমো মোড: নিচের নোটিফিকেশনগুলো নমুনা — আসল লগইন চালু হলে আপনার আসল নোটিফিকেশন এখানে দেখাবে।
           </p>
         )}
-        {!user && !isDemo && null}
         {!user && (
           <p className="mb-4 rounded-2xl bg-[var(--color-primary-soft)] px-4 py-3 text-sm text-[var(--color-body)]">
             লগইন করলে আপনার আসল নোটিফিকেশন এখানে দেখাবে। আপাতত নমুনা ইনবক্স দেখানো হচ্ছে।

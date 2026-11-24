@@ -6,6 +6,7 @@ import { Award, Search, Trophy } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { DemoNotice, EmptyState, PageHero, SampleBadge } from '../components/ui'
 import { useToast } from '../lib/toast'
+import { toBanglaDigits } from '../lib/format'
 import { useAuth } from '../contexts/AuthContext'
 import { useMyAttempts } from '../hooks/useExams'
 import { AttemptResultCard } from './ExamAttempt'
@@ -160,13 +161,13 @@ export default function Results() {
               {LEADERBOARD.map((row) => (
                 <div key={row.rank} className="flex items-center gap-4 border-b border-slate-100 px-5 py-4 last:border-0 dark:border-slate-700">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] font-extrabold text-[var(--color-primary)]">
-                    {row.rank}
+                    {toBanglaDigits(row.rank)}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="font-bold">{row.name}</p>
                     <p className="truncate text-sm text-[var(--color-body)]">{row.exam}</p>
                   </div>
-                  <span className="font-extrabold text-[var(--color-cta-to)]">{row.marks}</span>
+                  <span className="font-extrabold text-[var(--color-cta-to)]">{toBanglaDigits(row.marks)}</span>
                 </div>
               ))}
             </div>

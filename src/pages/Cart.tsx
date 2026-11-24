@@ -1,32 +1,54 @@
 import { Link } from 'react-router-dom'
 import { Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react'
 import { useCart } from '../contexts/CartContext'
+import { books, courses } from '../data/sample'
 import { formatBDT } from '../lib/format'
-import { Breadcrumbs, EmptyState, PageHero } from '../components/ui'
+import { BookCard, CourseCard } from '../components/cards'
+import { Breadcrumbs, EmptyState, PageHero, SectionHeading } from '../components/ui'
 
 export default function Cart() {
   const { items, totals, removeItem, setQuantity } = useCart()
 
   return (
     <div>
-      <PageHero eyebrow="বইয়ের দোকান" title="আমার কার্ট" subtitle="বই ও কোর্স একসাথে অর্ডার করুন — চেকআউটে পেমেন্টের মাধ্যম বেছে নেবেন।" />
+      <PageHero eyebrow="কার্ট" title="আমার কার্ট" subtitle="বই ও কোর্স একসাথে অর্ডার করুন — চেকআউটে পেমেন্টের মাধ্যম বেছে নেবেন।" />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <Breadcrumbs items={[{ label: 'কার্ট' }]} />
         {items.length === 0 ? (
-          <EmptyState
-            title="কার্ট খালি"
-            message="এখনো কিছু যোগ করেননি। বইয়ের দোকান বা কোর্স থেকে পছন্দের আইটেম কার্টে যোগ করুন।"
-            action={
-              <div className="flex flex-wrap justify-center gap-3">
-                <Link to="/books" className="btn-primary text-sm">
-                  বই দেখুন
-                </Link>
-                <Link to="/courses" className="btn-outline text-sm">
-                  কোর্স দেখুন
-                </Link>
+          <>
+            <EmptyState
+              title="কার্ট খালি"
+              message="এখনো কিছু যোগ করেননি। বইয়ের দোকান বা কোর্স থেকে পছন্দের আইটেম কার্টে যোগ করুন।"
+              action={
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Link to="/books" className="btn-primary text-sm">
+                    বই দেখুন
+                  </Link>
+                  <Link to="/courses" className="btn-outline text-sm">
+                    কোর্স দেখুন
+                  </Link>
+                </div>
+              }
+            />
+            <div className="mt-12">
+              <SectionHeading
+                eyebrow="সুপারিশ"
+                title="আপনার জন্য সুপারিশ"
+                subtitle="জনপ্রিয় বই ও ফ্রি কোর্স — এখান থেকে কার্টে যোগ করুন।"
+              />
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {books.slice(0, 2).map((b) => (
+                  <BookCard key={b.id} book={b} />
+                ))}
+                {courses
+                  .filter((c) => c.isFree)
+                  .slice(0, 2)
+                  .map((c) => (
+                    <CourseCard key={c.id} course={c} />
+                  ))}
               </div>
-            }
-          />
+            </div>
+          </>
         ) : (
           <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">

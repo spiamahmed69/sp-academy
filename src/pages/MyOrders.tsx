@@ -127,7 +127,7 @@ export default function MyOrders() {
                 </div>
                 {order.items.some((it) => it.kind === 'course') && order.orderStatus === 'pending' && (
                   <p className="mt-3 rounded-xl bg-blue-50 px-3 py-2 text-xs leading-relaxed text-[var(--color-body)] dark:bg-slate-800">
-                    এই অর্ডারে কোর্স আছে — পেমেন্ট যাচাইয়ের পর ব্যাকএন্ড (Phase 10) থেকে ভর্তি সক্রিয় করা হবে।
+                    এই অর্ডারে কোর্স আছে — পেমেন্ট যাচাইয়ের পর ব্যাকএন্ড থেকে ভর্তি সক্রিয় করা হবে।
                   </p>
                 )}
               </li>

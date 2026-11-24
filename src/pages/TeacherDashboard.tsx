@@ -56,7 +56,7 @@ const inputCls =
 function formatClassTime(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleString('bn-BD', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' })
+  return d.toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka', weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' })
 }
 
 const scheduleSchema = z.object({
@@ -461,7 +461,7 @@ export default function TeacherDashboard() {
               ) : courses.length === 0 ? (
                 <EmptyState
                   title="এখনো কোনো কোর্স নেই"
-                  message="আপনার নামে এখনো কোনো কোর্স তৈরি হয়নি। কোর্স তৈরি অ্যাডমিন ড্যাশবোর্ডে (Phase 7) আসছে।"
+                  message="আপনার নামে এখনো কোনো কোর্স তৈরি হয়নি। কোর্স তৈরি করার ব্যবস্থা এখনো যুক্ত হয়নি — কোর্স যুক্ত করতে অ্যাডমিনের সাথে যোগাযোগ করুন।"
                 />
               ) : (
                 <div className="space-y-4">

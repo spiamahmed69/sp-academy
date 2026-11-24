@@ -129,7 +129,7 @@ export default function MyCourses() {
             {!isLoading && !isError && (!enrollments || enrollments.length === 0) && (
               <EmptyState
                 title="এখনো কোনো কোর্সে ভর্তি হননি"
-                message="ফ্রি কোর্স দিয়ে শুরু করুন — পেইড কোর্সে ভর্তি Phase 8-এ (পেমেন্ট) চালু হবে।"
+                message="ফ্রি কোর্স দিয়ে শুরু করুন — পেইড কোর্স কার্টে যোগ করে চেকআউট করতে হয়।"
                 action={
                   <Link to="/free-courses" className="btn-primary text-sm">
                     ফ্রি কোর্স দেখুন
@@ -160,7 +160,7 @@ export default function MyCourses() {
             {!demoCatalogue.isLoading && demoViews.length === 0 && (
               <EmptyState
                 title="এখনো কোনো ডেমো ভর্তি নেই"
-                message="ফ্রি কোর্সে ভর্তি হোন — ডেমো ভর্তি এই ব্রাউজারেই সংরক্ষিত হবে। পেইড কোর্সে ভর্তি Phase 8-এ চালু হবে।"
+                message="ফ্রি কোর্সে ভর্তি হোন — ডেমো ভর্তি এই ব্রাউজারেই সংরক্ষিত হবে। পেইড কোর্স কার্টে যোগ করে চেকআউট করতে হয়।"
                 action={
                   <Link to="/free-courses" className="btn-primary text-sm">
                     <BookOpen className="h-4 w-4" /> ফ্রি কোর্স দেখুন

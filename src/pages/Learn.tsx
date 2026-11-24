@@ -236,8 +236,8 @@ export default function Learn() {
                 <Lock className="mx-auto mb-4 h-12 w-12 text-[var(--color-muted)]" />
                 <h1 className="text-2xl font-extrabold">{current.title}</h1>
                 <p className="mx-auto mt-3 max-w-md leading-relaxed text-[var(--color-body)]">
-                  এই লেসনটি দেখতে কোর্সে ভর্তি হতে হবে। ফ্রি কোর্সে এখনই ভর্তি হওয়া যায়; পেইড কোর্সে ভর্তি
-                  পেমেন্ট (Phase 8) চালু হলে আসবে।
+                  এই লেসনটি দেখতে কোর্সে ভর্তি হতে হবে। ফ্রি কোর্সে এখনই ভর্তি হওয়া যায়; পেইড কোর্স কার্টে
+                  যোগ করে চেকআউট করতে হয়।
                 </p>
                 <Link to={`/courses/${course.slug}`} className="btn-primary mt-6 inline-flex">
                   কোর্সের পেজে গিয়ে ভর্তি হোন
@@ -271,8 +271,8 @@ export default function Learn() {
                     <BookOpen className="h-5 w-5 text-[var(--color-primary)]" /> লেসনের লেখা
                   </h2>
                   <p className="mt-3 leading-relaxed text-[var(--color-body)]">
-                    এই লেসনের লেখা কনটেন্ট শিক্ষক এখনো যুক্ত করেননি। শিক্ষকের লেসন লেখার টুল Phase 5-এ আসছে — তখন
-                    এখানে আসল পাঠ্য, উদাহরণ ও অনুশীলনী দেখা যাবে।
+                    এই লেসনের লেখা কনটেন্ট শিক্ষক এখনো যুক্ত করেননি। শিক্ষক লেসন লেখার টুল থেকে লেখা যুক্ত
+                    করলে এখানে আসল পাঠ্য, উদাহরণ ও অনুশীলনী দেখা যাবে।
                   </p>
                 </div>
 
@@ -288,7 +288,7 @@ export default function Learn() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-amber-400" />
-                      অনুশীলনী — মডেল টেস্ট ও সার্টিফিকেট পরীক্ষা (Phase 6) চালু হলে আসবে।
+                      অনুশীলনী — মডেল টেস্টে অংশ নেওয়ার সুযোগ আছে; সার্টিফিকেট ব্যবস্থা এখনো চালু হয়নি।
                     </li>
                   </ul>
                 </div>

@@ -4,8 +4,8 @@ import { blogPosts, books, categories, courses, teachers } from '../data/sample'
 
 describe('format helpers', () => {
   it('formats BDT prices', () => {
-    expect(formatBDT(1499)).toBe('৳1,499')
-    expect(formatBDT(0)).toBe('৳0')
+    expect(formatBDT(1499)).toBe('৳১,৪৯৯')
+    expect(formatBDT(0)).toBe('৳০')
   })
 
   it('computes discount percent', () => {
