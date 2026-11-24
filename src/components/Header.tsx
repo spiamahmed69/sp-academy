@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { GraduationCap, LayoutDashboard, LogIn, LogOut, Menu, Moon, Search, ShoppingCart, Sun, X } from 'lucide-react'
+import { Bell, GraduationCap, LayoutDashboard, LogIn, LogOut, Menu, Moon, Search, ShoppingCart, Sun, X } from 'lucide-react'
 import type { Theme } from '../hooks/useTheme'
 import { useAuth } from '../contexts/AuthContext'
 import { useCart } from '../contexts/CartContext'
+import { useMarkNotificationRead, useNotifications, useUnreadNotificationCount } from '../hooks/useNotifications'
+import { formatNotificationTime } from '../firebase/notifications'
 import { canAccess } from '../lib/roles'
 
 const NAV_LINKS = [
@@ -15,14 +17,21 @@ const NAV_LINKS = [
   { to: '/exams', label: 'পরীক্ষা' },
   { to: '/books', label: 'বই' },
   { to: '/blog', label: 'ব্লগ' },
+  { to: '/ai-assistant', label: 'AI সহকারী' },
 ]
 
 export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void }) {
   const [open, setOpen] = useState(false)
+  const [bellOpen, setBellOpen] = useState(false)
   const [q, setQ] = useState('')
   const navigate = useNavigate()
   const { user, profile, role, logout } = useAuth()
   const { count: cartCount } = useCart()
+  const notificationsQ = useNotifications()
+  const unread = useUnreadNotificationCount()
+  const markRead = useMarkNotificationRead()
+  const isDemoNotifications = notificationsQ.data?.source === 'sample'
+  const latestNotifications = (notificationsQ.data?.notifications ?? []).slice(0, 5)
   const isTeacher = canAccess(role, ['teacher', 'admin', 'super_admin'])
   const isAdmin = canAccess(role, ['admin', 'super_admin'])
 
@@ -87,6 +96,60 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
             </span>
           )}
         </Link>
+
+        <div className="relative">
+          <button
+            onClick={() => setBellOpen((o) => !o)}
+            aria-label={`নোটিফিকেশন — ${unread}টি অপঠিত`}
+            aria-expanded={bellOpen}
+            className="relative cursor-pointer rounded-full p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]"
+          >
+            <Bell className="h-5 w-5" />
+            {unread > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-cta-to)] px-1 text-[11px] font-extrabold text-white">
+                {unread > 9 ? '৯+' : unread.toLocaleString('bn-BD')}
+              </span>
+            )}
+          </button>
+          {bellOpen && (
+            <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] max-w-sm rounded-3xl border border-blue-100 bg-white p-3 shadow-[var(--shadow-pill)] dark:border-slate-700 dark:bg-[#12233c]">
+              <div className="mb-2 flex items-center justify-between px-2">
+                <p className="text-sm font-bold text-[var(--color-heading)]">
+                  নোটিফিকেশন {isDemoNotifications && <span className="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">নমুনা</span>}
+                </p>
+                <Link to="/notifications" onClick={() => setBellOpen(false)} className="text-xs font-bold text-[var(--color-primary)] underline">
+                  সব দেখুন
+                </Link>
+              </div>
+              {notificationsQ.isPending ? (
+                <p className="px-2 py-4 text-sm text-[var(--color-muted)]">লোড হচ্ছে...</p>
+              ) : latestNotifications.length === 0 ? (
+                <p className="px-2 py-4 text-sm text-[var(--color-muted)]">এখনো কোনো নোটিফিকেশন নেই।</p>
+              ) : (
+                <ul className="divide-y divide-blue-100 dark:divide-slate-800">
+                  {latestNotifications.map((n) => (
+                    <li key={n.id}>
+                      <Link
+                        to={n.link ?? '/notifications'}
+                        onClick={() => {
+                          if (!n.read) markRead.mutate(n.id)
+                          setBellOpen(false)
+                        }}
+                        className="block rounded-2xl px-2 py-2.5 hover:bg-[var(--color-primary-soft)]"
+                      >
+                        <p className={`text-sm ${n.read ? 'font-medium text-[var(--color-body)]' : 'font-bold text-[var(--color-heading)]'}`}>
+                          {n.title}
+                        </p>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-[var(--color-muted)]">{n.body}</p>
+                        <p className="mt-0.5 text-[11px] text-[var(--color-muted)]">{formatNotificationTime(n.createdAt)}</p>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
 
         <button
           onClick={onToggleTheme}
@@ -174,6 +237,18 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
                 {l.label}
               </NavLink>
             ))}
+            <Link
+              to="/notifications"
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]"
+            >
+              নোটিফিকেশন
+              {unread > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-cta-to)] px-1.5 text-[11px] font-extrabold text-white">
+                  {unread.toLocaleString('bn-BD')}
+                </span>
+              )}
+            </Link>
             {user ? (
               <>
                 <Link to="/cart" onClick={() => setOpen(false)} className="mt-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]">

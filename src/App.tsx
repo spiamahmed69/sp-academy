@@ -22,6 +22,8 @@ import { ForgotPassword, Login, Register } from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import TeacherDashboard from './pages/TeacherDashboard'
 import AdminDashboard from './pages/AdminDashboard'
+import AiAssistant from './pages/AiAssistant'
+import Notifications from './pages/Notifications'
 import Learn from './pages/Learn'
 import MyCourses from './pages/MyCourses'
 import MyOrders from './pages/MyOrders'
@@ -129,6 +131,9 @@ export default function App() {
           <Route path="/teacher" element={<TeacherDashboard />} />
           {/* /admin guards itself in-page (like /teacher) so the labelled demo preview works before Firebase is configured. */}
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/ai-assistant" element={<AiAssistant />} />
+          {/* /notifications guards itself in-page: signed-in users see real notifications, demo mode shows labelled samples. */}
+          <Route path="/notifications" element={<Notifications />} />
           <Route
             path="/profile"
             element={

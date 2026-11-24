@@ -2,9 +2,13 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { Link } from 'react-router-dom'
 import { ChevronDown, GraduationCap, Mail, MapPin, Target, Users } from 'lucide-react'
 import { DemoNotice, PageHero } from '../components/ui'
 import { useToast } from '../lib/toast'
+import { useAuth } from '../contexts/AuthContext'
+import { useCreateTicket, useMyTickets } from '../hooks/useSupport'
+import { ticketCategoryLabel, ticketStatusLabel } from '../firebase/support'
 
 export function About() {
   return (
@@ -55,6 +59,9 @@ type ContactForm = z.infer<typeof contactSchema>
 
 export function Contact() {
   const { push } = useToast()
+  const { user, configured } = useAuth()
+  const createTicket = useCreateTicket()
+  const myTickets = useMyTickets()
   const {
     register,
     handleSubmit,
@@ -62,9 +69,26 @@ export function Contact() {
     formState: { errors, isSubmitting },
   } = useForm<ContactForm>({ resolver: zodResolver(contactSchema) })
 
-  const onSubmit = () => {
-    push('বার্তা পাঠানো হয়েছে (ডেমো) — আসল সাপোর্ট সিস্টেম Phase 9-এ আসবে।', 'success')
-    reset()
+  const onSubmit = (data: ContactForm) => {
+    if (!user) {
+      push('সাপোর্ট টিকিট খুলতে লগইন করুন — লগইন ছাড়া বার্তা জমা দেওয়া যায় না।', 'error')
+      return
+    }
+    createTicket.mutate(
+      { subject: data.subject, category: 'general', message: data.message },
+      {
+        onSuccess: () => {
+          push(
+            configured
+              ? 'সাপোর্ট টিকিট জমা হয়েছে — অ্যাডমিন উত্তর দিলে নোটিফিকেশনে জানানো হবে।'
+              : 'ডেমো টিকিট জমা হয়েছে (এই ব্রাউজারে সংরক্ষিত) — আসল সাপোর্ট সিস্টেম Firebase সেটআপের পর চালু হবে।',
+            'success',
+          )
+          reset()
+        },
+        onError: (err) => push(err instanceof Error ? err.message : 'টিকিট জমা দেওয়া যায়নি।', 'error'),
+      },
+    )
   }
 
   const fieldCls =
@@ -75,7 +99,7 @@ export function Contact() {
       <PageHero
         eyebrow="যোগাযোগ"
         title="আমাদের সঙ্গে যোগাযোগ করুন"
-        subtitle="কোর্স, ভর্তি বা যেকোনো প্রশ্নে বার্তা পাঠান — এটি ডেমো ফর্ম।"
+        subtitle="কোর্স, ভর্তি বা যেকোনো প্রশ্নে বার্তা পাঠান — লগইন করা থাকলে এটি সাপোর্ট টিকিট হিসেবে জমা হবে।"
       />
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-3 lg:px-8">
         <div className="space-y-4">
@@ -93,7 +117,16 @@ export function Contact() {
               <p className="text-sm text-[var(--color-body)]">যোগাযোগের ইমেইল শীঘ্রই যুক্ত হচ্ছে</p>
             </div>
           </div>
-          <DemoNotice>ফোন নম্বর এখনো প্রকাশ করা হয়নি — সাপোর্ট টিকিট সিস্টেম Phase 9-এ আসবে।</DemoNotice>
+          <DemoNotice>
+            {user
+              ? 'আপনার বার্তাটি সাপোর্ট টিকিট হিসেবে জমা হবে — অ্যাডমিন উত্তর দিলে নোটিফিকেশনে জানানো হবে।'
+              : 'সাপোর্ট টিকিট খুলতে লগইন করুন — লগইন ছাড়া বার্তা জমা দেওয়া যায় না। ফোন নম্বর এখনো প্রকাশ করা হয়নি।'}
+          </DemoNotice>
+          {!user && (
+            <Link to="/login" className="btn-primary inline-flex">
+              লগইন করুন
+            </Link>
+          )}
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="card p-6 lg:col-span-2" noValidate>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -126,11 +159,62 @@ export function Contact() {
             <textarea id="contact-message" {...register('message')} rows={5} className={fieldCls} placeholder="আপনার বার্তা লিখুন..." />
             {errors.message && <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>}
           </div>
-          <button type="submit" disabled={isSubmitting} className="btn-cta mt-5 cursor-pointer disabled:opacity-60">
-            বার্তা পাঠান
+          <button
+            type="submit"
+            disabled={isSubmitting || createTicket.isPending}
+            className="btn-cta mt-5 cursor-pointer disabled:opacity-60"
+          >
+            {createTicket.isPending ? 'টিকিট জমা হচ্ছে...' : 'টিকিট হিসেবে পাঠান'}
           </button>
+          {!user && (
+            <p className="mt-3 text-xs leading-relaxed text-[var(--color-muted)]">
+              লগইন না করলে বার্তা জমা হবে না — উপরে লগইন বোতাম থেকে লগইন করুন।
+            </p>
+          )}
         </form>
       </div>
+
+      {user && (
+        <div className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+          <div className="card p-6">
+            <h2 className="text-lg font-bold">আমার সাপোর্ট টিকিট</h2>
+            <p className="mt-1 text-sm text-[var(--color-muted)]">
+              আপনার জমা দেওয়া টিকিট ও অ্যাডমিনের উত্তর এখানে দেখা যাবে।
+              {myTickets.data?.source === 'sample' && ' (ডেমো টিকিট — এই ব্রাউজারে সংরক্ষিত)'}
+            </p>
+            {myTickets.isPending ? (
+              <p className="mt-4 text-sm text-[var(--color-muted)]">লোড হচ্ছে...</p>
+            ) : (myTickets.data?.tickets ?? []).length === 0 ? (
+              <p className="mt-4 text-sm text-[var(--color-muted)]">এখনো কোনো টিকিট জমা দেননি।</p>
+            ) : (
+              <ul className="mt-4 divide-y divide-blue-100 dark:divide-slate-800">
+                {(myTickets.data?.tickets ?? []).map((t) => (
+                  <li key={t.id} className="py-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-bold text-[var(--color-heading)]">{t.subject}</p>
+                      <span className="rounded-full bg-[var(--color-primary-soft)] px-2 py-0.5 text-[11px] font-bold text-[var(--color-primary)]">
+                        {ticketCategoryLabel(t.category)}
+                      </span>
+                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                        {ticketStatusLabel(t.status)}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-[var(--color-body)]">{t.message}</p>
+                    {t.replies.map((r, i) => (
+                      <div key={i} className="mt-2 rounded-2xl bg-[var(--color-primary-soft)] px-4 py-3">
+                        <p className="text-xs font-bold text-[var(--color-primary)]">
+                          {r.by} ({r.byRole === 'admin' ? 'অ্যাডমিন' : r.byRole})-এর উত্তর
+                        </p>
+                        <p className="mt-1 text-sm text-[var(--color-body)]">{r.message}</p>
+                      </div>
+                    ))}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

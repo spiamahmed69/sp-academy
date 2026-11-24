@@ -235,6 +235,50 @@ in this browser's localStorage only, labelled ডেমো অর্ডার.
 (`buildBookSeedDocs` / `seedSampleBooks`), `firestore.rules`,
 `docs/architecture.md`, `README.md`.
 
+## Phase 9 — DONE (this repo)
+
+**Scope:** AI study assistant (`/ai-assistant`), notifications (header bell
+with unread count + dropdown, `/notifications` inbox, mark-read), support
+tickets (contact form wires to tickets, `/admin` → রিপোর্ট tab shows the
+real ticket list with admin reply + status change), `firestore.rules` v8.
+
+**Honest AI state:** there is NO real AI yet (no backend, Phase 10), so the
+assistant page is a chat shell around a local keyword helper
+(`src/lib/assistant.ts`) that answers ONLY from the site's own FAQ +
+course catalogue (title / price / duration / lessons, Bengali digits) and
+says plainly when it does not know — it never invents an answer. The page
+labels the helper "সহজ সহায়ক — আসল AI নয়" in the hero notice, the chat
+header and the suggestion area, and says the real AI assistant (backend,
+server-side key, rate limits) arrives in Phase 10.
+
+**Honest notifications state:** notifications are created server-side
+(Phase 10) or by an admin (e.g. when replying to a ticket) — a client can
+NEVER create one (rules v8 block client creates), so no fake notification
+can be invented from a browser. The client only reads its own notifications
+and marks them read (only the `read` field may change). In demo mode the
+inbox + bell show labelled নমুনা sample notifications from this browser's
+localStorage.
+
+**Honest support state:** a ticket is created only by a signed-in user, for
+themselves, always `open` with an empty replies list; only an admin /
+moderator may reply or change the status (rules v8 — the owner can never
+change their own ticket's status or fake an admin reply). The admin reports
+tab shows ONLY tickets users really submitted; when there are none it keeps
+its honest empty state. The contact form creates a ticket when signed in
+(Firestore, or a labelled ডেমো টিকিট in demo mode) and honestly refuses
+when not signed in — it never pretends a message was sent. In demo mode
+admin replies are not possible and the admin page says so.
+
+**Files:** `src/lib/assistant.ts`, `src/lib/assistant.test.ts`,
+`src/firebase/notifications.ts`, `src/firebase/notifications.test.ts`,
+`src/firebase/support.ts`, `src/firebase/support.test.ts`,
+`src/hooks/useNotifications.ts`, `src/hooks/useSupport.ts`,
+`src/pages/AiAssistant.tsx`, `src/pages/Notifications.tsx`,
+`src/pages/Info.tsx` (contact form → ticket + my-tickets list),
+`src/pages/AdminDashboard.tsx` (reports tab → real ticket list + reply),
+`src/components/Header.tsx` (notification bell + "AI সহকারী" nav link),
+`src/App.tsx`, `firestore.rules` v8, `docs/architecture.md`, `README.md`.
+
 ## Progress tracking — docs/progress.json (NO LONGER UPDATED)
 
 `docs/progress.json` was the machine-readable source for the SP Academy
@@ -254,14 +298,14 @@ tracked in this document (`docs/architecture.md`) and in `README.md` instead.
 | 6 | Examination system — DONE | Exam model (keys never reach students), attempt page + timer, submit-once, teacher evaluation, results wired to real attempts |
 | 7 | Admin dashboard — DONE | Users/roles, real-DB overview stats, course/exam/live-class moderation, reports (honest empty state) |
 | 8 | Payments + Bookstore — DONE | Book catalogue, cart, checkout (bKash/Nagad/card/COD — honest pending state, no fake payment), orders, admin orders tab |
-| 9 | AI + Support | AI Study Assistant via backend (keys server-side, rate limits, validation), notifications, support tickets |
+| 9 | AI + Support — DONE | Simple local study helper (labelled "not real AI"), notifications (bell + inbox), support tickets (contact form + admin reports tab) |
 | 10 | Hardening + Launch | Security audit, automated tests (auth, roles, enrollment, exam, payments, uploads, rules), SEO/prerendering, performance, production deployment |
 
 ## Firestore collections (planned + live)
 
-Live since Phase 2–8: `users, roles, permissions, students, teachers,
+Live since Phase 2–9: `users, roles, permissions, students, teachers,
 courses, courseCategories, enrollments, certificates, liveClasses, exams,
-examKeys, examAttempts, books, orders, carts`, plus the `lessons` subcollection under each course
+examKeys, examAttempts, books, orders, carts, notifications, supportTickets`, plus the `lessons` subcollection under each course
 and the `questions` subcollection under each exam. Lesson progress lives on the enrollment doc
 (`completedLessonIds`, `progressPercent`) — no separate `lessonProgress`
 collection was needed. Certificates are read-only for the owner/admin
@@ -270,7 +314,7 @@ the rules (writes blocked) until a real live session exists to mark
 attendance against. Remaining planned collections: `chapters,
 questions, examAnswers, examResults,
 authors, publishers, payments, coupons,
-reviews, blogs, banners, notifications, supportTickets, settings, auditLogs`
+reviews, blogs, banners, settings, auditLogs`
 
 Rules: pagination on large collections, batched writes/transactions where needed,
 server timestamps on important records, no unbounded queries, no duplicated

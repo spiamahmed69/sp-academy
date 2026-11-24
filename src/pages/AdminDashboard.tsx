@@ -15,8 +15,9 @@
  * Demo mode (Firebase not configured): a labelled নমুনা preview — sample
  * users, the sample catalogue, sample exams/classes. Write buttons are
  * replaced by a note that real changes need Firebase + an admin login.
- * No fake users, no fake stats, no fake reports: the reports tab honestly
- * says no reports exist yet (user reporting arrives with Phase 9).
+ * No fake users, no fake stats: the reports tab shows ONLY support tickets
+ * that users really submitted (Phase 9); when there are none it keeps its
+ * honest empty state, and in demo mode admin replies are not possible.
  */
 import { useMemo, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -43,6 +44,8 @@ import { cancelLiveClass } from '../firebase/liveClasses'
 import { ORDER_STATUSES, orderStatusLabel, paymentMethodLabel, paymentStatusLabel, setOrderStatus, type OrderStatus } from '../firebase/orders'
 import { useAdminCourses, useAdminExams, useAdminLiveClasses, useAdminOverview, useAdminUsers } from '../hooks/useAdmin'
 import { useAllOrders } from '../hooks/useBooks'
+import { useAllTickets, useReplyToTicket, useSetTicketStatus } from '../hooks/useSupport'
+import { TICKET_STATUSES, openTicketCount, ticketCategoryLabel, ticketStatusLabel, type TicketStatus } from '../firebase/support'
 import { formatBDT } from '../lib/format'
 import { ROLE_LABELS, ROLES, type Role } from '../lib/roles'
 import { useToast } from '../lib/toast'
@@ -78,7 +81,7 @@ function StatCard({ label, value, sub }: { label: string; value: number; sub?: s
 }
 
 export default function AdminDashboard() {
-  const { user, role, loading, configured } = useAuth()
+  const { user, profile, role, loading, configured } = useAuth()
   const { push } = useToast()
   const queryClient = useQueryClient()
   const [tab, setTab] = useState<Tab>('overview')
@@ -86,6 +89,8 @@ export default function AdminDashboard() {
   const [confirmDeleteCourse, setConfirmDeleteCourse] = useState<string | null>(null)
   const [confirmDeleteExam, setConfirmDeleteExam] = useState<string | null>(null)
   const [confirmCancelClass, setConfirmCancelClass] = useState<string | null>(null)
+  const [replyTicketId, setReplyTicketId] = useState<string | null>(null)
+  const [replyText, setReplyText] = useState('')
 
   const overview = useAdminOverview()
   const usersQ = useAdminUsers()
@@ -93,6 +98,11 @@ export default function AdminDashboard() {
   const examsQ = useAdminExams()
   const classesQ = useAdminLiveClasses()
   const ordersQ = useAllOrders()
+  const ticketsQ = useAllTickets()
+  const replyMutation = useReplyToTicket()
+  const ticketStatusMutation = useSetTicketStatus()
+  const tickets = ticketsQ.data?.tickets ?? []
+  const openTickets = openTicketCount(tickets)
 
   const isDemo = !configured
   const isAdmin = canManageUsers(role)
@@ -743,23 +753,155 @@ export default function AdminDashboard() {
 
         {tab === 'reports' && (
           <div className="card p-4">
-            <div className="mb-4 flex items-center gap-3">
+            <div className="mb-4 flex flex-wrap items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[var(--color-primary)]">
                 <Flag className="h-5 w-5" />
               </span>
               <div>
-                <h2 className="text-lg font-bold">ব্যবহারকারীর রিপোর্ট</h2>
-                <p className="text-xs text-[var(--color-muted)]">আপত্তিকর কনটেন্ট বা সমস্যার রিপোর্ট এখানে দেখা যাবে।</p>
+                <h2 className="text-lg font-bold">
+                  সাপোর্ট টিকিট ও রিপোর্ট
+                  {openTickets > 0 && (
+                    <span className="ml-2 rounded-full bg-[var(--color-cta-to)] px-2 py-0.5 text-xs font-extrabold text-white">
+                      {openTickets.toLocaleString('bn-BD')}টি খোলা
+                    </span>
+                  )}
+                </h2>
+                <p className="text-xs text-[var(--color-muted)]">
+                  ব্যবহারকারীরা যোগাযোগ পেজ থেকে যে টিকিটগুলো জমা দিয়েছে, সেগুলো এখানে দেখা ও উত্তর দেওয়া যাবে।
+                  {ticketsQ.data?.source === 'sample' && ' (ডেমো টিকিট — এই ব্রাউজারে সংরক্ষিত)'}
+                </p>
               </div>
             </div>
-            <EmptyState
-              title="এখনো কোনো রিপোর্ট জমা হয়নি"
-              message="ব্যবহারকারীরা এখনো কোনো কনটেন্ট বা অ্যাকাউন্টের বিরুদ্ধে রিপোর্ট করেনি। রিপোর্ট জমা দেওয়ার ব্যবস্থা (সাপোর্ট টিকিট) Phase 9-এ আসছে — তখন রিপোর্ট এলে সেগুলো এখানেই দেখা ও ব্যবস্থা নেওয়া যাবে।"
-            />
-            <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-[var(--color-muted)]">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
-              এখানে কোনো বানানো রিপোর্ট দেখানো হয় না — রিপোর্ট তখনই দেখাবে যখন কোনো ব্যবহারকারী আসলেই জমা দেবে।
-            </p>
+            {ticketsQ.isPending ? (
+              <div className="grid gap-3">
+                <SkeletonCard />
+              </div>
+            ) : ticketsQ.isError ? (
+              <ErrorState message="টিকিট লোড করা যায়নি। আবার চেষ্টা করুন।" onRetry={() => void ticketsQ.refetch()} />
+            ) : tickets.length === 0 ? (
+              <>
+                <EmptyState
+                  title="এখনো কোনো টিকিট জমা হয়নি"
+                  message="ব্যবহারকারীরা এখনো কোনো সাপোর্ট টিকিট জমা দেয়নি। টিকিট এলে সেগুলো এখানেই দেখা ও উত্তর দেওয়া যাবে।"
+                />
+                <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-[var(--color-muted)]">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+                  এখানে কোনো বানানো টিকিট দেখানো হয় না — টিকিট তখনই দেখাবে যখন কোনো ব্যবহারকারী আসলেই জমা দেবে।
+                </p>
+              </>
+            ) : (
+              <ul className="divide-y divide-blue-100 dark:divide-slate-800">
+                {tickets.map((t) => (
+                  <li key={t.id} className="py-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-bold text-[var(--color-heading)]">{t.subject}</p>
+                      <span className="rounded-full bg-[var(--color-primary-soft)] px-2 py-0.5 text-[11px] font-bold text-[var(--color-primary)]">
+                        {ticketCategoryLabel(t.category)}
+                      </span>
+                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                        {ticketStatusLabel(t.status)}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-[var(--color-muted)]">
+                      {t.userName} · {t.userEmail} · {formatDate(String(t.createdAt ?? ''))}
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-[var(--color-body)]">{t.message}</p>
+                    {t.replies.map((r, i) => (
+                      <div key={i} className="mt-2 rounded-2xl bg-[var(--color-primary-soft)] px-4 py-3">
+                        <p className="text-xs font-bold text-[var(--color-primary)]">
+                          {r.by} ({r.byRole === 'admin' ? 'অ্যাডমিন' : r.byRole})-এর উত্তর
+                        </p>
+                        <p className="mt-1 text-sm text-[var(--color-body)]">{r.message}</p>
+                      </div>
+                    ))}
+                    {isDemo ? (
+                      <p className="mt-3 text-xs leading-relaxed text-[var(--color-muted)]">
+                        ডেমো মোডে টিকিটের উত্তর দেওয়া যায় না — আসল টিকিটের উত্তরের জন্য Firebase সেটআপ লাগবে।
+                      </p>
+                    ) : (
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <label className="flex items-center gap-2 text-xs font-bold">
+                          <span className="sr-only">টিকিটের অবস্থা</span>
+                          <select
+                            value={t.status}
+                            disabled={ticketStatusMutation.isPending}
+                            onChange={(e) =>
+                              ticketStatusMutation.mutate(
+                                { ticketId: t.id, status: e.target.value as TicketStatus },
+                                {
+                                  onSuccess: () => push('টিকিটের অবস্থা বদলানো হয়েছে।', 'success'),
+                                  onError: (err) => push(err instanceof Error ? err.message : 'অবস্থা বদলানো যায়নি।', 'error'),
+                                },
+                              )
+                            }
+                            className="cursor-pointer rounded-full border border-blue-100 bg-white px-3 py-1.5 text-xs font-bold outline-none disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900"
+                          >
+                            {TICKET_STATUSES.map((s) => (
+                              <option key={s} value={s}>
+                                {ticketStatusLabel(s)}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        {replyTicketId === t.id ? (
+                          <form
+                            className="flex w-full flex-col gap-2"
+                            onSubmit={(e) => {
+                              e.preventDefault()
+                              const by = profile?.displayName || user?.email || 'অ্যাডমিন'
+                              replyMutation.mutate(
+                                { ticket: t, message: replyText, by },
+                                {
+                                  onSuccess: () => {
+                                    push('উত্তর পাঠানো হয়েছে।', 'success')
+                                    setReplyTicketId(null)
+                                    setReplyText('')
+                                  },
+                                  onError: (err) => push(err instanceof Error ? err.message : 'উত্তর পাঠানো যায়নি।', 'error'),
+                                },
+                              )
+                            }}
+                          >
+                            <textarea
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              rows={3}
+                              placeholder="ব্যবহারকারীকে উত্তর লিখুন..."
+                              className="w-full rounded-2xl border border-blue-100 bg-white px-4 py-3 text-sm outline-none focus:border-[var(--color-primary)] dark:border-slate-700 dark:bg-slate-900"
+                            />
+                            <div className="flex gap-2">
+                              <button type="submit" disabled={replyMutation.isPending || !replyText.trim()} className="btn-primary cursor-pointer !px-4 !py-2 text-sm disabled:opacity-60">
+                                উত্তর পাঠান
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReplyTicketId(null)
+                                  setReplyText('')
+                                }}
+                                className="btn-outline cursor-pointer !px-4 !py-2 text-sm"
+                              >
+                                বাতিল
+                              </button>
+                            </div>
+                          </form>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setReplyTicketId(t.id)
+                              setReplyText('')
+                            }}
+                            className="btn-outline cursor-pointer !px-3 !py-1.5 text-xs"
+                          >
+                            উত্তর দিন
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
       </div>

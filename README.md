@@ -245,14 +245,37 @@ Do not present this Phase 1 site to users as a live, purchasable platform.
 - **Demo mode** — orders are kept in this browser's localStorage only,
   labelled ডেমো অর্ডার; no real payment or delivery happens.
 
+## What is built (Phase 9)
+
+- **AI study assistant** — `/ai-assistant` chat shell around a local keyword
+  helper (`src/lib/assistant.ts`) that answers ONLY from the site's own FAQ +
+  course catalogue and says plainly when it does not know — it never invents
+  an answer. The page labels the helper "সহজ সহায়ক — আসল AI নয়" everywhere;
+  the real AI assistant (backend, server-side key, rate limits) arrives in
+  Phase 10.
+- **Notifications** — `notifications/{id}` model; header bell with unread count
+  + dropdown (latest 5), `/notifications` inbox with mark-read / mark-all-read.
+  Clients can NEVER create a notification (rules v8) — only an admin or the
+  Phase 10 backend may. Demo mode shows labelled নমুনা sample notifications
+  from localStorage.
+- **Support tickets** — `supportTickets/{id}` model (Zod-validated, owner-only
+  create, admin/moderator reply + status change via rules v8). The contact
+  form creates a ticket when signed in (labelled ডেমো টিকিট in demo mode) and
+  honestly refuses when not signed in; `/contact` also lists the user's own
+  tickets with admin replies. `/admin` → রিপোর্ট tab shows the real ticket
+  list with reply form + status change, and keeps its honest empty state when
+  there are no tickets.
+- **Firestore rules** — `firestore.rules` v8: notifications (owner read +
+  read-flag-only update, admin-only create), support tickets (owner-only
+  create as `open` with empty replies, admin/moderator reply + status only).
+
 ## What is NOT done yet
 
 - **Firebase project itself** — not created yet; needs the console steps in
   `docs/firebase-setup.md` + the six `VITE_FIREBASE_*` env vars (local
   `.env.local` and Vercel). Until then, enrollment is demo-only and the
   catalogue shows নমুনা data.
-- **Phase 8** — Payments + Bookstore (done — see above)
-- **Phase 9** — AI Study Assistant, notifications, support tickets
+- **Phase 9** — AI Study Assistant, notifications, support tickets (done — see above)
 - **Phase 10** — Security audit, testing, SEO, performance, production deployment
 
 ## Environment variables

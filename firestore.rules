@@ -1,5 +1,5 @@
 /**
- * SP Academy — Firestore security rules (Phase 8 draft, v7).
+ * SP Academy — Firestore security rules (Phase 9 draft, v8).
  *
  * Principles:
  * - Auth is required for all writes; public reads only where the Phase 1
@@ -29,6 +29,17 @@
  *   client-side and re-checked by the backend in Phase 10.
  * - Carts (Phase 8): carts/{uid} is the owner's private cart mirror —
  *   read/write by the owner only.
+ * - Notifications (Phase 9): notifications/{id} is read by its owner or an
+ *   admin; the owner may update ONLY the `read` field (mark read). Clients
+ *   can NEVER create a notification — only admins (or the Phase 10 backend)
+ *   may create one, so no fake notification can be invented from a browser.
+ * - Support tickets (Phase 9): a signed-in user may create ONLY their own
+ *   ticket, with status 'open' and an empty replies list. The owner may
+ *   read their own tickets; admins / moderators may read all. Only an
+ *   admin / moderator may append a reply or change the status — the owner
+ *   can never change their own ticket's status or fake an admin reply.
+ *   Ticket replies are plain text, never presented as coming from anyone
+ *   other than the admin who wrote them.
  * - Certificates: read only by the owner or an admin; writes stay blocked
  *   until the backend (Phase 10) issues them server-side. No client can mint one.
  * - Exams (Phase 6): metadata is public when published; questions live in
@@ -365,6 +376,43 @@ service cloud.firestore {
     // ---- carts: the owner's private cart mirror (read/write by owner only) ----
     match /carts/{uid} {
       allow read, write: if isSelf(uid);
+    }
+    // ---- notifications: owner reads + marks read only; created by admin/backend only ----
+    match /notifications/{notificationId} {
+      allow read: if isSelf(resource.data.userId) || isAdmin();
+      // Only an admin (or the Phase 10 backend) may create a notification —
+      // no client can invent one for itself or anyone else.
+      allow create: if isAdmin()
+        && request.resource.data.userId is string
+        && request.resource.data.title is string
+        && request.resource.data.type in ['enrollment', 'exam', 'class', 'order', 'support', 'system']
+        && request.resource.data.read == false;
+      // The owner may change ONLY the `read` flag — never title/body/type/owner.
+      allow update: if isSelf(resource.data.userId)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(
+          ['userId', 'title', 'body', 'type', 'link', 'createdAt']);
+      allow delete: if isAdmin();
+    }
+    // ---- support tickets: owner creates own ticket; admin/moderator reply + set status ----
+    match /supportTickets/{ticketId} {
+      allow read: if isSelf(resource.data.userId) || isAdmin()
+        || (signedIn() && role() == 'moderator');
+      // A signed-in user may create ONLY their own ticket, always 'open',
+      // with an empty replies list — never a fake admin reply or status.
+      allow create: if signedIn()
+        && !isAccountDisabled()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.subject is string
+        && request.resource.data.message is string
+        && request.resource.data.category in ['course', 'payment', 'exam', 'technical', 'general']
+        && request.resource.data.status == 'open'
+        && request.resource.data.replies == [];
+      // Admin / moderator may append a reply or change the status — never
+      // reassign the ticket, edit the user's message, or fake the author.
+      allow update: if (isAdmin() || (signedIn() && role() == 'moderator'))
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(
+          ['userId', 'userName', 'userEmail', 'subject', 'category', 'message', 'createdAt']);
+      allow delete: if isSuperAdmin();
     }
     match /blogs/{blogId} {
       allow read: if true;
