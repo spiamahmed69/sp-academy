@@ -22,6 +22,8 @@ export interface UserProfile {
   phone: string
   role: Role
   photoURL: string | null
+  /** Admin-set flag (Phase 7): a disabled account cannot create enrollments or exam attempts. */
+  disabled?: boolean
   createdAt: unknown
   updatedAt: unknown
 }
@@ -43,6 +45,7 @@ export function profileFromDoc(uid: string, data: Record<string, unknown>): User
     phone: typeof data.phone === 'string' ? data.phone : '',
     role: normalizeRole(data.role),
     photoURL: typeof data.photoURL === 'string' ? data.photoURL : null,
+    disabled: data.disabled === true,
     createdAt: data.createdAt ?? null,
     updatedAt: data.updatedAt ?? null,
   }

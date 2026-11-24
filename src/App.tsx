@@ -21,6 +21,7 @@ import { Privacy, Refund, Terms } from './pages/Legal'
 import { ForgotPassword, Login, Register } from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import TeacherDashboard from './pages/TeacherDashboard'
+import AdminDashboard from './pages/AdminDashboard'
 import Learn from './pages/Learn'
 import MyCourses from './pages/MyCourses'
 import Profile from './pages/Profile'
@@ -117,6 +118,8 @@ export default function App() {
             }
           />
           <Route path="/teacher" element={<TeacherDashboard />} />
+          {/* /admin guards itself in-page (like /teacher) so the labelled demo preview works before Firebase is configured. */}
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route
             path="/profile"
             element={

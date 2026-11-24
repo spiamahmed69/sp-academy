@@ -22,6 +22,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
   const navigate = useNavigate()
   const { user, profile, role, logout } = useAuth()
   const isTeacher = canAccess(role, ['teacher', 'admin', 'super_admin'])
+  const isAdmin = canAccess(role, ['admin', 'super_admin'])
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -92,6 +93,11 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
             {isTeacher && (
               <Link to="/teacher" className="btn-outline hidden !px-4 !py-2 text-sm sm:inline-flex">
                 শিক্ষক ড্যাশবোর্ড
+              </Link>
+            )}
+            {isAdmin && (
+              <Link to="/admin" className="btn-outline hidden !px-4 !py-2 text-sm sm:inline-flex">
+                অ্যাডমিন
               </Link>
             )}
             <Link
@@ -169,6 +175,15 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
                     className="mt-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]"
                   >
                     শিক্ষক ড্যাশবোর্ড
+                  </Link>
+                )}
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setOpen(false)}
+                    className="mt-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]"
+                  >
+                    অ্যাডমিন
                   </Link>
                 )}
                 <Link

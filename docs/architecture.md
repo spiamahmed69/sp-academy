@@ -159,6 +159,38 @@ issued — that waits for the backend (Phase 10).
 (sample exam questions), `firestore.rules`, `docs/architecture.md`,
 `README.md`.
 
+## Phase 7 — DONE (this repo)
+
+**Scope:** admin dashboard (`/admin`: admin / super_admin only — the guard
+lives in the page, like `/teacher`, so the labelled demo preview still works
+before Firebase is configured), overview stats computed from REAL Firestore
+queries (getDocs breakdowns + getCountFromServer for attempts — never
+hardcoded), user management (list users, change roles, disable/enable),
+course moderation (all statuses, publish / unpublish / delete with two-step
+confirm), exam moderation (publish / unpublish / delete), live-class
+moderation (cancel), reports tab with an honest empty state (user reporting
+arrives with Phase 9 support tickets — no fake reports), header "অ্যাডমিন"
+link for admin roles, `firestore.rules` v6.
+
+**Honest admin state:** role changes update the Firestore profile doc; the
+custom claim the rules actually enforce is set via console / Admin SDK
+(Phase 10 backend keeps the two in sync) — the UI says this plainly. Nobody
+may change their own role (client guard + rules), only a super_admin may
+grant super_admin, and the last super_admin cannot be demoted or disabled
+(client guard + backend in Phase 10 — rules cannot count documents). A
+disabled account cannot create enrollments or exam attempts (rules v6);
+full Auth-level deactivation (blocking login) needs the Admin SDK and
+arrives with the backend in Phase 10 — the UI says so. In demo mode the
+page shows labelled নমুনা sample users/courses/exams/classes and the write
+buttons are replaced by a note; the demo overview honestly shows 0
+enrollments/attempts because the sample data has none — that is a limit of
+the sample, not a real zero.
+
+**Files:** `src/firebase/admin.ts`, `src/firebase/admin.test.ts`,
+`src/hooks/useAdmin.ts`, `src/pages/AdminDashboard.tsx`, `src/App.tsx`,
+`src/components/Header.tsx`, `src/firebase/profiles.ts` (`disabled` flag),
+`firestore.rules`, `docs/architecture.md`, `README.md`.
+
 ## Progress tracking — docs/progress.json (NO LONGER UPDATED)
 
 `docs/progress.json` was the machine-readable source for the SP Academy
@@ -176,7 +208,7 @@ tracked in this document (`docs/architecture.md`) and in `README.md` instead.
 | 4 | Student dashboard — DONE | Overview, My Courses, Continue Learning, lesson player + progress, notes/PDFs, certificates |
 | 5 | Teacher dashboard — DONE | Own courses, enrollment stats, live-class scheduling, add-lesson form |
 | 6 | Examination system — DONE | Exam model (keys never reach students), attempt page + timer, submit-once, teacher evaluation, results wired to real attempts |
-| 7 | Admin dashboard | Users/roles, courses, exams, books, orders, payments, banners, notifications, reports, settings, audit logs — real DB values only |
+| 7 | Admin dashboard — DONE | Users/roles, real-DB overview stats, course/exam/live-class moderation, reports (honest empty state) |
 | 8 | Payments + Bookstore | bKash / Nagad / SSLCommerz / Card / COD — server-side initiation, callback + webhook verification, idempotent processing, refunds; book catalog, cart, checkout, delivery tracking |
 | 9 | AI + Support | AI Study Assistant via backend (keys server-side, rate limits, validation), notifications, support tickets |
 | 10 | Hardening + Launch | Security audit, automated tests (auth, roles, enrollment, exam, payments, uploads, rules), SEO/prerendering, performance, production deployment |

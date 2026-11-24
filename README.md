@@ -185,13 +185,39 @@ Do not present this Phase 1 site to users as a live, purchasable platform.
   teacher/admin-only keys, one-attempt create, owner submit once
   (in_progress → submitted), teacher/admin evaluate once (submitted → evaluated).
 
+## What is built (Phase 7)
+
+- **Admin dashboard** — `/admin` (admin / super_admin only, in-page guard like
+  `/teacher` so the demo preview works): overview stats from real Firestore
+  queries (users by role, courses by status, enrollments, exams, live classes,
+  attempts — never hardcoded), user management (list + search, role change,
+  disable/enable), course moderation (publish / unpublish / delete, two-step
+  confirm), exam moderation (publish / unpublish / delete), live-class
+  moderation (cancel), reports tab with an honest empty state (no fake
+  reports; user reporting arrives with Phase 9). Header "অ্যাডমিন" link for
+  admin roles.
+- **Role safety** — nobody may change their own role (client guard + rules),
+  only a super_admin may grant super_admin, the last super_admin cannot be
+  demoted or disabled (client guard + backend in Phase 10 — rules cannot count
+  documents). Role changes update the Firestore profile doc; the custom claim
+  the rules enforce is set via console / Admin SDK (Phase 10 backend syncs
+  them) — the UI says this plainly.
+- **Disable** — sets `users/{uid}.disabled`; rules v6 block a disabled account
+  from creating enrollments or exam attempts. Full Auth-level deactivation
+  (blocking login) needs the Admin SDK — Phase 10.
+- **Firestore rules** — `firestore.rules` v6: admin user reads/updates
+  (own-role change blocked), disabled-account write blocks.
+- **Demo mode** — labelled নমুনা sample users/courses/exams/classes; write
+  buttons replaced by a note. Demo overview honestly shows 0 enrollments /
+  attempts because the sample data has none.
+
 ## What is NOT done yet
 
 - **Firebase project itself** — not created yet; needs the console steps in
   `docs/firebase-setup.md` + the six `VITE_FIREBASE_*` env vars (local
   `.env.local` and Vercel). Until then, enrollment is demo-only and the
   catalogue shows নমুনা data.
-- **Phase 7** — Admin dashboard, reports, settings
+- **Phase 7** — Admin dashboard (done — see above)
 - **Phase 8** — Payments (bKash/Nagad/SSLCommerz/Card/COD), bookstore orders, coupons
 - **Phase 9** — AI Study Assistant, notifications, support tickets
 - **Phase 10** — Security audit, testing, SEO, performance, production deployment
