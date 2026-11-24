@@ -1,39 +1,53 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
-import { CheckCircle2, Info, X, XCircle } from 'lucide-react'
+import { CheckCircle2, Info, Loader2, X, XCircle } from 'lucide-react'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import { useToast } from './lib/toast'
 import { useTheme } from './hooks/useTheme'
-import Home from './pages/Home'
-import Courses, { CourseDetails } from './pages/Courses'
-import Teachers, { TeacherProfile } from './pages/Teachers'
-import FreeCourses from './pages/FreeCourses'
-import LiveClasses from './pages/LiveClasses'
-import Exams from './pages/Exams'
-import ExamAttempt from './pages/ExamAttempt'
-import ManageExams from './pages/ManageExams'
-import Results from './pages/Results'
-import Books, { BookDetails } from './pages/Books'
-import Blog, { BlogDetails } from './pages/Blog'
-import { About, Contact, Faq } from './pages/Info'
-import { Privacy, Refund, Terms } from './pages/Legal'
-import { ForgotPassword, Login, Register } from './pages/Auth'
-import Dashboard from './pages/Dashboard'
-import TeacherDashboard from './pages/TeacherDashboard'
-import AdminDashboard from './pages/AdminDashboard'
-import AiAssistant from './pages/AiAssistant'
-import Notifications from './pages/Notifications'
-import Learn from './pages/Learn'
-import MyCourses from './pages/MyCourses'
-import MyOrders from './pages/MyOrders'
-import Cart from './pages/Cart'
-import Checkout from './pages/Checkout'
-import Profile from './pages/Profile'
+// Route code-splitting (Phase 10): every page is lazy-loaded so the first
+// paint only downloads the shell + the page the visitor actually opened.
+// The prerender step (scripts/prerender.mjs) renders each public route to
+// static HTML at build time, so crawlers still see full content.
+const Home = lazy(() => import('./pages/Home'))
+const Courses = lazy(() => import('./pages/Courses').then((m) => ({ default: m.default })))
+const CourseDetails = lazy(() => import('./pages/Courses').then((m) => ({ default: m.CourseDetails })))
+const Teachers = lazy(() => import('./pages/Teachers').then((m) => ({ default: m.default })))
+const TeacherProfile = lazy(() => import('./pages/Teachers').then((m) => ({ default: m.TeacherProfile })))
+const FreeCourses = lazy(() => import('./pages/FreeCourses'))
+const LiveClasses = lazy(() => import('./pages/LiveClasses'))
+const Exams = lazy(() => import('./pages/Exams'))
+const ExamAttempt = lazy(() => import('./pages/ExamAttempt'))
+const ManageExams = lazy(() => import('./pages/ManageExams'))
+const Results = lazy(() => import('./pages/Results'))
+const Books = lazy(() => import('./pages/Books').then((m) => ({ default: m.default })))
+const BookDetails = lazy(() => import('./pages/Books').then((m) => ({ default: m.BookDetails })))
+const Blog = lazy(() => import('./pages/Blog').then((m) => ({ default: m.default })))
+const BlogDetails = lazy(() => import('./pages/Blog').then((m) => ({ default: m.BlogDetails })))
+const About = lazy(() => import('./pages/Info').then((m) => ({ default: m.About })))
+const Contact = lazy(() => import('./pages/Info').then((m) => ({ default: m.Contact })))
+const Faq = lazy(() => import('./pages/Info').then((m) => ({ default: m.Faq })))
+const Privacy = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Privacy })))
+const Refund = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Refund })))
+const Terms = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Terms })))
+const ForgotPassword = lazy(() => import('./pages/Auth').then((m) => ({ default: m.ForgotPassword })))
+const Login = lazy(() => import('./pages/Auth').then((m) => ({ default: m.Login })))
+const Register = lazy(() => import('./pages/Auth').then((m) => ({ default: m.Register })))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'))
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
+const AiAssistant = lazy(() => import('./pages/AiAssistant'))
+const Notifications = lazy(() => import('./pages/Notifications'))
+const Learn = lazy(() => import('./pages/Learn'))
+const MyCourses = lazy(() => import('./pages/MyCourses'))
+const MyOrders = lazy(() => import('./pages/MyOrders'))
+const Cart = lazy(() => import('./pages/Cart'))
+const Checkout = lazy(() => import('./pages/Checkout'))
+const Profile = lazy(() => import('./pages/Profile'))
+const NotFound = lazy(() => import('./pages/NotFound'))
+const Categories = lazy(() => import('./pages/Categories'))
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { CartProvider } from './contexts/CartContext'
-import NotFound from './pages/NotFound'
-import Categories from './pages/Categories'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -66,6 +80,15 @@ function Toasts() {
   )
 }
 
+function PageFallback() {
+  return (
+    <div className="flex min-h-[50vh] items-center justify-center gap-2 text-[var(--color-muted)]" role="status" aria-live="polite">
+      <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+      <span>পেজ লোড হচ্ছে…</span>
+    </div>
+  )
+}
+
 export default function App() {
   const { theme, toggle } = useTheme()
   return (
@@ -74,6 +97,7 @@ export default function App() {
       <ScrollToTop />
       <Header theme={theme} onToggleTheme={toggle} />
       <main className="flex-1">
+        <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/courses" element={<Courses />} />
@@ -144,6 +168,7 @@ export default function App() {
           />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       </main>
       <Footer />
       <Toasts />

@@ -279,6 +279,94 @@ admin replies are not possible and the admin page says so.
 `src/components/Header.tsx` (notification bell + "AI সহকারী" nav link),
 `src/App.tsx`, `firestore.rules` v8, `docs/architecture.md`, `README.md`.
 
+## Phase 10 — DONE (FINAL phase, this repo)
+
+**Scope:** security audit, code-splitting, SEO/prerendering, full test +
+smoke pass, launch checklist. No backend was built in this phase and no
+integration was faked.
+
+**Code-splitting:** every route page in `src/App.tsx` is `React.lazy` +
+`Suspense` (one shared `PageFallback`). First-load JS fell from a single
+1,596 kB chunk to a 1,103 kB main chunk + per-page chunks of 7–61 kB loaded
+on demand. The remaining bulk is the Firebase SDK, which every page needs.
+
+**SEO / prerendering:** `src/entry-server.tsx` renders routes with
+`renderToReadableStream` + `StaticRouter`, prefetching the demo-mode
+catalogue queries (`courses`, `books`, `exams`, `live-classes`, per-course
+and per-book detail queries) into one shared QueryClient so `useQuery`
+returns the labelled নমুনা data synchronously during render.
+`scripts/prerender.mjs` writes static HTML for all 48 public routes
+(`scripts/routes.mjs` is the single route list, shared with the sitemap);
+per-route `<title>`, meta description, canonical, Open Graph and JSON-LD
+(`WebPage` + `BreadcrumbList`) are swapped into the `dist/index.html`
+template. `scripts/generate-sitemap.mjs` writes `dist/sitemap.xml`;
+`public/robots.txt` allows crawling. Canonical host corrected to
+`https://sp-academy-rouge.vercel.app/`. Build command:
+`tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir
+dist-server && node scripts/prerender.mjs && node scripts/generate-sitemap.mjs`.
+Protected/app routes (dashboard, teacher, admin, learn, exam attempt /
+manage, profile, notifications) are NOT prerendered — they are auth-gated
+and served by the SPA shell.
+
+**Security audit (firestore.rules v9):** end-to-end review — no public
+writes, no answer-key leaks (`examKeys` teacher/admin only), no payment
+`paid` from clients, no role self-assignment, default-deny catch-all.
+One least-privilege gap fixed: `students/{uid}` owner updates were
+unrestricted (any field, including `enrolledCourseIds`); they are now
+limited to displayName/phone. Full secret scan clean (no keys in source,
+docs, scripts or the built bundle; `.env.example` placeholders only).
+Security headers added to `vercel.json` (HSTS, nosniff, SAMEORIGIN,
+strict-origin-when-cross-origin referrer, camera/mic/geolocation off).
+Known documented limits (not fixable without a backend): order totals /
+catalogue prices are re-derived client-side at checkout and re-validated
+only by the Phase 10 backend; the last-super-admin guard lives in the
+client + backend because rules cannot count documents; full Auth-level
+account deactivation needs the Admin SDK.
+
+**Bug found by the audit:** sample exam dates are stored in Bengali digits
+(`'২০২৬-১২-০৬'`); `sampleExamToView` parsed them with `new Date(...)`,
+which threw `Invalid time value` — `getExams()` in demo mode always
+crashed and the exams list showed an error state. Fixed with
+`toAsciiDigits` (`src/lib/format.ts`) + graceful `null` on unparseable
+dates, with 2 regression tests.
+
+**Verification:** `npm run test` **158/158 pass** (incl. 2 exam-date
+regression tests + 3 prerender smoke tests in `src/entry-server.test.ts`),
+`npm run typecheck` clean, full `npm run build` green (48/48 routes
+prerendered, 48-URL sitemap), preview smoke of all 38 routes (23 public +
+dashboard/teacher/admin/learn/attempt/manage/cart/checkout/my-orders/
+notifications/ai-assistant + an unknown path) — every route 200.
+`docs/progress.json` untouched (user instruction).
+
+**Files:** `src/App.tsx` (lazy routes), `src/entry-server.tsx`,
+`src/entry-server.test.ts`, `scripts/routes.mjs`,
+`scripts/prerender.mjs`, `scripts/generate-sitemap.mjs`,
+`public/robots.txt`, `src/lib/format.ts` (`toAsciiDigits`),
+`src/firebase/exams.ts` (date fix), `src/firebase/exams.test.ts`,
+`firestore.rules` v9, `vercel.json` (headers), `index.html` (canonical +
+og:url), `package.json` (build script), `.gitignore` (dist-server),
+`docs/architecture.md`, `README.md`.
+
+## Launch checklist (needs the user — after all 10 phases)
+
+The code is complete and live, but the site still runs in honest demo mode
+until these one-time steps are done (details in `docs/firebase-setup.md`):
+
+1. Create the Firebase project `sp-academy` in the console.
+2. Enable Auth — Email/Password + Google.
+3. Create Firestore (`asia-southeast1`, Singapore) and publish
+   `firestore.rules` (v9).
+4. Set the six `VITE_FIREBASE_*` vars in `.env.local` + Vercel, redeploy.
+5. First admin via custom claim (console / Admin SDK) — never from the client.
+6. Seed the catalogue (`seedSampleCourses` / `seedSampleBooks`, admin-only).
+
+**Phase 10-backend follow-ups (NOT built, NOT faked — need Firebase +
+secrets):** payment-gateway verification (bKash/Nagad/card → mark orders
+`paid`), real AI assistant (server-side key), ImgBB upload endpoint
+(server-side key only), server-side exam timer + auto-evaluation,
+certificate issuance, Admin-SDK role sync + Auth-level account
+deactivation, real live-class video integration.
+
 ## Progress tracking — docs/progress.json (NO LONGER UPDATED)
 
 `docs/progress.json` was the machine-readable source for the SP Academy
@@ -289,7 +377,7 @@ The file stays in the repo at its Phase 4 state (phases 1–3 done, 4
 in_progress, 5–10 pending) as a historical record only. Phase status is
 tracked in this document (`docs/architecture.md`) and in `README.md` instead.
 
-## Phases 5–10 (planned, not implemented)
+## Phases 4–10 (status — all DONE)
 
 | Phase | Scope | Key deliverables |
 | --- | --- | --- |
@@ -299,7 +387,7 @@ tracked in this document (`docs/architecture.md`) and in `README.md` instead.
 | 7 | Admin dashboard — DONE | Users/roles, real-DB overview stats, course/exam/live-class moderation, reports (honest empty state) |
 | 8 | Payments + Bookstore — DONE | Book catalogue, cart, checkout (bKash/Nagad/card/COD — honest pending state, no fake payment), orders, admin orders tab |
 | 9 | AI + Support — DONE | Simple local study helper (labelled "not real AI"), notifications (bell + inbox), support tickets (contact form + admin reports tab) |
-| 10 | Hardening + Launch | Security audit, automated tests (auth, roles, enrollment, exam, payments, uploads, rules), SEO/prerendering, performance, production deployment |
+| 10 | Hardening + Launch — DONE | Code-splitting (1,596 → 1,103 kB main chunk), prerendering 48 routes + sitemap/robots, rules v9 audit, 158 tests, launch checklist |
 
 ## Firestore collections (planned + live)
 
@@ -394,9 +482,14 @@ account JSON. Exam answer keys stay server-side; frontend timers are never trust
 for exam security. Payments are never trusted from frontend success messages.
 No card numbers / CVV stored.
 
-## SEO & performance (planned, Phase 10)
+## SEO & performance (DONE, Phase 10)
 
 Unique titles/meta, canonical URLs, Open Graph, `sitemap.xml`, `robots.txt`,
-structured data, search-friendly course/book URLs, prerendering/SSR strategy
-(standard Vite SPA alone is not assumed to be SEO-complete), optimized + lazy
-images, code splitting, route-based loading, caching, accessibility, Core Web Vitals.
+JSON-LD structured data, search-friendly course/book URLs, prerendering
+(48 public routes rendered to static HTML at build time — see Phase 10
+above), lazy images, code splitting, route-based loading. The site is a
+Vite SPA, so prerendered HTML is the SEO surface; crawlers without JS see
+the static content, and the client bundle hydrates (replaces) it on load.
+Core Web Vitals work (image optimisation, font loading) is a follow-up
+once real images exist — there are no real photos yet, only gradients and
+labelled sample covers.

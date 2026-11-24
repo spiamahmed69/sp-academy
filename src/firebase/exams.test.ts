@@ -10,6 +10,7 @@ import {
   parseDemoAttempts,
   parseDemoExams,
   questionFromDoc,
+  sampleExamToView,
   scoreAttempt,
   validateExamInput,
   type ExamCreateInput,
@@ -176,5 +177,27 @@ describe('demo parsers', () => {
     )
     expect(parsed).toHaveLength(1)
     expect(parsed[0].status).toBe('evaluated')
+  })
+})
+
+describe('sampleExamToView (Phase 10 regression)', () => {
+  const base = {
+    id: 'e1',
+    title: 'এইচএসসি পদার্থবিজ্ঞান মডেল টেস্ট ০১',
+    subject: 'পদার্থবিজ্ঞান',
+    type: 'মডেল টেস্ট',
+    durationMin: 180,
+    marks: 100,
+    questions: 50,
+    enrolled: 2340,
+  }
+  it('parses Bengali-digit sample dates instead of throwing', () => {
+    const view = sampleExamToView({ ...base, date: '২০২৬-১২-০৬' })
+    expect(view.scheduledAt).toBe('2026-12-05T18:00:00.000Z')
+    expect(view.source).toBe('sample')
+  })
+  it('degrades an unparseable date to null, never a crash', () => {
+    const view = sampleExamToView({ ...base, date: 'not-a-date' })
+    expect(view.scheduledAt).toBeNull()
   })
 })

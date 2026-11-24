@@ -269,14 +269,69 @@ Do not present this Phase 1 site to users as a live, purchasable platform.
   read-flag-only update, admin-only create), support tickets (owner-only
   create as `open` with empty replies, admin/moderator reply + status only).
 
+## What is built (Phase 10 — FINAL phase)
+
+- **Code-splitting** — every route page is `React.lazy` + `Suspense`
+  (`src/App.tsx`); the first-load JS chunk fell from **1,596 kB → 1,103 kB**
+  (single file), with each page as its own 7–61 kB chunk loaded on demand.
+  The remaining ~1.1 MB is mostly the Firebase SDK, which every page needs.
+- **Prerendering / SEO** — `src/entry-server.tsx` (React `renderToReadableStream`
+  + `StaticRouter`, demo queries prefetched into one shared QueryClient) +
+  `scripts/prerender.mjs` renders all **48 public routes** to static HTML at
+  build time (verified: homepage, course/book/exam/blog pages contain real
+  Bengali content). Per-route `<title>`, meta description, canonical,
+  Open Graph + JSON-LD (`WebPage` + `BreadcrumbList`). `scripts/generate-sitemap.mjs`
+  writes `dist/sitemap.xml` (48 URLs); `public/robots.txt` allows crawling.
+  Canonical host corrected to `https://sp-academy-rouge.vercel.app/`.
+  **Build command is now:** `tsc -b && vite build && vite build --ssr
+  src/entry-server.tsx --outDir dist-server && node scripts/prerender.mjs &&
+  node scripts/generate-sitemap.mjs`.
+- **Security audit** — `firestore.rules` **v9**: end-to-end review found no
+  public writes, no answer-key or payment-status leaks, no role
+  self-assignment. One least-privilege gap fixed: `students/{uid}` owner
+  updates are now restricted to displayName/phone (they could previously
+  write any field, including `enrolledCourseIds`). Full secret scan clean
+  (no keys anywhere; `.env.example` placeholders only; built bundle contains
+  no key material). Security headers added in `vercel.json` (HSTS,
+  `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`,
+  `Referrer-Policy`, `Permissions-Policy`).
+- **Bug fixed by the audit** — sample exam dates are stored in Bengali digits
+  (`'২০২৬-১২-০৬'`); `sampleExamToView` parsed them with `new Date(...)`,
+  which threw `Invalid time value` — so `getExams()` in demo mode **always
+  crashed** and the exams list showed an error state. Fixed with
+  `toAsciiDigits` (`src/lib/format.ts`) + graceful null on unparseable dates,
+  with 2 regression tests. **Tests: 158/158 pass** (incl. 3 new prerender
+  smoke tests in `src/entry-server.test.ts`); typecheck clean; full preview
+  smoke of all 38 routes returns 200.
+
+## Launch checklist (needs the user — after all 10 phases)
+
+The code is complete and live, but the site still runs in honest demo mode
+until these one-time steps are done (details in `docs/firebase-setup.md`):
+
+1. **Create the Firebase project** `sp-academy` in the console.
+2. **Enable Auth** — Email/Password + Google.
+3. **Create Firestore** (`asia-southeast1`, Singapore) and **publish
+   `firestore.rules` (v9)**.
+4. **Set the six `VITE_FIREBASE_*` vars** in `.env.local` + Vercel, redeploy.
+5. **First admin** via custom claim (console / Admin SDK) — never from the client.
+6. **Seed the catalogue** (`seedSampleCourses` / `seedSampleBooks`, admin-only).
+
+**Phase 10-backend follow-ups (NOT built, NOT faked — need Firebase + secrets):**
+payment-gateway verification (bKash/Nagad/card → mark orders `paid`), real AI
+assistant (server-side key), ImgBB upload endpoint (server-side key only),
+server-side exam timer + auto-evaluation, certificate issuance, Admin-SDK role
+sync + Auth-level account deactivation, real live-class video integration.
+
 ## What is NOT done yet
 
 - **Firebase project itself** — not created yet; needs the console steps in
   `docs/firebase-setup.md` + the six `VITE_FIREBASE_*` env vars (local
   `.env.local` and Vercel). Until then, enrollment is demo-only and the
   catalogue shows নমুনা data.
-- **Phase 9** — AI Study Assistant, notifications, support tickets (done — see above)
-- **Phase 10** — Security audit, testing, SEO, performance, production deployment
+- **Phase 10-backend** — payment verification, real AI, ImgBB upload endpoint,
+  server-side exam timer/evaluation, certificate issuance (see Launch checklist
+  above — documented, not built, not faked).
 
 ## Environment variables
 
@@ -292,7 +347,8 @@ in a `VITE_*` variable, in browser requests, or in GitHub.
 ```
 src/
   main.tsx            # QueryClient, Router, Toast providers
-  App.tsx             # Routes, layout, toasts
+  entry-server.tsx    # SSR entry for build-time prerendering (Phase 10)
+  App.tsx             # Routes (lazy-loaded), layout, toasts
   index.css           # Tailwind + reusable component classes
   styles/tokens.css   # Design tokens (source of truth)
   data/sample.ts      # Sample data (labelled নমুনা)
@@ -302,6 +358,10 @@ src/
   components/         # Header, Footer, cards, ui states
   contexts/           # AuthContext, CartContext
   pages/              # Home + public pages + Dashboard, TeacherDashboard, AdminDashboard, Learn, Profile, MyCourses, Cart, Checkout, MyOrders
+scripts/
+  routes.mjs          # Public route list + per-route SEO (shared by prerender + sitemap)
+  prerender.mjs       # Renders all public routes to static HTML at build time
+  generate-sitemap.mjs # Writes dist/sitemap.xml
 docs/
   architecture.md     # Full 10-phase plan + ImgBB media plan
   firebase-setup.md   # Firebase console steps (Phases 2–3)

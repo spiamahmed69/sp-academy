@@ -55,7 +55,7 @@ import {
   type ExamItem,
   type SampleExamQuestion,
 } from '../data/sample'
-import { fakeDelay, toBanglaDigits } from '../lib/format'
+import { fakeDelay, toAsciiDigits, toBanglaDigits } from '../lib/format'
 import { hasPermission, type Role } from '../lib/roles'
 
 export type ExamType = 'mcq' | 'chapter' | 'model' | 'practice'
@@ -301,7 +301,15 @@ export function sampleExamToView(item: ExamItem): ExamView {
     totalMarks: item.marks,
     questionCount: item.questions,
     status: 'published',
-    scheduledAt: item.date ? new Date(`${item.date}T00:00:00+06:00`).toISOString() : null,
+    // Sample dates are stored in Bengali digits ('২০২৬-১২-০৬') — convert to
+    // ASCII before parsing, or Date.parse returns Invalid Date and this
+    // throws (Phase 10 audit: getExams() in demo mode crashed on this).
+    // An unparseable date degrades to null, never a crash.
+    scheduledAt: (() => {
+      if (!item.date) return null
+      const parsed = new Date(`${toAsciiDigits(item.date)}T00:00:00+06:00`)
+      return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString()
+    })(),
     enrolledCount: item.enrolled,
     source: 'sample',
   }

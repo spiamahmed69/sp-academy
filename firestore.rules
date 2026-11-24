@@ -1,5 +1,5 @@
 /**
- * SP Academy — Firestore security rules (Phase 9 draft, v8).
+ * SP Academy — Firestore security rules (Phase 10 audit, v9).
  *
  * Principles:
  * - Auth is required for all writes; public reads only where the Phase 1
@@ -173,10 +173,17 @@ service cloud.firestore {
     }
 
     // ---- students: own record only; admins may read ----
+    // Owner may change displayName/phone at most — never uid, email,
+    // enrolledCourseIds or createdAt. (Phase 10 audit: no client flow
+    // updates a student record after registration; the profile form writes
+    // users/{uid} only. The backend uses the Admin SDK and bypasses rules.)
     match /students/{uid} {
       allow read: if isSelf(uid) || isAdmin();
       allow create: if isSelf(uid);
-      allow update: if isSelf(uid) || isAdmin();
+      allow update: if isSelf(uid)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(
+          ['uid', 'email', 'enrolledCourseIds', 'createdAt']);
+      allow update: if isAdmin();
       allow delete: if isSuperAdmin();
     }
 
