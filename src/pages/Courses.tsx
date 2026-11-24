@@ -281,7 +281,7 @@ export function CourseDetails() {
 
   const openLesson = (lesson: LessonView) => {
     if (lesson.isPreview || enrolled) {
-      push('ভিডিও প্লেয়ার Phase 4-এ আসছে — এই লেসনটি এখনো দেখা যাবে না।', 'info')
+      navigate(`/courses/${course.slug}/learn?lesson=${lesson.id}`)
     } else {
       push('এই লেসন দেখতে কোর্সে ভর্তি হতে হবে।', 'info')
     }
@@ -485,7 +485,7 @@ export function CourseDetails() {
             </p>
             {enrolled ? (
               <>
-                <Link to="/my-courses" className="btn-primary mt-5 w-full">
+                <Link to={`/courses/${course.slug}/learn`} className="btn-primary mt-5 w-full">
                   <PlayCircle className="h-4 w-4" /> শেখা চালিয়ে যান
                 </Link>
                 <p className="mt-3 text-center text-xs text-[var(--color-muted)]">

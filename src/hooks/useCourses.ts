@@ -14,7 +14,8 @@ import {
   getCourses,
   type LessonView,
 } from '../firebase/courses'
-import { getMyEnrollments, type EnrollmentView } from '../firebase/enrollments'
+import { getMyEnrollments, getEnrollment, type EnrollmentDoc, type EnrollmentView } from '../firebase/enrollments'
+import { getMyCertificates, type CertificateDoc } from '../firebase/certificates'
 import { useAuth } from '../contexts/AuthContext'
 import type { Course } from '../data/sample'
 
@@ -52,6 +53,34 @@ export function useMyEnrollments() {
       const { courses } = await getCourses()
       const byId = new Map(courses.map((c) => [c.id, c]))
       return getMyEnrollments(fb.db, user.uid, (courseId) => byId.get(courseId))
+    },
+    enabled: configured && Boolean(user),
+  })
+}
+
+/** One enrollment for a course (null when not enrolled). Demo mode uses localStorage instead. */
+export function useEnrollmentForCourse(course: Course | null | undefined) {
+  const { user, configured } = useAuth()
+  return useQuery<EnrollmentDoc | null>({
+    queryKey: ['enrollment', user?.uid, course?.id],
+    queryFn: async () => {
+      const fb = getFirebase()
+      if (!fb || !user || !course) return null
+      return getEnrollment(fb.db, user.uid, course.id)
+    },
+    enabled: configured && Boolean(user) && Boolean(course),
+  })
+}
+
+/** The signed-in user's certificates. Empty until exams (Phase 6) issue any. */
+export function useMyCertificates() {
+  const { user, configured } = useAuth()
+  return useQuery<CertificateDoc[]>({
+    queryKey: ['my-certificates', user?.uid],
+    queryFn: async () => {
+      const fb = getFirebase()
+      if (!fb || !user) return []
+      return getMyCertificates(fb.db, user.uid)
     },
     enabled: configured && Boolean(user),
   })

@@ -1,5 +1,5 @@
 /**
- * SP Academy — Firestore security rules (Phase 3 draft, v2).
+ * SP Academy — Firestore security rules (Phase 4 draft, v3).
  *
  * Principles:
  * - Auth is required for all writes; public reads only where the Phase 1
@@ -16,6 +16,8 @@
  *   free course (paymentStatus == 'free', pricePaid == 0) — paid enrollment
  *   is created server-side with payment verification (Phase 8). Owners may
  *   update only their progress fields, never price/payment/ownership.
+ * - Certificates: read only by the owner or an admin; writes stay blocked
+ *   until exams (Phase 6) issue them server-side. No client can mint one.
  * - These rules are the enforcement layer. Client-side guards
  *   (src/components/ProtectedRoute.tsx, src/lib/roles.ts) are UI only.
  *
@@ -136,6 +138,12 @@ service cloud.firestore {
           ['userId', 'courseId', 'paymentStatus', 'pricePaid', 'status', 'enrolledAt']);
       allow update: if isAdmin();
       allow delete: if isAdmin();
+    }
+
+    // ---- certificates: read only by owner/admin; issued server-side in Phase 6 ----
+    match /certificates/{certId} {
+      allow read: if isSelf(resource.data.userId) || isAdmin();
+      allow write: if false;
     }
 
     match /courseCategories/{categoryId} {

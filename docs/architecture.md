@@ -67,6 +67,33 @@ enroll and never fake a payment — the UI says payment arrives in Phase 8.
 `src/pages/Courses.tsx`, `src/pages/FreeCourses.tsx`, `src/pages/Dashboard.tsx`,
 `firestore.rules`, `docs/progress.json`, `docs/firebase-setup.md` §8.
 
+## Phase 4 — IN PROGRESS (this repo)
+
+**Scope:** student dashboard overhaul (`/dashboard`: overall progress %,
+continue-learning card resuming at the first incomplete lesson, all
+enrollments with progress bars, certificates section, upcoming live-class
++ exam teasers — the two teaser lists are still নমুনা sample data),
+lesson player (`/courses/:slug/learn?lesson=<id>`: chapter-grouped lesson
+sidebar, prev/next navigation, mark-complete toggle wired to the Phase 3
+enrollment progress — Firestore transaction when configured, localStorage
+demo progress otherwise), certificates service
+(`src/firebase/certificates.ts`: read-only `certificates/{id}`, empty
+until exams in Phase 6 issue any), `firestore.rules` v3 (certificates
+readable only by owner/admin, writes blocked).
+
+**Honest video state:** there is NO real video hosting yet (Cloudflare
+Stream arrives in a later phase), so the player shows a clear "ভিডিও
+এখনো যুক্ত হয়নি" placeholder and never pretends a video is playing.
+Lesson text and PDF notes do not exist in the data yet either — the page
+says so instead of inventing content or fake download links. No fake
+certificates: the dashboard shows "এখনো কোনো সার্টিফিকেট নেই" until one
+is genuinely earned.
+
+**Files:** `src/pages/Learn.tsx`, `src/lib/learn.ts`,
+`src/firebase/certificates.ts`, `src/pages/Dashboard.tsx`,
+`src/pages/Courses.tsx`, `src/pages/MyCourses.tsx`, `src/App.tsx`,
+`src/hooks/useCourses.ts`, `firestore.rules`, `docs/progress.json`.
+
 ## Progress tracking — docs/progress.json (every phase must update it)
 
 `docs/progress.json` is the machine-readable source for the SP Academy
@@ -77,11 +104,11 @@ its own commit** — mark the phase `in_progress` when work starts and `done`
 (with a short note, e.g. the live URL) when it ships. Never leave a shipped
 phase as `pending` or `in_progress`.
 
-## Phases 4–10 (planned, not implemented)
+## Phases 5–10 (planned, not implemented)
 
 | Phase | Scope | Key deliverables |
 | --- | --- | --- |
-| 4 | Student dashboard | Overview, My Courses, Continue Learning, video player + progress, notes/PDFs, certificates |
+| 4 | Student dashboard — IN PROGRESS | Overview, My Courses, Continue Learning, lesson player + progress, notes/PDFs, certificates |
 | 5 | Teacher dashboard | Assigned courses/lessons, live-class scheduling, attendance |
 | 6 | Examination system | MCQ/CQ, chapter/subject/model/full tests, server-side answer keys, auto + manual evaluation, results, leaderboard, analytics |
 | 7 | Admin dashboard | Users/roles, courses, exams, books, orders, payments, banners, notifications, reports, settings, audit logs — real DB values only |
@@ -91,12 +118,12 @@ phase as `pending` or `in_progress`.
 
 ## Firestore collections (planned + live)
 
-Live since Phase 2–3: `users, roles, permissions, students, teachers,
-courses, courseCategories, enrollments`, plus the `lessons` subcollection
+Live since Phase 2–4: `users, roles, permissions, students, teachers,
+courses, courseCategories, enrollments, certificates`, plus the `lessons` subcollection
 under each course. Lesson progress lives on the enrollment doc
-(`completedLessonIds`, `progressPercent`); a separate `lessonProgress`
-collection may arrive with the Phase 4 video player if per-lesson detail
-needs it. Remaining planned collections: `chapters, liveClasses,
+(`completedLessonIds`, `progressPercent`) — no separate `lessonProgress`
+collection was needed. Certificates are read-only for the owner/admin
+until Phase 6 issues them server-side. Remaining planned collections: `chapters, liveClasses,
 classAttendance, exams, questions, examAttempts, examAnswers, examResults,
 certificates, books, authors, publishers, carts, orders, payments, coupons,
 reviews, blogs, banners, notifications, supportTickets, settings, auditLogs`

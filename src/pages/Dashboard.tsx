@@ -1,23 +1,51 @@
 /**
- * Student dashboard (overview) — Phase 2 + Phase 3.
+ * Student dashboard (overview) — Phase 4.
+ *
  * Protected route: shows the signed-in user's profile, role and real
- * enrollments from Firestore (Phase 3). Live-class counts and similar
- * platform stats are still নমুনা until their phases land.
+ * enrollments from Firestore (Phase 3), lesson progress (Phase 4),
+ * certificates (honest empty state until exams in Phase 6 issue any),
+ * and teasers for upcoming live classes + exams — those two lists are
+ * still নমুনা sample data until their phases land.
  */
 import { Link } from 'react-router-dom'
-import { BookOpen, CalendarDays, GraduationCap, LogOut, PlayCircle, Settings, Trophy } from 'lucide-react'
+import {
+  Award, BookOpen, CalendarDays, ClipboardList, GraduationCap, LogOut,
+  PlayCircle, Settings, Trophy,
+} from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { useMyEnrollments } from '../hooks/useCourses'
+import { useCourseLessons, useMyCertificates, useMyEnrollments } from '../hooks/useCourses'
+import { firstIncompleteLesson } from '../lib/learn'
 import { ROLE_LABELS } from '../lib/roles'
-import { Breadcrumbs, EmptyState, PageHero, SkeletonCard } from '../components/ui'
+import { liveClasses, upcomingExams } from '../data/sample'
+import { formatIssuedAt } from '../firebase/certificates'
+import { Breadcrumbs, EmptyState, PageHero, SampleBadge, SkeletonCard } from '../components/ui'
 import { formatBDT } from '../lib/format'
+
+function formatLiveClassTime(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+  return d.toLocaleString('bn-BD', { day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' })
+}
 
 export default function Dashboard() {
   const { user, profile, logout } = useAuth()
   const { data: enrollments, isLoading: enrollmentsLoading } = useMyEnrollments()
+  const { data: certificates, isLoading: certificatesLoading } = useMyCertificates()
 
   const enrolled = enrollments ?? []
   const completedLessons = enrolled.reduce((n, e) => n + e.completedCount, 0)
+  const totalLessons = enrolled.reduce((n, e) => n + e.totalLessons, 0)
+  const overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
+
+  // Continue learning: the most recently enrolled course (Phase 3 sorts newest first).
+  const continueEnrollment = enrolled[0]
+  const { data: continueLessons = [] } = useCourseLessons(continueEnrollment?.course ?? null)
+  const nextLesson = continueEnrollment
+    ? firstIncompleteLesson(continueLessons, continueEnrollment.completedLessonIds)
+    : undefined
+  const continueHref = continueEnrollment
+    ? `/courses/${continueEnrollment.course.slug}/learn${nextLesson ? `?lesson=${nextLesson.id}` : ''}`
+    : '/free-courses'
 
   return (
     <div>
@@ -33,8 +61,8 @@ export default function Dashboard() {
           {[
             { icon: BookOpen, label: 'আমার কোর্স', value: String(enrolled.length) },
             { icon: GraduationCap, label: 'সম্পন্ন লেসন', value: String(completedLessons) },
-            { icon: CalendarDays, label: 'আসন্ন লাইভ ক্লাস (নমুনা)', value: '২' },
-            { icon: Trophy, label: 'সার্টিফিকেট', value: '০' },
+            { icon: Trophy, label: 'সামগ্রিক অগ্রগতি', value: `${overallProgress}%` },
+            { icon: Award, label: 'সার্টিফিকেট', value: String(certificates?.length ?? 0) },
           ].map((s) => (
             <div key={s.label} className="card flex items-center gap-4 p-5">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-primary-soft)]">
@@ -49,58 +77,164 @@ export default function Dashboard() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <section className="card p-6 lg:col-span-2">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 className="text-lg font-extrabold">শেখা চালিয়ে যান</h2>
-              <Link to="/my-courses" className="text-sm font-bold text-[var(--color-primary)] hover:underline">
-                সবগুলো দেখুন →
-              </Link>
-            </div>
-            {enrollmentsLoading && (
-              <div className="grid gap-3" aria-busy="true" aria-label="আমার কোর্স লোড হচ্ছে">
-                <SkeletonCard />
-                <SkeletonCard />
+          <div className="space-y-6 lg:col-span-2">
+            {/* ---- Continue learning ---- */}
+            <section className="card p-6">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <h2 className="text-lg font-extrabold">শেখা চালিয়ে যান</h2>
+                <Link to="/my-courses" className="text-sm font-bold text-[var(--color-primary)] hover:underline">
+                  সবগুলো দেখুন →
+                </Link>
               </div>
-            )}
-            {!enrollmentsLoading && enrolled.length === 0 && (
-              <EmptyState
-                title="এখনো কোনো কোর্সে ভর্তি হননি"
-                message="ফ্রি কোর্স দিয়ে শুরু করুন — পেইড কোর্সে ভর্তি Phase 8-এ (পেমেন্ট) চালু হবে।"
-                action={
-                  <Link to="/free-courses" className="btn-primary text-sm">
-                    ফ্রি কোর্স দেখুন
-                  </Link>
-                }
-              />
-            )}
-            {!enrollmentsLoading && enrolled.length > 0 && (
-              <div className="space-y-3">
-                {enrolled.map((e) => (
-                  <Link key={e.id} to={`/courses/${e.course.slug}`} className="block rounded-2xl border border-blue-100 p-4 transition hover:border-[var(--color-primary)] dark:border-slate-700">
+              {enrollmentsLoading && (
+                <div className="grid gap-3" aria-busy="true" aria-label="আমার কোর্স লোড হচ্ছে">
+                  <SkeletonCard />
+                  <SkeletonCard />
+                </div>
+              )}
+              {!enrollmentsLoading && enrolled.length === 0 && (
+                <EmptyState
+                  title="এখনো কোনো কোর্সে ভর্তি হননি"
+                  message="ফ্রি কোর্স দিয়ে শুরু করুন — পেইড কোর্সে ভর্তি Phase 8-এ (পেমেন্ট) চালু হবে।"
+                  action={
+                    <Link to="/free-courses" className="btn-primary text-sm">
+                      ফ্রি কোর্স দেখুন
+                    </Link>
+                  }
+                />
+              )}
+              {!enrollmentsLoading && continueEnrollment && (
+                <div>
+                  <Link to={continueHref} className="block rounded-2xl border border-blue-100 p-4 transition hover:border-[var(--color-primary)] dark:border-slate-700">
                     <span className="flex flex-wrap items-center justify-between gap-3">
                       <span>
-                        <span className="block font-bold">{e.course.title}</span>
+                        <span className="block font-bold">{continueEnrollment.course.title}</span>
                         <span className="text-sm text-[var(--color-muted)]">
-                          {e.completedCount}/{e.totalLessons} লেসন সম্পন্ন · {formatBDT(e.course.discountPrice ?? e.course.price)}
+                          {nextLesson ? `পরবর্তী লেসন: ${nextLesson.title}` : 'সব লেসন সম্পন্ন হয়েছে — অভিনন্দন!'} ·{' '}
+                          {continueEnrollment.completedCount}/{continueEnrollment.totalLessons} লেসন ·{' '}
+                          {formatBDT(continueEnrollment.course.discountPrice ?? continueEnrollment.course.price)}
                         </span>
                       </span>
                       <span className="btn-primary inline-flex !px-4 !py-2 text-sm">
-                        <PlayCircle className="h-4 w-4" /> চালিয়ে যান
+                        <PlayCircle className="h-4 w-4" /> {continueEnrollment.progressPercent > 0 ? 'চালিয়ে যান' : 'শেখা শুরু করুন'}
                       </span>
                     </span>
                     <span className="mt-3 flex items-center gap-3">
                       <span className="h-2 flex-1 overflow-hidden rounded-full bg-blue-100 dark:bg-slate-700">
-                        <span className="block h-full rounded-full bg-[var(--color-primary)]" style={{ width: `${e.progressPercent}%` }} />
+                        <span className="block h-full rounded-full bg-[var(--color-primary)]" style={{ width: `${continueEnrollment.progressPercent}%` }} />
                       </span>
-                      <span className="text-xs font-bold">{e.progressPercent}%</span>
+                      <span className="text-xs font-bold">{continueEnrollment.progressPercent}%</span>
                     </span>
                   </Link>
-                ))}
+
+                  {/* ---- My courses (all enrollments) ---- */}
+                  {enrolled.length > 1 && (
+                    <div className="mt-4 space-y-3">
+                      <h3 className="text-sm font-bold text-[var(--color-heading)]">আমার অন্যান্য কোর্স</h3>
+                      {enrolled.slice(1).map((e) => (
+                        <Link key={e.id} to={`/courses/${e.course.slug}/learn`} className="block rounded-2xl border border-blue-100 p-4 transition hover:border-[var(--color-primary)] dark:border-slate-700">
+                          <span className="flex flex-wrap items-center justify-between gap-3">
+                            <span>
+                              <span className="block font-bold">{e.course.title}</span>
+                              <span className="text-sm text-[var(--color-muted)]">
+                                {e.completedCount}/{e.totalLessons} লেসন সম্পন্ন
+                              </span>
+                            </span>
+                            <span className="text-sm font-bold text-[var(--color-primary)]">{e.progressPercent}%</span>
+                          </span>
+                          <span className="mt-3 block h-2 w-full overflow-hidden rounded-full bg-blue-100 dark:bg-slate-700">
+                            <span className="block h-full rounded-full bg-[var(--color-primary)]" style={{ width: `${e.progressPercent}%` }} />
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+
+            {/* ---- Certificates (honest empty state until Phase 6) ---- */}
+            <section className="card p-6">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <h2 className="text-lg font-extrabold">আমার সার্টিফিকেট</h2>
+                <SampleBadge label="Phase 6-এ আসছে" />
               </div>
-            )}
-          </section>
+              {certificatesLoading && <SkeletonCard />}
+              {!certificatesLoading && (!certificates || certificates.length === 0) && (
+                <EmptyState
+                  title="এখনো কোনো সার্টিফিকেট নেই"
+                  message="পরীক্ষায় (Phase 6) উত্তীর্ণ হলে সার্টিফিকেট এখানে দেখা যাবে। এখানে কোনো নমুনা সার্টিফিকেট দেখানো হচ্ছে না।"
+                  action={
+                    <Link to="/exams" className="btn-primary text-sm">
+                      পরীক্ষা দেখুন
+                    </Link>
+                  }
+                />
+              )}
+              {!certificatesLoading && certificates && certificates.length > 0 && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {certificates.map((cert) => (
+                    <div key={cert.id} className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-900/20">
+                      <Award className="mb-2 h-8 w-8 text-amber-500" />
+                      <p className="font-bold">{cert.courseTitle}</p>
+                      <p className="text-sm text-[var(--color-muted)]">
+                        ইস্যু: {formatIssuedAt(cert.issuedAt)}
+                        {cert.grade ? ` · গ্রেড: ${cert.grade}` : ''}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
 
           <aside className="space-y-4">
+            {/* ---- Upcoming live classes (নমুনা) ---- */}
+            <div className="card p-6">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <h2 className="text-lg font-extrabold">আসন্ন লাইভ ক্লাস</h2>
+                <SampleBadge />
+              </div>
+              <ul className="space-y-3">
+                {liveClasses.slice(0, 3).map((lc) => (
+                  <li key={lc.id} className="border-b border-blue-50 pb-3 last:border-0 last:pb-0 dark:border-slate-800">
+                    <Link to="/live-classes" className="font-bold hover:text-[var(--color-primary)]">
+                      {lc.title}
+                    </Link>
+                    <p className="mt-0.5 flex items-center gap-1 text-xs text-[var(--color-muted)]">
+                      <CalendarDays className="h-3.5 w-3.5" /> {formatLiveClassTime(lc.startsAt)} · {lc.durationMin} মিনিট (নমুনা)
+                    </p>
+                  </li>
+                ))}
+              </ul>
+              <Link to="/live-classes" className="mt-4 inline-block text-sm font-bold text-[var(--color-primary)] hover:underline">
+                সব লাইভ ক্লাস →
+              </Link>
+            </div>
+
+            {/* ---- Upcoming exams (নমুনা) ---- */}
+            <div className="card p-6">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <h2 className="text-lg font-extrabold">আসন্ন পরীক্ষা</h2>
+                <SampleBadge />
+              </div>
+              <ul className="space-y-3">
+                {upcomingExams.slice(0, 3).map((ex) => (
+                  <li key={ex.id} className="border-b border-blue-50 pb-3 last:border-0 last:pb-0 dark:border-slate-800">
+                    <Link to="/exams" className="font-bold hover:text-[var(--color-primary)]">
+                      {ex.title}
+                    </Link>
+                    <p className="mt-0.5 flex items-center gap-1 text-xs text-[var(--color-muted)]">
+                      <ClipboardList className="h-3.5 w-3.5" /> {ex.date} · {ex.marks} নম্বর · {ex.questions}টি প্রশ্ন (নমুনা)
+                    </p>
+                  </li>
+                ))}
+              </ul>
+              <Link to="/exams" className="mt-4 inline-block text-sm font-bold text-[var(--color-primary)] hover:underline">
+                সব পরীক্ষা →
+              </Link>
+            </div>
+
             <div className="card p-6">
               <h2 className="mb-3 text-lg font-extrabold">আমার অ্যাকাউন্ট</h2>
               <p className="text-sm leading-relaxed text-[var(--color-body)]">

@@ -18,6 +18,7 @@ import { About, Contact, Faq } from './pages/Info'
 import { Privacy, Refund, Terms } from './pages/Legal'
 import { ForgotPassword, Login, Register } from './pages/Auth'
 import Dashboard from './pages/Dashboard'
+import Learn from './pages/Learn'
 import MyCourses from './pages/MyCourses'
 import Profile from './pages/Profile'
 import { ProtectedRoute } from './components/ProtectedRoute'
@@ -66,6 +67,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/courses/:slug" element={<CourseDetails />} />
+          <Route path="/courses/:slug/learn" element={<Learn />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/teachers" element={<Teachers />} />
           <Route path="/teachers/:id" element={<TeacherProfile />} />

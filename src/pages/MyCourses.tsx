@@ -58,7 +58,7 @@ function EnrollmentCard({ view, isDemo, onRemoved }: { view: EnrollmentView; isD
         </p>
       </div>
       <div className="mt-4 flex shrink-0 flex-wrap gap-2 sm:mt-0 sm:flex-col">
-        <Link to={`/courses/${course.slug}`} className="btn-primary !px-4 !py-2 text-sm">
+        <Link to={`/courses/${course.slug}/learn`} className="btn-primary !px-4 !py-2 text-sm">
           <PlayCircle className="h-4 w-4" /> {view.progressPercent > 0 ? 'চালিয়ে যান' : 'শেখা শুরু করুন'}
         </Link>
         {isDemo && onRemoved && (
