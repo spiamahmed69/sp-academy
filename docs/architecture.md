@@ -43,12 +43,44 @@ Email/Password + Google, create Firestore in `asia-southeast1`, publish
 `src/components/ProtectedRoute.tsx`, `src/pages/Dashboard.tsx`,
 `src/pages/Profile.tsx`, `firestore.rules`, `docs/firebase-setup.md`.
 
-## Phases 2–10 (planned, not implemented)
+## Phase 3 — DONE (this repo)
+
+**Scope:** Firestore course model (`courses/{id}` + `lessons` subcollection +
+`courseCategories/{id}`, `src/firebase/courses.ts`), catalogue service
+(`src/hooks/useCourses.ts`) wiring `/courses`, `/courses/:slug` and
+`/free-courses` to Firestore when configured (labelled নমুনা data otherwise),
+enrollment (`src/firebase/enrollments.ts`, `enrollments/{uid}_{courseId}` —
+free courses only from the client; paid waits for Phase 8), lesson completion
++ progress % on the enrollment doc (localStorage in demo mode, labelled
+ডেমো ভর্তি), `/my-courses` page, real enrollments on `/dashboard`,
+`firestore.rules` v2 (published-only reads, admin/owning-teacher writes,
+free-only self-enrollment), seed helper (`src/firebase/seed.ts`),
+`docs/progress.json`.
+
+**Honest demo mode:** still no Firebase project, so without
+`VITE_FIREBASE_*` env vars the catalogue shows নমুনা data and free-course
+enrollment is demo-only (this browser's localStorage). Paid courses never
+enroll and never fake a payment — the UI says payment arrives in Phase 8.
+
+**Files:** `src/firebase/courses.ts`, `src/firebase/enrollments.ts`,
+`src/firebase/seed.ts`, `src/hooks/useCourses.ts`, `src/pages/MyCourses.tsx`,
+`src/pages/Courses.tsx`, `src/pages/FreeCourses.tsx`, `src/pages/Dashboard.tsx`,
+`firestore.rules`, `docs/progress.json`, `docs/firebase-setup.md` §8.
+
+## Progress tracking — docs/progress.json (every phase must update it)
+
+`docs/progress.json` is the machine-readable source for the SP Academy
+progress graph page: `{ "updated_at": "<ISO date>", "phases": [{ "id", "name",
+"status": "done" | "in_progress" | "pending", "note" }] }` — one entry per
+phase, 1–10. **Rule: every future phase must update this file's statuses in
+its own commit** — mark the phase `in_progress` when work starts and `done`
+(with a short note, e.g. the live URL) when it ships. Never leave a shipped
+phase as `pending` or `in_progress`.
+
+## Phases 4–10 (planned, not implemented)
 
 | Phase | Scope | Key deliverables |
 | --- | --- | --- |
-| 2 | Firebase + Auth — DONE | Firebase config, email/Google auth, registration, profiles, roles, Firestore rules v1 |
-| 3 | Course management | Course CRUD, categories, chapters/lessons, pricing, coupons, enrollment, reviews |
 | 4 | Student dashboard | Overview, My Courses, Continue Learning, video player + progress, notes/PDFs, certificates |
 | 5 | Teacher dashboard | Assigned courses/lessons, live-class scheduling, attendance |
 | 6 | Examination system | MCQ/CQ, chapter/subject/model/full tests, server-side answer keys, auto + manual evaluation, results, leaderboard, analytics |
@@ -57,13 +89,17 @@ Email/Password + Google, create Firestore in `asia-southeast1`, publish
 | 9 | AI + Support | AI Study Assistant via backend (keys server-side, rate limits, validation), notifications, support tickets |
 | 10 | Hardening + Launch | Security audit, automated tests (auth, roles, enrollment, exam, payments, uploads, rules), SEO/prerendering, performance, production deployment |
 
-## Firestore collections (planned)
+## Firestore collections (planned + live)
 
-`users, roles, permissions, students, teachers, courses, courseCategories,
-courseEnrollments, chapters, lessons, lessonProgress, liveClasses, classAttendance,
-exams, questions, examAttempts, examAnswers, examResults, certificates, books,
-authors, publishers, carts, orders, payments, coupons, reviews, blogs, banners,
-notifications, supportTickets, settings, auditLogs`
+Live since Phase 2–3: `users, roles, permissions, students, teachers,
+courses, courseCategories, enrollments`, plus the `lessons` subcollection
+under each course. Lesson progress lives on the enrollment doc
+(`completedLessonIds`, `progressPercent`); a separate `lessonProgress`
+collection may arrive with the Phase 4 video player if per-lesson detail
+needs it. Remaining planned collections: `chapters, liveClasses,
+classAttendance, exams, questions, examAttempts, examAnswers, examResults,
+certificates, books, authors, publishers, carts, orders, payments, coupons,
+reviews, blogs, banners, notifications, supportTickets, settings, auditLogs`
 
 Rules: pagination on large collections, batched writes/transactions where needed,
 server timestamps on important records, no unbounded queries, no duplicated

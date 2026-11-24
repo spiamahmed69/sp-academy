@@ -1,4 +1,4 @@
-# SP Academy — Firebase setup (Phase 2)
+# SP Academy — Firebase setup (Phases 2–3)
 
 > **Status:** No Firebase project exists yet for SP Academy. Nothing in the
 > code invents a project ID or API key — the app runs in honest demo mode
@@ -99,9 +99,41 @@ New registrations are always `student`. To make the first admin:
 5. With Firebase env vars **removed**, the same pages show the honest
    "Firebase এখনো কনফিগার করা হয়নি" message and no fake login occurs.
 
-## What Phase 2 deliberately does NOT include
+## 8. Phase 3: publish rules v2 + seed the catalogue (admin only)
+
+1. Republish `firestore.rules` (now v2) in the console — Rules tab → paste →
+   **Publish**. Test with the Rules Playground: a signed-in student creating an
+   `enrollments/{uid}_{courseId}` doc with `paymentStatus: 'paid'` must be
+   **denied**; with `paymentStatus: 'free'` + `pricePaid: 0` it must be
+   **allowed**; reading a `courses/{id}` doc with `status: 'draft'` as a
+   signed-out visitor must be **denied**.
+2. (Optional, admin only) Seed the sample catalogue so the live site shows
+   real Firestore courses instead of নমুনা data: run `seedSampleCourses(db)`
+   from `src/firebase/seed.ts` once, signed in as an admin (or from an admin
+   script with the Admin SDK). It writes the 8 sample courses (published),
+   8 categories, and their lesson outlines, skipping docs that already exist.
+   The public site never seeds by itself.
+3. Update `docs/progress.json` — Phase 3 `done` when the deploy is verified
+   live (see `docs/architecture.md` — every phase updates this file).
+
+## 9. Verify Phase 3 works
+
+1. `npm run build` passes locally; deploy.
+2. With the project seeded: `/courses` lists the Firestore courses (no নমুনা
+   label on the list itself), `/courses/hsc-physics-1st-paper` shows the
+   syllabus, and a free course enrolls after login — it appears on
+   `/dashboard` and `/my-courses` with 0% progress; ticking a lesson moves
+   the progress bar.
+3. A paid course shows the honest "পেমেন্ট Phase 8-এ আসছে" notice and creates
+   **no** enrollment doc in Firestore.
+4. With Firebase env vars **removed**, the same pages show নমুনা data and
+   free-course enrollment works as a clearly labelled ডেমো ভর্তি in that
+   browser only.
+
+## What Phases 2–3 deliberately do NOT include
 
 - No backend / Admin SDK server, no Cloud Functions (Phases 7–9).
 - No phone auth, no payment, no video, no exam engine.
-- No real course enrolment data (dashboard enrolments are labelled নমুনা
-  until Phase 3).
+- No paid-course enrollment (payment arrives in Phase 8); free enrollment is
+  real only once the Firebase project exists — until then it is a labelled
+  ডেমো ভর্তি in that browser only.

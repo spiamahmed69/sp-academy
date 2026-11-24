@@ -151,9 +151,18 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
               </NavLink>
             ))}
             {user ? (
-              <Link to="/dashboard" onClick={() => setOpen(false)} className="btn-primary mt-2 justify-center text-sm">
-                <LayoutDashboard className="h-4 w-4" /> ড্যাশবোর্ড
-              </Link>
+              <>
+                <Link to="/dashboard" onClick={() => setOpen(false)} className="btn-primary mt-2 justify-center text-sm">
+                  <LayoutDashboard className="h-4 w-4" /> ড্যাশবোর্ড
+                </Link>
+                <Link
+                  to="/my-courses"
+                  onClick={() => setOpen(false)}
+                  className="mt-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]"
+                >
+                  আমার কোর্স
+                </Link>
+              </>
             ) : (
               <Link to="/login" onClick={() => setOpen(false)} className="btn-primary mt-2 justify-center text-sm">
                 <LogIn className="h-4 w-4" /> লগইন / রেজিস্টার

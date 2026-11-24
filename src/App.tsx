@@ -18,6 +18,7 @@ import { About, Contact, Faq } from './pages/Info'
 import { Privacy, Refund, Terms } from './pages/Legal'
 import { ForgotPassword, Login, Register } from './pages/Auth'
 import Dashboard from './pages/Dashboard'
+import MyCourses from './pages/MyCourses'
 import Profile from './pages/Profile'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import NotFound from './pages/NotFound'
@@ -69,6 +70,7 @@ export default function App() {
           <Route path="/teachers" element={<Teachers />} />
           <Route path="/teachers/:id" element={<TeacherProfile />} />
           <Route path="/free-courses" element={<FreeCourses />} />
+          <Route path="/my-courses" element={<MyCourses />} />
           <Route path="/live-classes" element={<LiveClasses />} />
           <Route path="/exams" element={<Exams />} />
           <Route path="/results" element={<Results />} />

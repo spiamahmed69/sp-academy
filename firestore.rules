@@ -1,16 +1,21 @@
 /**
- * SP Academy — Firestore security rules (Phase 2 draft, v1).
+ * SP Academy — Firestore security rules (Phase 3 draft, v2).
  *
  * Principles:
  * - Auth is required for all writes; public reads only where the Phase 1
- *   public website needs them (published courses/books/blogs — Phase 3 will
- *   tighten these to status == 'published').
+ *   public website needs them (published courses/books/blogs).
  * - A user can read/write ONLY their own users/{uid} and students/{uid} docs.
  * - Roles are NEVER self-assigned: users/{uid}.role can be set only at
  *   creation (role == 'student') or changed by an admin (custom claim or an
  *   admin's trusted write). Clients cannot grant themselves a privileged role.
  * - `roles` and `permissions` collections are admin-only (read: signed-in
  *   users may read role definitions for UI labels; write: admins only).
+ * - Courses: public read ONLY when status == 'published'. Writes by admins,
+ *   or by the owning teacher (instructorId == uid) for their own courses.
+ * - Enrollments: a user may create ONLY their own enrollment, ONLY for a
+ *   free course (paymentStatus == 'free', pricePaid == 0) — paid enrollment
+ *   is created server-side with payment verification (Phase 8). Owners may
+ *   update only their progress fields, never price/payment/ownership.
  * - These rules are the enforcement layer. Client-side guards
  *   (src/components/ProtectedRoute.tsx, src/lib/roles.ts) are UI only.
  *
@@ -45,6 +50,22 @@ service cloud.firestore {
       return role() == 'super_admin';
     }
 
+    function isTeacher() {
+      return role() == 'teacher';
+    }
+
+    function courseDoc(courseId) {
+      return get(/databases/$(database)/documents/courses/$(courseId)).data;
+    }
+
+    function isCourseTeacher(courseId) {
+      return isTeacher() && courseDoc(courseId).instructorId == request.auth.uid;
+    }
+
+    function isCourseVisible(courseId) {
+      return courseDoc(courseId).status == 'published' || isAdmin() || isCourseTeacher(courseId);
+    }
+
     // ---- users: own doc only; role can only be 'student' on create ----
     match /users/{uid} {
       allow read: if isSelf(uid) || isAdmin();
@@ -77,16 +98,49 @@ service cloud.firestore {
       allow write: if isSuperAdmin();
     }
 
-    // ---- Phase 1 public content (read-only for now; writes locked) ----
-    // Phase 3 will open writes to course owners/admins and restrict reads
-    // to published documents (status == 'published').
+    // ---- courses: public read only when published; writes by admin / owning teacher ----
     match /courses/{courseId} {
-      allow read: if true;
-      allow write: if false;
+      allow read: if resource.data.status == 'published' || isAdmin()
+        || (signedIn() && resource.data.instructorId == request.auth.uid);
+      allow create: if isAdmin()
+        || (isTeacher()
+          && request.resource.data.instructorId == request.auth.uid
+          && request.resource.data.status == 'draft');
+      allow update: if isAdmin()
+        || (isTeacher() && resource.data.instructorId == request.auth.uid);
+      allow delete: if isAdmin();
+
+      // Lessons inherit the course's visibility; writes mirror the course's.
+      match /lessons/{lessonId} {
+        allow read: if isCourseVisible(courseId);
+        allow create, update, delete: if isAdmin() || isCourseTeacher(courseId);
+      }
     }
+
+    // ---- enrollments: free-only self-enrollment; owners update progress only ----
+    match /enrollments/{enrollmentId} {
+      allow read: if isSelf(resource.data.userId) || isAdmin();
+      // A client may create ONLY its own enrollment, ONLY for a free course.
+      // Paid enrollments are created server-side with payment verification (Phase 8).
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'active'
+        && request.resource.data.paymentStatus == 'free'
+        && request.resource.data.pricePaid == 0
+        && request.resource.data.completedLessonIds == []
+        && request.resource.data.progressPercent == 0
+        && request.resource.data.courseId is string;
+      // Owner may update progress fields only — never price/payment/ownership.
+      allow update: if isSelf(resource.data.userId)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(
+          ['userId', 'courseId', 'paymentStatus', 'pricePaid', 'status', 'enrolledAt']);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
     match /courseCategories/{categoryId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if isAdmin();
     }
     match /books/{bookId} {
       allow read: if true;

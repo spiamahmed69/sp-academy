@@ -1,20 +1,23 @@
 /**
- * Student dashboard (overview) — Phase 2.
- * Protected route: shows the signed-in user's profile, role and a sample
- * "continue learning" list. Enrolments here are নমুনা (sample) until Phase 3
- * wires real course enrolments from Firestore.
+ * Student dashboard (overview) — Phase 2 + Phase 3.
+ * Protected route: shows the signed-in user's profile, role and real
+ * enrollments from Firestore (Phase 3). Live-class counts and similar
+ * platform stats are still নমুনা until their phases land.
  */
 import { Link } from 'react-router-dom'
-import { BookOpen, CalendarDays, GraduationCap, LogOut, Settings, Trophy } from 'lucide-react'
+import { BookOpen, CalendarDays, GraduationCap, LogOut, PlayCircle, Settings, Trophy } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useMyEnrollments } from '../hooks/useCourses'
 import { ROLE_LABELS } from '../lib/roles'
-import { courses } from '../data/sample'
-import { Breadcrumbs, PageHero, SampleBadge } from '../components/ui'
+import { Breadcrumbs, EmptyState, PageHero, SkeletonCard } from '../components/ui'
 import { formatBDT } from '../lib/format'
 
 export default function Dashboard() {
   const { user, profile, logout } = useAuth()
-  const sampleEnrolled = courses.slice(0, 3)
+  const { data: enrollments, isLoading: enrollmentsLoading } = useMyEnrollments()
+
+  const enrolled = enrollments ?? []
+  const completedLessons = enrolled.reduce((n, e) => n + e.completedCount, 0)
 
   return (
     <div>
@@ -28,9 +31,9 @@ export default function Dashboard() {
 
         <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: BookOpen, label: 'আমার কোর্স (নমুনা)', value: String(sampleEnrolled.length) },
-            { icon: GraduationCap, label: 'সম্পন্ন লেসন (নমুনা)', value: '০' },
-            { icon: CalendarDays, label: 'আসন্ন লাইভ ক্লাস', value: '২' },
+            { icon: BookOpen, label: 'আমার কোর্স', value: String(enrolled.length) },
+            { icon: GraduationCap, label: 'সম্পন্ন লেসন', value: String(completedLessons) },
+            { icon: CalendarDays, label: 'আসন্ন লাইভ ক্লাস (নমুনা)', value: '২' },
             { icon: Trophy, label: 'সার্টিফিকেট', value: '০' },
           ].map((s) => (
             <div key={s.label} className="card flex items-center gap-4 p-5">
@@ -49,24 +52,52 @@ export default function Dashboard() {
           <section className="card p-6 lg:col-span-2">
             <div className="mb-4 flex items-center justify-between gap-3">
               <h2 className="text-lg font-extrabold">শেখা চালিয়ে যান</h2>
-              <SampleBadge />
+              <Link to="/my-courses" className="text-sm font-bold text-[var(--color-primary)] hover:underline">
+                সবগুলো দেখুন →
+              </Link>
             </div>
-            <div className="space-y-3">
-              {sampleEnrolled.map((c) => (
-                <Link key={c.slug} to={`/courses/${c.slug}`} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-blue-100 p-4 transition hover:border-[var(--color-primary)] dark:border-slate-700">
-                  <span>
-                    <span className="block font-bold">{c.title}</span>
-                    <span className="text-sm text-[var(--color-muted)]">
-                      {c.lessons} লেসন · {formatBDT(c.discountPrice ?? c.price)}
+            {enrollmentsLoading && (
+              <div className="grid gap-3" aria-busy="true" aria-label="আমার কোর্স লোড হচ্ছে">
+                <SkeletonCard />
+                <SkeletonCard />
+              </div>
+            )}
+            {!enrollmentsLoading && enrolled.length === 0 && (
+              <EmptyState
+                title="এখনো কোনো কোর্সে ভর্তি হননি"
+                message="ফ্রি কোর্স দিয়ে শুরু করুন — পেইড কোর্সে ভর্তি Phase 8-এ (পেমেন্ট) চালু হবে।"
+                action={
+                  <Link to="/free-courses" className="btn-primary text-sm">
+                    ফ্রি কোর্স দেখুন
+                  </Link>
+                }
+              />
+            )}
+            {!enrollmentsLoading && enrolled.length > 0 && (
+              <div className="space-y-3">
+                {enrolled.map((e) => (
+                  <Link key={e.id} to={`/courses/${e.course.slug}`} className="block rounded-2xl border border-blue-100 p-4 transition hover:border-[var(--color-primary)] dark:border-slate-700">
+                    <span className="flex flex-wrap items-center justify-between gap-3">
+                      <span>
+                        <span className="block font-bold">{e.course.title}</span>
+                        <span className="text-sm text-[var(--color-muted)]">
+                          {e.completedCount}/{e.totalLessons} লেসন সম্পন্ন · {formatBDT(e.course.discountPrice ?? e.course.price)}
+                        </span>
+                      </span>
+                      <span className="btn-primary inline-flex !px-4 !py-2 text-sm">
+                        <PlayCircle className="h-4 w-4" /> চালিয়ে যান
+                      </span>
                     </span>
-                  </span>
-                  <span className="btn-primary !px-4 !py-2 text-sm">চালিয়ে যান</span>
-                </Link>
-              ))}
-            </div>
-            <p className="mt-4 text-sm text-[var(--color-muted)]">
-              এগুলো নমুনা এনরোলমেন্ট — আসল কোর্স এনরোলমেন্ট আসছে Phase 3-এ।
-            </p>
+                    <span className="mt-3 flex items-center gap-3">
+                      <span className="h-2 flex-1 overflow-hidden rounded-full bg-blue-100 dark:bg-slate-700">
+                        <span className="block h-full rounded-full bg-[var(--color-primary)]" style={{ width: `${e.progressPercent}%` }} />
+                      </span>
+                      <span className="text-xs font-bold">{e.progressPercent}%</span>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            )}
           </section>
 
           <aside className="space-y-4">
@@ -94,6 +125,9 @@ export default function Dashboard() {
             <div className="card p-6">
               <h2 className="mb-3 text-lg font-extrabold">দ্রুত লিংক</h2>
               <div className="grid gap-2 text-sm font-semibold">
+                <Link to="/my-courses" className="text-[var(--color-primary)] hover:underline">
+                  আমার কোর্স →
+                </Link>
                 <Link to="/live-classes" className="text-[var(--color-primary)] hover:underline">
                   আসন্ন লাইভ ক্লাস →
                 </Link>

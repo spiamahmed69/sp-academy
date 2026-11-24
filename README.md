@@ -6,12 +6,13 @@ Online education platform for students, teachers, and institutions in Bangladesh
 SSC, HSC, admission, job preparation, live classes, exams, books, and an AI study
 assistant. Bengali + English, prices in BDT (৳).
 
-> **Phase 1 is done, and Phase 2 (Firebase Auth + roles) is done in code.**
-> The public website + design system work, and auth is fully wired — but **no
-> Firebase project exists yet**, so the live site runs in honest demo mode
-> until the project is created and the `VITE_FIREBASE_*` env vars are set
-> (see `docs/firebase-setup.md`). There is still **no backend, no payment,
-> and no real AI**. Those arrive in Phases 3–10 (see `docs/architecture.md`).
+> **Phases 1–3 are done in code.** The public website + design system work,
+> auth is fully wired, and courses + enrollment are wired to Firestore —
+> but **no Firebase project exists yet**, so the live site runs in honest
+> demo mode until the project is created and the `VITE_FIREBASE_*` env vars
+> are set (see `docs/firebase-setup.md`). There is still **no backend, no
+> payment, and no real AI**. Those arrive in Phases 4–10 (see
+> `docs/architecture.md`).
 
 ## Quick start
 
@@ -77,12 +78,44 @@ Do not present this Phase 1 site to users as a live, purchasable platform.
   `student` on create, admin-only role/permission writes).
 - **Docs** — `docs/firebase-setup.md` (exact console steps to create the project).
 
+## What is built (Phase 3)
+
+- **Course model** — `src/firebase/courses.ts`: Firestore `courses/{id}` +
+  `lessons` subcollection + `courseCategories/{id}` schemas, mapping to the
+  UI `Course` shape, teacher/admin create/update service functions (UI for
+  course management arrives with the teacher/admin dashboards).
+- **Catalogue service** — `src/hooks/useCourses.ts`: `/courses` (filters/search/
+  sort), `/courses/:slug`, `/free-courses` read Firestore (`status ==
+  'published'`) when configured, labelled নমুনা data otherwise.
+- **Enrollment** — `src/firebase/enrollments.ts`: `enrollments/{uid}_{courseId}`
+  docs; **free courses only** from the client (paid enrollment waits for
+  Phase 8 payments — the UI says so, never fakes a purchase). Free enrollment
+  works in demo mode too, stored in this browser's localStorage and labelled
+  ডেমো ভর্তি. Lesson completion + progress % live on the enrollment doc
+  (Firestore) or locally (demo).
+- **My Courses** — `/my-courses` (public page): real enrollments with progress
+  bars when signed in, demo enrollments in demo mode, login prompt otherwise.
+  `/dashboard` now shows real enrollments instead of the sample list.
+- **Course details** — syllabus/lesson outline with preview + locked lessons,
+  teacher, ৳ price, what is included, enrollment button with honest paid-course
+  notice, enrolled progress bar + lesson check-off.
+- **Firestore rules** — `firestore.rules` v2: published-only public course reads,
+  admin/owning-teacher writes, free-only self-enrollment, owners update progress
+  fields only.
+- **Seed** — `src/firebase/seed.ts`: builds the 8 sample courses/categories/
+  lesson outlines as Firestore docs for an admin to seed (see
+  `docs/firebase-setup.md` §8). Never runs on its own.
+- **Progress file** — `docs/progress.json`: machine-readable phase statuses
+  (`done` / `in_progress` / `pending`) for the SP Academy progress graph page.
+  Every future phase must update this file's statuses in its own commit
+  (see `docs/architecture.md`).
+
 ## What is NOT done yet
 
 - **Firebase project itself** — not created yet; needs the console steps in
   `docs/firebase-setup.md` + the six `VITE_FIREBASE_*` env vars (local
-  `.env.local` and Vercel).
-- **Phase 3** — Course management, enrollment
+  `.env.local` and Vercel). Until then, enrollment is demo-only and the
+  catalogue shows নমুনা data.
 - **Phase 4** — Student dashboard, video learning, progress
 - **Phase 5** — Teacher dashboard, live-class scheduling
 - **Phase 6** — Examination system, results, leaderboard
@@ -109,12 +142,15 @@ src/
   index.css           # Tailwind + reusable component classes
   styles/tokens.css   # Design tokens (source of truth)
   data/sample.ts      # Sample data (labelled নমুনা)
-  lib/                # format helpers, toast context
-  hooks/              # useTheme
+  firebase/           # config, courses, enrollments, seed, profiles
+  lib/                # format helpers, toast context, roles
+  hooks/              # useTheme, useCourses (catalogue + enrollments)
   components/         # Header, Footer, cards, ui states
-  pages/              # Home + 23 public pages
+  pages/              # Home + public pages + Dashboard, Profile, MyCourses
 docs/
   architecture.md     # Full 10-phase plan + ImgBB media plan
+  firebase-setup.md   # Firebase console steps (Phases 2–3)
+  progress.json       # Machine-readable phase statuses (update every phase!)
 DESIGN_SYSTEM.md
 ```
 
