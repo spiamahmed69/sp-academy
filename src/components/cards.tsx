@@ -14,7 +14,7 @@ export function CategoryTile({ category }: { category: Category }) {
   return (
     <Link
       to={`/courses?category=${category.id}`}
-      className="group relative block overflow-hidden rounded-3xl p-5 pb-8 text-white shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1.5"
+      className="group relative block overflow-hidden rounded-3xl p-4 pb-7 sm:p-5 sm:pb-8 text-white shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1.5"
       style={{ background: GRADIENTS[category.gradient] }}
     >
       <CoverPattern />

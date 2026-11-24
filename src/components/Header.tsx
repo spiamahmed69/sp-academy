@@ -44,13 +44,13 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
 
   return (
     <header className="sticky top-3 z-50 px-3 sm:px-4">
-      <div className="mx-auto flex max-w-7xl items-center gap-2 rounded-full border border-blue-100/70 bg-white px-3 py-2 shadow-[var(--shadow-pill)] sm:gap-3 sm:px-4 dark:border-slate-700 dark:bg-[#12233c]">
+      <div className="mx-auto flex max-w-7xl items-center gap-1.5 rounded-full border border-blue-100/70 bg-white px-2 py-2 shadow-[var(--shadow-pill)] sm:gap-3 sm:px-4 dark:border-slate-700 dark:bg-[#12233c]">
         <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="SP Academy হোম">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-primary)] text-white">
+          <span className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[var(--color-primary)] text-white">
             <GraduationCap className="h-6 w-6" />
           </span>
           <span className="leading-tight">
-            <span className="block text-[17px] font-extrabold text-[var(--color-heading)]">SP Academy</span>
+            <span className="block text-base sm:text-[17px] font-extrabold text-[var(--color-heading)]">SP Academy</span>
             <span className="hidden text-[11px] font-medium text-[var(--color-muted)] sm:block">Learn Today, Lead Tomorrow</span>
           </span>
         </Link>
@@ -89,7 +89,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
           </button>
         </form>
 
-        <Link to="/cart" aria-label={`কার্ট — ${toBanglaDigits(cartCount)}টি আইটেম`} className="relative cursor-pointer rounded-full p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]">
+        <Link to="/cart" aria-label={`কার্ট — ${toBanglaDigits(cartCount)}টি আইটেম`} className="relative cursor-pointer rounded-full p-1.5 sm:p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]">
           <ShoppingCart className="h-5 w-5" />
           {cartCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-cta-to)] px-1 text-[11px] font-extrabold text-white">
@@ -103,7 +103,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
             onClick={() => setBellOpen((o) => !o)}
             aria-label={`নোটিফিকেশন — ${unread}টি অপঠিত`}
             aria-expanded={bellOpen}
-            className="relative cursor-pointer rounded-full p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]"
+            className="relative cursor-pointer rounded-full p-1.5 sm:p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]"
           >
             <Bell className="h-5 w-5" />
             {unread > 0 && (
@@ -155,7 +155,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
         <button
           onClick={onToggleTheme}
           aria-label={theme === 'dark' ? 'লাইট মোডে যান' : 'ডার্ক মোডে যান'}
-          className="cursor-pointer rounded-full p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]"
+          className="cursor-pointer rounded-full p-1.5 sm:p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]"
         >
           {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </button>
@@ -185,7 +185,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
             <button
               onClick={() => void logout()}
               aria-label="লগআউট"
-              className="cursor-pointer rounded-full p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]"
+              className="cursor-pointer rounded-full p-1.5 sm:p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]"
             >
               <LogOut className="h-5 w-5" />
             </button>
@@ -200,7 +200,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
           onClick={() => setOpen((o) => !o)}
           aria-label={open ? 'মেনু বন্ধ করুন' : 'মেনু খুলুন'}
           aria-expanded={open}
-          className="cursor-pointer rounded-full p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)] xl:hidden"
+          className="cursor-pointer rounded-full p-1.5 sm:p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)] xl:hidden"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>

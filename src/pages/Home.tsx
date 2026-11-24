@@ -48,7 +48,7 @@ export default function Home() {
       <section className="hero-wave">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-10 pb-4 sm:px-6 lg:grid-cols-2 lg:px-8 lg:pt-16">
           <div className="animate-fade-up">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm font-bold text-[var(--color-primary)] shadow-sm">
+            <span className="inline-flex flex-wrap items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm font-bold text-[var(--color-primary)] shadow-sm">
               <GraduationCap className="h-4 w-4" /> বাংলাদেশের শিক্ষার্থীদের অনলাইন পাঠশালা <SampleBadge />
             </span>
             <h1 className="mt-5 text-4xl leading-[1.2] font-extrabold sm:text-5xl lg:text-[56px]">
@@ -184,7 +184,7 @@ export default function Home() {
       </section>
 
       {/* Categories */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:py-16 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="ক্যাটাগরি"
           title="জনপ্রিয় ক্যাটাগরি"
@@ -203,7 +203,7 @@ export default function Home() {
       </section>
 
       {/* Featured courses */}
-      <section className="bg-[var(--color-page-2)] py-16 dark:bg-slate-900/40">
+      <section className="bg-[var(--color-page-2)] py-12 sm:py-16 dark:bg-slate-900/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="ফিচার্ড"
@@ -224,7 +224,7 @@ export default function Home() {
       </section>
 
       {/* New courses */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:py-16 sm:px-6 lg:px-8">
         <SectionHeading eyebrow="নতুন" title="নতুন কোর্স" subtitle="সদ্য যুক্ত হওয়া কোর্স ও ফ্রি কোর্সসমূহ।" />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {newCourses.map((c) => (
@@ -234,7 +234,7 @@ export default function Home() {
       </section>
 
       {/* Teachers */}
-      <section className="bg-[var(--color-page-2)] py-16 dark:bg-slate-900/40">
+      <section className="bg-[var(--color-page-2)] py-12 sm:py-16 dark:bg-slate-900/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="শিক্ষকবৃন্দ"
@@ -255,7 +255,7 @@ export default function Home() {
       </section>
 
       {/* Why + stats */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:py-16 sm:px-6 lg:px-8">
         <SectionHeading eyebrow="কেন SP Academy" title="কেন SP Academy বেছে নেবেন?" />
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {[
@@ -287,7 +287,7 @@ export default function Home() {
       </section>
 
       {/* Live classes + exams */}
-      <section className="bg-[var(--color-page-2)] py-16 dark:bg-slate-900/40">
+      <section className="bg-[var(--color-page-2)] py-12 sm:py-16 dark:bg-slate-900/40">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
           <div>
             <SectionHeading eyebrow="লাইভ ক্লাস" title="আসন্ন লাইভ ক্লাস" subtitle="সময়সূচি নমুনা — আসল ক্লাসের লিংক শুরুর আগে এখানে দেখা যাবে।" />
@@ -347,7 +347,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:py-16 sm:px-6 lg:px-8">
         <SectionHeading eyebrow="শিক্ষার্থীদের কথা" title="শিক্ষার্থীরা যা বলছেন" subtitle="মতামতগুলো নমুনা — আসল রিভিউ এখনো যুক্ত হয়নি।" />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {testimonials.map((t) => (
@@ -368,7 +368,7 @@ export default function Home() {
       </section>
 
       {/* Books */}
-      <section className="bg-[var(--color-page-2)] py-16 dark:bg-slate-900/40">
+      <section className="bg-[var(--color-page-2)] py-12 sm:py-16 dark:bg-slate-900/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="বইয়ের দোকান"
@@ -389,7 +389,7 @@ export default function Home() {
       </section>
 
       {/* Blog */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:py-16 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="ব্লগ"
           title="সাম্প্রতিক ব্লগ"
@@ -418,7 +418,7 @@ export default function Home() {
                 দিয়ে শুরু করুন।
               </p>
             </div>
-            <Link to="/free-courses" className="shrink-0 rounded-full bg-white px-6 py-3 font-bold text-[#f97316] shadow transition-transform hover:-translate-y-0.5">
+            <Link to="/free-courses" className="w-full text-center sm:w-auto shrink-0 rounded-full bg-white px-6 py-3 font-bold text-[#f97316] shadow transition-transform hover:-translate-y-0.5">
               ফ্রি শুরু করুন
             </Link>
           </div>
