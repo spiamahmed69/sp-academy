@@ -167,6 +167,7 @@ export function courseFromDoc(id: string, data: Record<string, unknown>): Course
     isFree: asNumber(data.price, 0) === 0 || asBoolean(data.isFree),
     hasPreview: asBoolean(data.hasPreview),
     gradient: asGradient(data.gradient),
+    status: data.status === 'draft' ? 'draft' : data.status === 'archived' ? 'archived' : 'published',
     chapters: chapters.map((c) => ({ title: c.title, lessons: c.lessonTitles })),
   }
 }

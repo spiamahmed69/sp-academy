@@ -14,9 +14,11 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useCourseLessons, useMyCertificates, useMyEnrollments } from '../hooks/useCourses'
+import { useLiveClasses } from '../hooks/useLiveClasses'
+import { classifyLiveClass } from '../firebase/liveClasses'
 import { firstIncompleteLesson } from '../lib/learn'
-import { ROLE_LABELS } from '../lib/roles'
-import { liveClasses, upcomingExams } from '../data/sample'
+import { canAccess, ROLE_LABELS } from '../lib/roles'
+import { upcomingExams } from '../data/sample'
 import { formatIssuedAt } from '../firebase/certificates'
 import { Breadcrumbs, EmptyState, PageHero, SampleBadge, SkeletonCard } from '../components/ui'
 import { formatBDT } from '../lib/format'
@@ -28,9 +30,20 @@ function formatLiveClassTime(iso: string): string {
 }
 
 export default function Dashboard() {
-  const { user, profile, logout } = useAuth()
+  const { user, profile, role, logout } = useAuth()
   const { data: enrollments, isLoading: enrollmentsLoading } = useMyEnrollments()
   const { data: certificates, isLoading: certificatesLoading } = useMyCertificates()
+  const { data: liveData } = useLiveClasses()
+  const isTeacher = canAccess(role, ['teacher', 'admin', 'super_admin'])
+
+  // Upcoming live classes — Firestore when configured, labelled sample otherwise.
+  const upcomingLiveClasses = (liveData?.classes ?? [])
+    .filter((c) => {
+      const phase = classifyLiveClass(c)
+      return phase === 'upcoming' || phase === 'live'
+    })
+    .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt))
+    .slice(0, 3)
 
   const enrolled = enrollments ?? []
   const completedLessons = enrolled.reduce((n, e) => n + e.completedCount, 0)
@@ -189,24 +202,29 @@ export default function Dashboard() {
           </div>
 
           <aside className="space-y-4">
-            {/* ---- Upcoming live classes (নমুনা) ---- */}
+            {/* ---- Upcoming live classes (Firestore when configured, নমুনা otherwise) ---- */}
             <div className="card p-6">
               <div className="mb-3 flex items-center justify-between gap-2">
                 <h2 className="text-lg font-extrabold">আসন্ন লাইভ ক্লাস</h2>
-                <SampleBadge />
+                {liveData?.source === 'sample' && <SampleBadge />}
               </div>
-              <ul className="space-y-3">
-                {liveClasses.slice(0, 3).map((lc) => (
-                  <li key={lc.id} className="border-b border-blue-50 pb-3 last:border-0 last:pb-0 dark:border-slate-800">
-                    <Link to="/live-classes" className="font-bold hover:text-[var(--color-primary)]">
-                      {lc.title}
-                    </Link>
-                    <p className="mt-0.5 flex items-center gap-1 text-xs text-[var(--color-muted)]">
-                      <CalendarDays className="h-3.5 w-3.5" /> {formatLiveClassTime(lc.startsAt)} · {lc.durationMin} মিনিট (নমুনা)
-                    </p>
-                  </li>
-                ))}
-              </ul>
+              {upcomingLiveClasses.length === 0 ? (
+                <p className="text-sm text-[var(--color-body)]">আসন্ন কোনো লাইভ ক্লাস নেই।</p>
+              ) : (
+                <ul className="space-y-3">
+                  {upcomingLiveClasses.map((lc) => (
+                    <li key={lc.id} className="border-b border-blue-50 pb-3 last:border-0 last:pb-0 dark:border-slate-800">
+                      <Link to="/live-classes" className="font-bold hover:text-[var(--color-primary)]">
+                        {lc.title}
+                      </Link>
+                      <p className="mt-0.5 flex items-center gap-1 text-xs text-[var(--color-muted)]">
+                        <CalendarDays className="h-3.5 w-3.5" /> {formatLiveClassTime(lc.startsAt)} · {lc.durationMin} মিনিট
+                        {liveData?.source === 'sample' ? ' (নমুনা)' : ''}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <Link to="/live-classes" className="mt-4 inline-block text-sm font-bold text-[var(--color-primary)] hover:underline">
                 সব লাইভ ক্লাস →
               </Link>
@@ -262,6 +280,11 @@ export default function Dashboard() {
                 <Link to="/my-courses" className="text-[var(--color-primary)] hover:underline">
                   আমার কোর্স →
                 </Link>
+                {isTeacher && (
+                  <Link to="/teacher" className="text-[var(--color-primary)] hover:underline">
+                    শিক্ষক ড্যাশবোর্ড →
+                  </Link>
+                )}
                 <Link to="/live-classes" className="text-[var(--color-primary)] hover:underline">
                   আসন্ন লাইভ ক্লাস →
                 </Link>

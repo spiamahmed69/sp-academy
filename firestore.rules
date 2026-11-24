@@ -1,5 +1,5 @@
 /**
- * SP Academy — Firestore security rules (Phase 4 draft, v3).
+ * SP Academy — Firestore security rules (Phase 5 draft, v4).
  *
  * Principles:
  * - Auth is required for all writes; public reads only where the Phase 1
@@ -18,6 +18,17 @@
  *   update only their progress fields, never price/payment/ownership.
  * - Certificates: read only by the owner or an admin; writes stay blocked
  *   until exams (Phase 6) issue them server-side. No client can mint one.
+ * - Live classes (Phase 5): the schedule is public to read (except
+ *   cancelled classes, which only admins / the owning teacher see);
+ *   teachers may create ONLY their own classes as 'scheduled' and update
+ *   ONLY their own classes (never reassigning teacherId/courseId);
+ *   admins manage all. The joinUrl is public by design — students need
+ *   it to join — but the UI shows it only when the class actually has one.
+ * - Enrollments: teachers may READ enrollments of their own courses
+ *   (counts + progress for the teacher dashboard) but never write them.
+ * - classAttendance is reserved: reads for the class teacher / admin,
+ *   writes blocked until a real live session exists to mark attendance
+ *   against — marking attendance without a session would be invented data.
  * - These rules are the enforcement layer. Client-side guards
  *   (src/components/ProtectedRoute.tsx, src/lib/roles.ts) are UI only.
  *
@@ -62,6 +73,12 @@ service cloud.firestore {
 
     function isCourseTeacher(courseId) {
       return isTeacher() && courseDoc(courseId).instructorId == request.auth.uid;
+    }
+
+    function isCourseTeacherById(courseId) {
+      return isTeacher()
+        && exists(/databases/$(database)/documents/courses/$(courseId))
+        && courseDoc(courseId).instructorId == request.auth.uid;
     }
 
     function isCourseVisible(courseId) {
@@ -120,8 +137,11 @@ service cloud.firestore {
     }
 
     // ---- enrollments: free-only self-enrollment; owners update progress only ----
+    // Teachers may READ enrollments of their own courses (dashboard counts);
+    // they may never create / update / delete them.
     match /enrollments/{enrollmentId} {
-      allow read: if isSelf(resource.data.userId) || isAdmin();
+      allow read: if isSelf(resource.data.userId) || isAdmin()
+        || isCourseTeacherById(resource.data.courseId);
       // A client may create ONLY its own enrollment, ONLY for a free course.
       // Paid enrollments are created server-side with payment verification (Phase 8).
       allow create: if signedIn()
@@ -143,6 +163,37 @@ service cloud.firestore {
     // ---- certificates: read only by owner/admin; issued server-side in Phase 6 ----
     match /certificates/{certId} {
       allow read: if isSelf(resource.data.userId) || isAdmin();
+      allow write: if false;
+    }
+
+    // ---- live classes: public schedule; teachers manage only their own ----
+    match /liveClasses/{classId} {
+      allow read: if resource.data.status in ['scheduled', 'live', 'ended']
+        || isAdmin()
+        || (signedIn() && resource.data.teacherId == request.auth.uid);
+      allow create: if isAdmin()
+        || (isTeacher()
+          && request.resource.data.teacherId == request.auth.uid
+          && request.resource.data.status == 'scheduled'
+          && request.resource.data.title is string
+          && request.resource.data.subject is string
+          && request.resource.data.startsAt is timestamp
+          && request.resource.data.durationMin is number
+          && request.resource.data.durationMin >= 5
+          && request.resource.data.durationMin <= 480);
+      // Owning teacher / admin may update, but never reassign the class.
+      allow update: if isAdmin()
+        || (isTeacher()
+          && resource.data.teacherId == request.auth.uid
+          && request.resource.data.teacherId == resource.data.teacherId
+          && request.resource.data.courseId == resource.data.courseId);
+      allow delete: if isAdmin();
+    }
+
+    // ---- class attendance: reserved until a real live session exists ----
+    match /classAttendance/{attendanceId} {
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.teacherId == request.auth.uid);
       allow write: if false;
     }
 

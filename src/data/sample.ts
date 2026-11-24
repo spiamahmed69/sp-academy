@@ -86,6 +86,8 @@ export interface Course {
   isFree: boolean
   hasPreview: boolean
   gradient: GradientKey
+  /** Firestore status when read live; sample courses have none (treated as published). */
+  status?: 'draft' | 'published' | 'archived'
   chapters: { title: string; lessons: string[] }[]
 }
 

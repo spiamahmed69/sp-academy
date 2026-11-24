@@ -67,7 +67,7 @@ enroll and never fake a payment — the UI says payment arrives in Phase 8.
 `src/pages/Courses.tsx`, `src/pages/FreeCourses.tsx`, `src/pages/Dashboard.tsx`,
 `firestore.rules`, `docs/progress.json`, `docs/firebase-setup.md` §8.
 
-## Phase 4 — IN PROGRESS (this repo)
+## Phase 4 — DONE (this repo)
 
 **Scope:** student dashboard overhaul (`/dashboard`: overall progress %,
 continue-learning card resuming at the first incomplete lesson, all
@@ -94,22 +94,55 @@ is genuinely earned.
 `src/pages/Courses.tsx`, `src/pages/MyCourses.tsx`, `src/App.tsx`,
 `src/hooks/useCourses.ts`, `firestore.rules`, `docs/progress.json`.
 
-## Progress tracking — docs/progress.json (every phase must update it)
+## Phase 5 — DONE (this repo)
 
-`docs/progress.json` is the machine-readable source for the SP Academy
-progress graph page: `{ "updated_at": "<ISO date>", "phases": [{ "id", "name",
-"status": "done" | "in_progress" | "pending", "note" }] }` — one entry per
-phase, 1–10. **Rule: every future phase must update this file's statuses in
-its own commit** — mark the phase `in_progress` when work starts and `done`
-(with a short note, e.g. the live URL) when it ships. Never leave a shipped
-phase as `pending` or `in_progress`.
+**Scope:** teacher dashboard (`/teacher`: own courses with status, live
+enrollment counts + average progress per course, lesson/class stats, add-lesson
+form per course, student-stats table), live-class model
+(`liveClasses/{id}`, `src/firebase/liveClasses.ts` — schedule list,
+upcoming/past split, join-link handling, teacher scheduling form with Zod
+validation), `/live-classes` rewired to Firestore when configured (labelled
+নমুনা sample otherwise), student dashboard teaser rewired to the same
+service, header + dashboard links to `/teacher` for teacher/admin roles,
+`firestore.rules` v4 (liveClasses rules, teachers may read enrollments of
+their own courses, `classAttendance` reserved).
+
+**Honest live-class state:** there is STILL no real video-call integration,
+so a class never pretends to be live. The join button renders a real link
+ONLY when the class document has a `joinUrl`; otherwise the UI says the link
+will appear before the class starts. A recording link renders ONLY when a
+`recordingUrl` exists. Attendee counts show ONLY when known (sample counts
+labelled নমুনা; Firestore classes show no invented count). No earnings, no
+fake students: the demo preview shows sample counts with a নমুনা badge and
+no student names; the real dashboard shows counts + average progress only,
+because enrollments carry no names and teachers cannot read other users'
+profile docs. Attendance marking is intentionally NOT built — without a real
+live session, marking who attended would be invented data; it arrives with
+a real live-class integration.
+
+**Files:** `src/pages/TeacherDashboard.tsx`, `src/firebase/liveClasses.ts`,
+`src/firebase/liveClasses.test.ts`, `src/firebase/teacherStats.ts`,
+`src/firebase/teacherStats.test.ts`, `src/hooks/useLiveClasses.ts`,
+`src/hooks/useTeacher.ts`, `src/pages/LiveClasses.tsx`,
+`src/pages/Dashboard.tsx`, `src/components/Header.tsx`, `src/App.tsx`,
+`firestore.rules`, `docs/architecture.md`, `README.md`.
+
+## Progress tracking — docs/progress.json (NO LONGER UPDATED)
+
+`docs/progress.json` was the machine-readable source for the SP Academy
+progress graph page. **2026-11-24 the user said the progress graph no longer
+needs updating — from Phase 5 onward, phases do NOT update
+`docs/progress.json` and do NOT touch the sp-academy-progress artifact.**
+The file stays in the repo at its Phase 4 state (phases 1–3 done, 4
+in_progress, 5–10 pending) as a historical record only. Phase status is
+tracked in this document (`docs/architecture.md`) and in `README.md` instead.
 
 ## Phases 5–10 (planned, not implemented)
 
 | Phase | Scope | Key deliverables |
 | --- | --- | --- |
-| 4 | Student dashboard — IN PROGRESS | Overview, My Courses, Continue Learning, lesson player + progress, notes/PDFs, certificates |
-| 5 | Teacher dashboard | Assigned courses/lessons, live-class scheduling, attendance |
+| 4 | Student dashboard — DONE | Overview, My Courses, Continue Learning, lesson player + progress, notes/PDFs, certificates |
+| 5 | Teacher dashboard — DONE | Own courses, enrollment stats, live-class scheduling, add-lesson form |
 | 6 | Examination system | MCQ/CQ, chapter/subject/model/full tests, server-side answer keys, auto + manual evaluation, results, leaderboard, analytics |
 | 7 | Admin dashboard | Users/roles, courses, exams, books, orders, payments, banners, notifications, reports, settings, audit logs — real DB values only |
 | 8 | Payments + Bookstore | bKash / Nagad / SSLCommerz / Card / COD — server-side initiation, callback + webhook verification, idempotent processing, refunds; book catalog, cart, checkout, delivery tracking |
@@ -118,13 +151,15 @@ phase as `pending` or `in_progress`.
 
 ## Firestore collections (planned + live)
 
-Live since Phase 2–4: `users, roles, permissions, students, teachers,
-courses, courseCategories, enrollments, certificates`, plus the `lessons` subcollection
+Live since Phase 2–5: `users, roles, permissions, students, teachers,
+courses, courseCategories, enrollments, certificates, liveClasses`, plus the `lessons` subcollection
 under each course. Lesson progress lives on the enrollment doc
 (`completedLessonIds`, `progressPercent`) — no separate `lessonProgress`
 collection was needed. Certificates are read-only for the owner/admin
-until Phase 6 issues them server-side. Remaining planned collections: `chapters, liveClasses,
-classAttendance, exams, questions, examAttempts, examAnswers, examResults,
+until Phase 6 issues them server-side. `classAttendance` is reserved in
+the rules (writes blocked) until a real live session exists to mark
+attendance against. Remaining planned collections: `chapters,
+exams, questions, examAttempts, examAnswers, examResults,
 certificates, books, authors, publishers, carts, orders, payments, coupons,
 reviews, blogs, banners, notifications, supportTickets, settings, auditLogs`
 
