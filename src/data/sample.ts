@@ -188,6 +188,54 @@ export const upcomingExams: ExamItem[] = [
   { id: 'e4', title: 'বিসিএস প্রিলি মডেল টেস্ট ০৫', subject: 'সাধারণ জ্ঞান', type: 'মডেল টেস্ট', date: '২০২৬-১২-১৪', durationMin: 120, marks: 200, questions: 200, enrolled: 2750 },
 ]
 
+/**
+ * Sample exam questions — Phase 6.
+ *
+ * These are OPENLY labelled নমুনা practice questions (not a real exam):
+ * a demo attempt shows the score immediately in this browser only.
+ * Real Firestore exams NEVER ship answers to the student client — their
+ * questions live in exams/{id}/questions and keys in examKeys/{id}.
+ */
+export interface SampleExamQuestion {
+  id: string
+  text: string
+  options: string[]
+  correctIndex: number
+  marks: number
+  order: number
+}
+
+export const sampleExamQuestions: Record<string, SampleExamQuestion[]> = {
+  e1: [
+    { id: 'q1', text: 'শূন্য মাধ্যমে আলোর বেগ কত?', options: ['৩×১০⁸ মি/সেকেন্ড', '৩×১০⁶ মি/সেকেন্ড', '৩×১০⁵ মি/সেকেন্ড', '১.৫×১০⁸ মি/সেকেন্ড'], correctIndex: 0, marks: 5, order: 0 },
+    { id: 'q2', text: 'বলের SI একক কোনটি?', options: ['জুল', 'ওয়াট', 'নিউটন', 'প্যাসকেল'], correctIndex: 2, marks: 5, order: 1 },
+    { id: 'q3', text: 'কোন যন্ত্র দিয়ে তড়িৎ প্রবাহ মাপা হয়?', options: ['ভোল্টমিটার', 'অ্যামিটার', 'ওহমমিটার', 'ব্যারোমিটার'], correctIndex: 1, marks: 5, order: 2 },
+    { id: 'q4', text: 'ভরবেগের সংরক্ষণশীলতা নীতিটি কোনটির ক্ষেত্রে প্রযোজ্য?', options: ['শুধু স্থিতিস্থাপক সংঘর্ষে', 'সব ধরনের সংঘর্ষে', 'শুধু অস্থিতিস্থাপক সংঘর্ষে', 'কোনো সংঘর্ষেই নয়'], correctIndex: 1, marks: 5, order: 3 },
+    { id: 'q5', text: '১ কিলোওয়াট-ঘণ্টা সমান কত জুল?', options: ['৩.৬×১০³ জুল', '৩.৬×১০⁵ জুল', '৩.৬×১০⁶ জুল', '৩.৬×১০⁴ জুল'], correctIndex: 2, marks: 5, order: 4 },
+  ],
+  e2: [
+    { id: 'q1', text: '১২-এর বর্গমূলের নিকটতম পূর্ণসংখ্যা কত?', options: ['২', '৩', '৪', '৫'], correctIndex: 1, marks: 5, order: 0 },
+    { id: 'q2', text: 'x + ৭ = ১৫ হলে x = ?', options: ['৬', '৭', '৮', '৯'], correctIndex: 2, marks: 5, order: 1 },
+    { id: 'q3', text: 'একটি ত্রিভুজের তিন কোণের সমষ্টি কত ডিগ্রি?', options: ['৯০°', '১৮০°', '২৭০°', '৩৬০°'], correctIndex: 1, marks: 5, order: 2 },
+    { id: 'q4', text: '১৫-এর ২০% কত?', options: ['২', '৩', '৪', '৫'], correctIndex: 1, marks: 5, order: 3 },
+    { id: 'q5', text: '২, ৪, ৮, ১৬ ধারার পরের সংখ্যা কত?', options: ['২০', '২৪', '৩২', '৩০'], correctIndex: 2, marks: 5, order: 4 },
+  ],
+  e3: [
+    { id: 'q1', text: 'মানবদেহে প্রাপ্তবয়স্ক মানুষের হাড়ের সংখ্যা কত?', options: ['১৯৬টি', '২০৬টি', '২১৬টি', '১৮৬টি'], correctIndex: 1, marks: 5, order: 0 },
+    { id: 'q2', text: 'সালোকসংশ্লেষণ কোথায় ঘটে?', options: ['মাইটোকন্ড্রিয়া', 'ক্লোরোপ্লাস্ট', 'নিউক্লিয়াস', 'রাইবোজোম'], correctIndex: 1, marks: 5, order: 1 },
+    { id: 'q3', text: 'রক্তের লোহিত কণিকার আয়ুষ্কাল কত দিন?', options: ['৬০ দিন', '৯০ দিন', '১২০ দিন', '১৫০ দিন'], correctIndex: 2, marks: 5, order: 2 },
+    { id: 'q4', text: 'ডিএনএ-এর পূর্ণরূপ কী?', options: ['ডিঅক্সিরাইবো নিউক্লিক অ্যাসিড', 'ডিঅক্সিরাইবো নিউক্লিয়ার অ্যাসিড', 'ডাইঅক্সি রাইবো নিউক্লিক অ্যাসিড', 'ডিঅক্সি রাইবোনিউক্লিক অ্যাসিড'], correctIndex: 0, marks: 5, order: 3 },
+    { id: 'q5', text: 'মানবদেহের সবচেয়ে বড় অঙ্গ কোনটি?', options: ['যকৃৎ', 'হৃৎপিণ্ড', 'ত্বক', 'ফুসফুস'], correctIndex: 2, marks: 5, order: 4 },
+  ],
+  e4: [
+    { id: 'q1', text: 'বাংলাদেশের জাতীয় ফল কোনটি?', options: ['আম', 'কাঁঠাল', 'কলা', 'লিচু'], correctIndex: 1, marks: 5, order: 0 },
+    { id: 'q2', text: 'বাংলাদেশের জাতীয় সংগীতের রচয়িতা কে?', options: ['কাজী নজরুল ইসলাম', 'রবীন্দ্রনাথ ঠাকুর', 'জসীমউদ্দীন', 'সুকান্ত ভট্টাচার্য'], correctIndex: 1, marks: 5, order: 1 },
+    { id: 'q3', text: 'পদ্মা সেতুর দৈর্ঘ্য কত কিলোমিটার?', options: ['৫.৫ কিমি', '৬.১৫ কিমি', '৪.৮ কিমি', '৭.২ কিমি'], correctIndex: 1, marks: 5, order: 2 },
+    { id: 'q4', text: 'বাংলাদেশের মুদ্রার নাম কী?', options: ['রুপি', 'টাকা', 'দিনার', 'রিয়াল'], correctIndex: 1, marks: 5, order: 3 },
+    { id: 'q5', text: 'সুন্দরবন কোন জেলায় অবস্থিত?', options: ['বরিশাল', 'খুলনা', 'চট্টগ্রাম', 'সিলেট'], correctIndex: 1, marks: 5, order: 4 },
+  ],
+}
+
 export interface BlogPost {
   slug: string
   title: string

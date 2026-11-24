@@ -3,8 +3,14 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Award, Search, Trophy } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { DemoNotice, EmptyState, PageHero, SampleBadge } from '../components/ui'
 import { useToast } from '../lib/toast'
+import { useAuth } from '../contexts/AuthContext'
+import { useMyAttempts } from '../hooks/useExams'
+import { AttemptResultCard } from './ExamAttempt'
+import { sampleQuestionsToViews } from '../firebase/exams'
+import { sampleExamQuestions } from '../data/sample'
 
 const rollSchema = z.object({
   roll: z.string().min(4, 'রোল নম্বর কমপক্ষে ৪ অক্ষরের হতে হবে').max(20, 'রোল নম্বর অনেক বড়'),
@@ -22,6 +28,8 @@ const LEADERBOARD = [
 
 export default function Results() {
   const { push } = useToast()
+  const { user } = useAuth()
+  const { data: attempts, isLoading: attemptsLoading } = useMyAttempts()
   const [searched, setSearched] = useState<string | null>(null)
   const {
     register,
@@ -43,9 +51,52 @@ export default function Results() {
       />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <DemoNotice>
-          এটি ডেমো ফলাফল পেজ। যেকোনো রোল নম্বর দিলে একই নমুনা ফলাফল দেখাবে — আসল ফলাফল Phase 6-এ
-          সার্ভার থেকে আসবে।
+          নিচের রোল-খোঁজা ও মেধাতালিকা নমুনা — যেকোনো রোল নম্বর দিলে একই নমুনা ফলাফল
+          দেখাবে। আপনার আসল ফলাফল উপরে "আমার ফলাফল" অংশে আছে।
         </DemoNotice>
+
+        {/* ---- My real results (Phase 6) ---- */}
+        <h2 className="mb-4 text-xl font-extrabold">আমার ফলাফল</h2>
+        {!user ? (
+          <div className="card mb-10 p-6">
+            <p className="text-sm leading-relaxed text-[var(--color-body)]">
+              নিজের পরীক্ষার ফলাফল দেখতে লগইন করুন।{' '}
+              <Link to="/login" className="font-bold text-[var(--color-primary)] hover:underline">
+                লগইন করুন →
+              </Link>
+            </p>
+          </div>
+        ) : attemptsLoading ? (
+          <div className="card mb-10 p-6">
+            <p className="text-sm text-[var(--color-body)]">ফলাফল আনা হচ্ছে…</p>
+          </div>
+        ) : !attempts || attempts.length === 0 ? (
+          <div className="mb-10">
+            <EmptyState
+              title="এখনো কোনো পরীক্ষা দেওয়া হয়নি"
+              message="পরীক্ষা দিয়ে জমা দিলে ফলাফল এখানে দেখা যাবে। শিক্ষক মূল্যায়ন করলে নম্বর আসবে।"
+            />
+            <Link to="/exams" className="btn-primary mt-4 inline-flex text-sm">
+              পরীক্ষা দিন →
+            </Link>
+          </div>
+        ) : (
+          <div className="mb-10 space-y-4">
+            {attempts.map((attempt) => {
+              const isDemo = attempt.source === 'demo'
+              const questions = isDemo ? sampleQuestionsToViews(sampleExamQuestions[attempt.examId] ?? []) : undefined
+              return (
+                <AttemptResultCard
+                  key={attempt.id}
+                  attempt={attempt}
+                  questions={questions}
+                  showCorrectAnswers={isDemo}
+                  sampleQuestions={isDemo ? (sampleExamQuestions[attempt.examId] ?? []) : undefined}
+                />
+              )
+            })}
+          </div>
+        )}
 
         <div className="grid gap-8 lg:grid-cols-2">
           <div>

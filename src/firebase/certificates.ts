@@ -5,12 +5,12 @@
  *   { userId, courseId, courseTitle, issuedAt, grade? }
  *
  * Honesty rules:
- * - Certificates are issued only by exams (Phase 6). Nothing in this
+ * - Certificates are issued only by the backend (Phase 10). Nothing in this
  *   phase creates a certificate, and the dashboard shows an honest empty
  *   state ("এখনো কোনো সার্টিফিকেট নেই") until one is genuinely earned.
  * - This service only READS a user's own certificates. The rules
- *   (firestore.rules v3) allow read only for the owner or an admin;
- *   writes stay blocked until Phase 6 adds the server-side issuer.
+ *   (firestore.rules v5) allow read only for the owner or an admin;
+ *   writes stay blocked until Phase 10 adds the server-side issuer.
  */
 import { collection, getDocs, query, where, type Firestore } from 'firebase/firestore'
 
@@ -51,7 +51,7 @@ function issuedAtMillis(value: unknown): number {
   return 0
 }
 
-/** The user's certificates, newest first. Empty until Phase 6 issues any. */
+/** The user's certificates, newest first. Empty until the backend issues any. */
 export async function getMyCertificates(db: Firestore, uid: string): Promise<CertificateDoc[]> {
   const snap = await getDocs(query(collection(db, 'certificates'), where('userId', '==', uid)))
   const list = snap.docs

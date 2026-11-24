@@ -3,9 +3,9 @@
  *
  * Protected route: shows the signed-in user's profile, role and real
  * enrollments from Firestore (Phase 3), lesson progress (Phase 4),
- * certificates (honest empty state until exams in Phase 6 issue any),
- * and teasers for upcoming live classes + exams — those two lists are
- * still নমুনা sample data until their phases land.
+ * certificates (honest empty state until the backend (Phase 10) issues any),
+ * and teasers for upcoming live classes + exams — both wired to their
+ * services (Firestore when configured, labelled sample otherwise).
  */
 import { Link } from 'react-router-dom'
 import {
@@ -15,13 +15,14 @@ import {
 import { useAuth } from '../contexts/AuthContext'
 import { useCourseLessons, useMyCertificates, useMyEnrollments } from '../hooks/useCourses'
 import { useLiveClasses } from '../hooks/useLiveClasses'
+import { useExams } from '../hooks/useExams'
+import { examPhase } from '../firebase/exams'
 import { classifyLiveClass } from '../firebase/liveClasses'
 import { firstIncompleteLesson } from '../lib/learn'
 import { canAccess, ROLE_LABELS } from '../lib/roles'
-import { upcomingExams } from '../data/sample'
 import { formatIssuedAt } from '../firebase/certificates'
 import { Breadcrumbs, EmptyState, PageHero, SampleBadge, SkeletonCard } from '../components/ui'
-import { formatBDT } from '../lib/format'
+import { formatBDT, toBanglaDigits } from '../lib/format'
 
 function formatLiveClassTime(iso: string): string {
   const d = new Date(iso)
@@ -34,7 +35,19 @@ export default function Dashboard() {
   const { data: enrollments, isLoading: enrollmentsLoading } = useMyEnrollments()
   const { data: certificates, isLoading: certificatesLoading } = useMyCertificates()
   const { data: liveData } = useLiveClasses()
+  const { data: examsData } = useExams()
   const isTeacher = canAccess(role, ['teacher', 'admin', 'super_admin'])
+
+  // Upcoming exams — Firestore when configured, labelled sample otherwise.
+  const upcomingExams = (examsData?.exams ?? [])
+    .filter((e) => e.status === 'published' && examPhase(e) !== 'closed')
+    .sort((a, b) => {
+      const aTime = a.scheduledAt ? Date.parse(a.scheduledAt) : 0
+      const bTime = b.scheduledAt ? Date.parse(b.scheduledAt) : 0
+      return aTime - bTime
+    })
+    .slice(0, 3)
+  const examsAreSample = examsData?.source === 'sample'
 
   // Upcoming live classes — Firestore when configured, labelled sample otherwise.
   const upcomingLiveClasses = (liveData?.classes ?? [])
@@ -166,17 +179,17 @@ export default function Dashboard() {
               )}
             </section>
 
-            {/* ---- Certificates (honest empty state until Phase 6) ---- */}
+            {/* ---- Certificates (honest empty state until the backend issues any) ---- */}
             <section className="card p-6">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <h2 className="text-lg font-extrabold">আমার সার্টিফিকেট</h2>
-                <SampleBadge label="Phase 6-এ আসছে" />
+                <SampleBadge label="ব্যাকএন্ডে আসছে" />
               </div>
               {certificatesLoading && <SkeletonCard />}
               {!certificatesLoading && (!certificates || certificates.length === 0) && (
                 <EmptyState
                   title="এখনো কোনো সার্টিফিকেট নেই"
-                  message="পরীক্ষায় (Phase 6) উত্তীর্ণ হলে সার্টিফিকেট এখানে দেখা যাবে। এখানে কোনো নমুনা সার্টিফিকেট দেখানো হচ্ছে না।"
+                  message="পরীক্ষায় উত্তীর্ণ হলে সার্টিফিকেট এখানে দেখা যাবে — সার্টিফিকেট ইস্যু ব্যাকএন্ডে (Phase 10) আসছে। এখানে কোনো নমুনা সার্টিফিকেট দেখানো হচ্ছে না।"
                   action={
                     <Link to="/exams" className="btn-primary text-sm">
                       পরীক্ষা দেখুন
@@ -230,24 +243,33 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            {/* ---- Upcoming exams (নমুনা) ---- */}
+            {/* ---- Upcoming exams (Firestore when configured, নমুনা otherwise) ---- */}
             <div className="card p-6">
               <div className="mb-3 flex items-center justify-between gap-2">
                 <h2 className="text-lg font-extrabold">আসন্ন পরীক্ষা</h2>
-                <SampleBadge />
+                {examsAreSample && <SampleBadge />}
               </div>
-              <ul className="space-y-3">
-                {upcomingExams.slice(0, 3).map((ex) => (
-                  <li key={ex.id} className="border-b border-blue-50 pb-3 last:border-0 last:pb-0 dark:border-slate-800">
-                    <Link to="/exams" className="font-bold hover:text-[var(--color-primary)]">
-                      {ex.title}
-                    </Link>
-                    <p className="mt-0.5 flex items-center gap-1 text-xs text-[var(--color-muted)]">
-                      <ClipboardList className="h-3.5 w-3.5" /> {ex.date} · {ex.marks} নম্বর · {ex.questions}টি প্রশ্ন (নমুনা)
-                    </p>
-                  </li>
-                ))}
-              </ul>
+              {upcomingExams.length === 0 ? (
+                <p className="text-sm text-[var(--color-body)]">আপাতত কোনো আসন্ন পরীক্ষা নেই।</p>
+              ) : (
+                <ul className="space-y-3">
+                  {upcomingExams.map((ex) => (
+                    <li key={ex.id} className="border-b border-blue-50 pb-3 last:border-0 last:pb-0 dark:border-slate-800">
+                      <Link to={`/exams/${ex.id}/attempt`} className="font-bold hover:text-[var(--color-primary)]">
+                        {ex.title}
+                      </Link>
+                      <p className="mt-0.5 flex items-center gap-1 text-xs text-[var(--color-muted)]">
+                        <ClipboardList className="h-3.5 w-3.5" />{' '}
+                        {ex.scheduledAt
+                          ? new Date(ex.scheduledAt).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long' })
+                          : 'যেকোনো সময়'}{' '}
+                        · {toBanglaDigits(ex.totalMarks)} নম্বর · {toBanglaDigits(ex.questionCount)}টি প্রশ্ন
+                        {examsAreSample ? ' (নমুনা)' : ''}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <Link to="/exams" className="mt-4 inline-block text-sm font-bold text-[var(--color-primary)] hover:underline">
                 সব পরীক্ষা →
               </Link>

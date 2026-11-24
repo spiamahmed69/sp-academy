@@ -11,6 +11,8 @@ import Teachers, { TeacherProfile } from './pages/Teachers'
 import FreeCourses from './pages/FreeCourses'
 import LiveClasses from './pages/LiveClasses'
 import Exams from './pages/Exams'
+import ExamAttempt from './pages/ExamAttempt'
+import ManageExams from './pages/ManageExams'
 import Results from './pages/Results'
 import Books, { BookDetails } from './pages/Books'
 import Blog, { BlogDetails } from './pages/Blog'
@@ -76,6 +78,22 @@ export default function App() {
           <Route path="/my-courses" element={<MyCourses />} />
           <Route path="/live-classes" element={<LiveClasses />} />
           <Route path="/exams" element={<Exams />} />
+          <Route
+            path="/exams/:id/attempt"
+            element={
+              <ProtectedRoute>
+                <ExamAttempt />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/exams/manage"
+            element={
+              <ProtectedRoute>
+                <ManageExams />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/results" element={<Results />} />
           <Route path="/books" element={<Books />} />
           <Route path="/books/:id" element={<BookDetails />} />

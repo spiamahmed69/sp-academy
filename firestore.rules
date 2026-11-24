@@ -1,5 +1,5 @@
 /**
- * SP Academy — Firestore security rules (Phase 5 draft, v4).
+ * SP Academy — Firestore security rules (Phase 6 draft, v5).
  *
  * Principles:
  * - Auth is required for all writes; public reads only where the Phase 1
@@ -17,7 +17,17 @@
  *   is created server-side with payment verification (Phase 8). Owners may
  *   update only their progress fields, never price/payment/ownership.
  * - Certificates: read only by the owner or an admin; writes stay blocked
- *   until exams (Phase 6) issue them server-side. No client can mint one.
+ *   until the backend (Phase 10) issues them server-side. No client can mint one.
+ * - Exams (Phase 6): metadata is public when published; questions live in
+ *   exams/{id}/questions and contain NO answers, so students may read them
+ *   during an attempt. Answer keys live in examKeys/{id} and are readable
+ *   ONLY by the exam's teacher / an admin — the student client NEVER gets
+ *   them. Attempts are examAttempts/{uid}_{examId}: one per student per
+ *   exam (create fails when the doc exists; the id itself pins owner+exam).
+ *   The owner may update ONLY in_progress → submitted (answers +
+ *   submittedAt); the exam's teacher / admin may update ONLY submitted →
+ *   evaluated (score fields) — nobody can edit an attempt after it is
+ *   evaluated, and nobody can invent a score for themselves.
  * - Live classes (Phase 5): the schedule is public to read (except
  *   cancelled classes, which only admins / the owning teacher see);
  *   teachers may create ONLY their own classes as 'scheduled' and update
@@ -83,6 +93,25 @@ service cloud.firestore {
 
     function isCourseVisible(courseId) {
       return courseDoc(courseId).status == 'published' || isAdmin() || isCourseTeacher(courseId);
+    }
+
+    function examDoc(examId) {
+      return get(/databases/$(database)/documents/exams/$(examId)).data;
+    }
+
+    function isExamTeacher(examId) {
+      return isTeacher() && examDoc(examId).teacherId == request.auth.uid;
+    }
+
+    function isExamTeacherById(examId) {
+      return isTeacher()
+        && exists(/databases/$(database)/documents/exams/$(examId))
+        && examDoc(examId).teacherId == request.auth.uid;
+    }
+
+    function isExamPublished(examId) {
+      return exists(/databases/$(database)/documents/exams/$(examId))
+        && examDoc(examId).status == 'published';
     }
 
     // ---- users: own doc only; role can only be 'student' on create ----
@@ -164,6 +193,68 @@ service cloud.firestore {
     match /certificates/{certId} {
       allow read: if isSelf(resource.data.userId) || isAdmin();
       allow write: if false;
+    }
+
+    // ---- exams: public when published; questions carry no answers; keys are teacher/admin only ----
+    match /exams/{examId} {
+      allow read: if resource.data.status == 'published' || isAdmin()
+        || (signedIn() && resource.data.teacherId == request.auth.uid);
+      allow create: if isAdmin()
+        || (isTeacher()
+          && request.resource.data.teacherId == request.auth.uid
+          && request.resource.data.status == 'draft'
+          && request.resource.data.title is string
+          && request.resource.data.durationMin is number
+          && request.resource.data.durationMin >= 5
+          && request.resource.data.durationMin <= 480
+          && request.resource.data.questionCount is number
+          && request.resource.data.totalMarks is number);
+      // Owning teacher / admin may update, but never reassign the exam.
+      allow update: if isAdmin()
+        || (isTeacher()
+          && resource.data.teacherId == request.auth.uid
+          && request.resource.data.teacherId == resource.data.teacherId);
+      allow delete: if isAdmin()
+        || (isTeacher() && resource.data.teacherId == request.auth.uid);
+
+      // Questions: student-safe (no correctAnswer field exists here).
+      match /questions/{questionId} {
+        allow read: if isExamPublished(examId) || isAdmin() || isExamTeacher(examId);
+        allow create, update, delete: if isAdmin() || isExamTeacher(examId);
+      }
+    }
+
+    // Answer keys: ONLY the exam's teacher / an admin. Students never read this.
+    match /examKeys/{examId} {
+      allow read: if isAdmin() || isExamTeacherById(examId);
+      allow write: if isAdmin() || isExamTeacherById(examId);
+    }
+
+    // ---- exam attempts: one per student per exam; submit once; evaluate once ----
+    match /examAttempts/{attemptId} {
+      allow read: if isSelf(resource.data.userId) || isAdmin() || isExamTeacherById(resource.data.examId);
+      // Create fails when the doc already exists (Firestore create semantics),
+      // so a second attempt can never be created — by this client or any other.
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && attemptId == request.auth.uid + '_' + request.resource.data.examId
+        && request.resource.data.status == 'in_progress'
+        && request.resource.data.answers is map
+        && request.resource.data.answers.size() == 0
+        && request.resource.data.score == null;
+      // Owner submits exactly once: in_progress → submitted, answers + submittedAt only.
+      allow update: if isSelf(resource.data.userId)
+        && resource.data.status == 'in_progress'
+        && request.resource.data.status == 'submitted'
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(
+          ['userId', 'examId', 'examTitle', 'score', 'totalMarks', 'correctCount', 'wrongCount', 'skippedCount', 'perQuestion', 'evaluatedAt', 'evaluatedBy', 'startedAt']);
+      // Exam teacher / admin evaluates exactly once: submitted → evaluated, score fields only.
+      allow update: if (isAdmin() || isExamTeacherById(resource.data.examId))
+        && resource.data.status == 'submitted'
+        && request.resource.data.status == 'evaluated'
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(
+          ['userId', 'examId', 'examTitle', 'answers', 'startedAt', 'submittedAt']);
+      allow delete: if isAdmin();
     }
 
     // ---- live classes: public schedule; teachers manage only their own ----

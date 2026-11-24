@@ -78,7 +78,7 @@ sidebar, prev/next navigation, mark-complete toggle wired to the Phase 3
 enrollment progress — Firestore transaction when configured, localStorage
 demo progress otherwise), certificates service
 (`src/firebase/certificates.ts`: read-only `certificates/{id}`, empty
-until exams in Phase 6 issue any), `firestore.rules` v3 (certificates
+until the backend (Phase 10) issues any), `firestore.rules` v3 (certificates
 readable only by owner/admin, writes blocked).
 
 **Honest video state:** there is NO real video hosting yet (Cloudflare
@@ -127,6 +127,38 @@ a real live-class integration.
 `src/pages/Dashboard.tsx`, `src/components/Header.tsx`, `src/App.tsx`,
 `firestore.rules`, `docs/architecture.md`, `README.md`.
 
+## Phase 6 — DONE (this repo)
+
+**Scope:** exam system — Firestore exam model (`exams/{id}` metadata only,
+`exams/{id}/questions/{qid}` student-safe questions with NO answers,
+`examKeys/{id}` answer keys readable only by the exam's teacher/admin,
+`examAttempts/{uid}_{examId}` one attempt per student per exam), student
+attempt page (`/exams/:id/attempt`: intro, client countdown timer with
+auto-submit, question palette, submit-once), teacher/admin exam management
+(`/exams/manage`: Zod-validated create/edit with questions, publish/draft,
+delete, per-exam attempt list + teacher evaluation), `/exams` list wired to
+Firestore-or-sample (upcoming/past split), `/results` wired to the student's
+real attempts, dashboard exam teaser rewired to the same service,
+`firestore.rules` v5.
+
+**Honest exam state:** answer keys NEVER reach the student client — the
+attempt page reads only the questions subcollection, and a submitted attempt
+stays "মূল্যায়ন চলছে" until the exam's teacher evaluates it with the keys
+(or the backend auto-scores it in Phase 10). The timer is client-side for
+display; submission time is the server timestamp. In demo mode the sample
+exams are openly labelled নমুনা practice questions (answers in the sample
+data, not a real exam) and demo attempts are scored immediately in this
+browser only, labelled ডেমো. No fake scores, no fake results, no duplicate
+submissions (deterministic attempt id + rules). Certificates are still NOT
+issued — that waits for the backend (Phase 10).
+
+**Files:** `src/firebase/exams.ts`, `src/firebase/exams.test.ts`,
+`src/hooks/useExams.ts`, `src/pages/ExamAttempt.tsx`,
+`src/pages/ManageExams.tsx`, `src/pages/Exams.tsx`, `src/pages/Results.tsx`,
+`src/pages/Dashboard.tsx`, `src/App.tsx`, `src/data/sample.ts`
+(sample exam questions), `firestore.rules`, `docs/architecture.md`,
+`README.md`.
+
 ## Progress tracking — docs/progress.json (NO LONGER UPDATED)
 
 `docs/progress.json` was the machine-readable source for the SP Academy
@@ -143,7 +175,7 @@ tracked in this document (`docs/architecture.md`) and in `README.md` instead.
 | --- | --- | --- |
 | 4 | Student dashboard — DONE | Overview, My Courses, Continue Learning, lesson player + progress, notes/PDFs, certificates |
 | 5 | Teacher dashboard — DONE | Own courses, enrollment stats, live-class scheduling, add-lesson form |
-| 6 | Examination system | MCQ/CQ, chapter/subject/model/full tests, server-side answer keys, auto + manual evaluation, results, leaderboard, analytics |
+| 6 | Examination system — DONE | Exam model (keys never reach students), attempt page + timer, submit-once, teacher evaluation, results wired to real attempts |
 | 7 | Admin dashboard | Users/roles, courses, exams, books, orders, payments, banners, notifications, reports, settings, audit logs — real DB values only |
 | 8 | Payments + Bookstore | bKash / Nagad / SSLCommerz / Card / COD — server-side initiation, callback + webhook verification, idempotent processing, refunds; book catalog, cart, checkout, delivery tracking |
 | 9 | AI + Support | AI Study Assistant via backend (keys server-side, rate limits, validation), notifications, support tickets |
@@ -151,16 +183,17 @@ tracked in this document (`docs/architecture.md`) and in `README.md` instead.
 
 ## Firestore collections (planned + live)
 
-Live since Phase 2–5: `users, roles, permissions, students, teachers,
-courses, courseCategories, enrollments, certificates, liveClasses`, plus the `lessons` subcollection
-under each course. Lesson progress lives on the enrollment doc
+Live since Phase 2–6: `users, roles, permissions, students, teachers,
+courses, courseCategories, enrollments, certificates, liveClasses, exams,
+examKeys, examAttempts`, plus the `lessons` subcollection under each course
+and the `questions` subcollection under each exam. Lesson progress lives on the enrollment doc
 (`completedLessonIds`, `progressPercent`) — no separate `lessonProgress`
 collection was needed. Certificates are read-only for the owner/admin
-until Phase 6 issues them server-side. `classAttendance` is reserved in
+until the backend (Phase 10) issues them server-side. `classAttendance` is reserved in
 the rules (writes blocked) until a real live session exists to mark
 attendance against. Remaining planned collections: `chapters,
-exams, questions, examAttempts, examAnswers, examResults,
-certificates, books, authors, publishers, carts, orders, payments, coupons,
+questions, examAnswers, examResults,
+books, authors, publishers, carts, orders, payments, coupons,
 reviews, blogs, banners, notifications, supportTickets, settings, auditLogs`
 
 Rules: pagination on large collections, batched writes/transactions where needed,

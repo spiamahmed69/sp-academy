@@ -119,7 +119,7 @@ Do not present this Phase 1 site to users as a live, purchasable platform.
   Learning card that resumes at the first incomplete lesson; all enrollments
   with progress bars; upcoming live-class teaser (wired to the Phase 5
   live-class service — Firestore when configured, নমুনা sample otherwise)
-  + exam teaser (still নমুনা sample data until Phase 6).
+  + exam teaser (wired to the Phase 6 exam service — Firestore when configured, নমুনা sample otherwise).
 - **Lesson player** — `/courses/:slug/learn?lesson=<id>`: chapter-grouped
   lesson sidebar with completion checkmarks + locks, prev/next navigation,
   mark-complete toggle wired to the Phase 3 enrollment progress (Firestore
@@ -133,7 +133,7 @@ Do not present this Phase 1 site to users as a live, purchasable platform.
   so instead of inventing content or fake download links.
 - **Certificates** — `src/firebase/certificates.ts`: read-only
   `certificates/{id}` service; the dashboard shows an honest empty state
-  ("এখনো কোনো সার্টিফিকেট নেই") until exams (Phase 6) genuinely issue one.
+  ("এখনো কোনো সার্টিফিকেট নেই") until the backend (Phase 10) genuinely issues one.
   `firestore.rules` v3: certificates readable only by owner/admin, writes blocked.
 
 ## What is built (Phase 5)
@@ -162,13 +162,35 @@ Do not present this Phase 1 site to users as a live, purchasable platform.
   reads except cancelled, owning-teacher/admin writes), teachers may read
   enrollments of their own courses, `classAttendance` reserved (writes blocked).
 
+## What is built (Phase 6)
+
+- **Exam model** — `exams/{id}` (metadata only), `exams/{id}/questions/{qid}`
+  (student-safe questions, NO answers), `examKeys/{id}` (answer keys,
+  readable only by the exam's teacher/admin), `examAttempts/{uid}_{examId}`
+  (one attempt per student per exam). Answer keys NEVER reach the student client.
+- **Attempt page** — `/exams/:id/attempt` (protected): intro screen, client
+  countdown timer with auto-submit, question palette + prev/next, submit-once.
+  Submission time is the server timestamp; full server-side enforcement
+  arrives with the backend in Phase 10.
+- **Teacher management** — `/exams/manage` (teacher/admin only): Zod-validated
+  exam + question editor, publish/draft, delete, per-exam attempt list and
+  teacher evaluation (reads the keys and writes only the score fields).
+- **Results** — `/results` now shows the signed-in student's real attempts
+  (score, correct/wrong/skipped, per-question status); submitted-but-unevaluated
+  attempts honestly say "মূল্যায়ন চলছে". `/exams` list and the dashboard exam
+  teaser read the same service (Firestore when configured, নমুনা sample
+  otherwise). Demo/sample attempts are scored immediately in this browser only,
+  labelled ডেমো/নমুনা.
+- **Firestore rules** — `firestore.rules` v5: exam reads, question reads,
+  teacher/admin-only keys, one-attempt create, owner submit once
+  (in_progress → submitted), teacher/admin evaluate once (submitted → evaluated).
+
 ## What is NOT done yet
 
 - **Firebase project itself** — not created yet; needs the console steps in
   `docs/firebase-setup.md` + the six `VITE_FIREBASE_*` env vars (local
   `.env.local` and Vercel). Until then, enrollment is demo-only and the
   catalogue shows নমুনা data.
-- **Phase 6** — Examination system, results, leaderboard
 - **Phase 7** — Admin dashboard, reports, settings
 - **Phase 8** — Payments (bKash/Nagad/SSLCommerz/Card/COD), bookstore orders, coupons
 - **Phase 9** — AI Study Assistant, notifications, support tickets
