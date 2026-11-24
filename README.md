@@ -211,14 +211,47 @@ Do not present this Phase 1 site to users as a live, purchasable platform.
   buttons replaced by a note. Demo overview honestly shows 0 enrollments /
   attempts because the sample data has none.
 
+## What is built (Phase 8)
+
+- **Bookstore** — `books/{id}` model (title, author, publisher, category,
+  price/discount, rating, stock, pages, description, `coverImageUrl` URL
+  field, gradient, status); `/books` + `/books/:id` read Firestore when
+  configured, labelled নমুনা sample otherwise. Covers render the ImgBB
+  image only when a URL exists — no upload and no key in this phase
+  (uploads go through the backend only, Phase 10).
+- **Cart** — `/cart` with quantity controls; localStorage always, mirrored
+  to Firestore `carts/{uid}` when signed in. Delivery ৳৬০ on book orders,
+  free at ৳১০০০+ books subtotal; course-only orders have no delivery fee.
+- **Checkout** — `/checkout`: Zod-validated delivery form (BD mobile check),
+  payment choice bKash / Nagad / কার্ড / COD. Prices are re-derived from
+  the catalogue at checkout (cart prices never trusted) and stock is
+  re-checked.
+- **Honest payments** — no backend yet (Phase 10), so online payments are
+  NEVER shown as successful: bKash/Nagad/card orders are created
+  `pending_verification`, COD orders `cod_due`. The client can never set an
+  order `paid` (rules v7) — only the backend may, after gateway
+  verification. No fake transaction id, no fake confirmation. A course in
+  an order does NOT enroll the student; enrollment activates server-side
+  after verification (Phase 10). COD is not offered for course-only orders.
+- **Orders** — `/my-orders` (order history with payment + fulfilment
+  status; demo orders labelled ডেমো অর্ডার in demo mode), `/admin` → অর্ডার
+  tab (admin changes fulfilment status only — never payment status).
+  Paid-course purchase flows through the cart: the course-details ভর্তি
+  button adds the course to the cart instead of faking a purchase.
+- **Firestore rules** — `firestore.rules` v7: books (public read when
+  published, admin writes), orders (own-order create with
+  `pending_verification`/`cod_due` only, admin fulfilment-status update
+  only), carts (owner only).
+- **Demo mode** — orders are kept in this browser's localStorage only,
+  labelled ডেমো অর্ডার; no real payment or delivery happens.
+
 ## What is NOT done yet
 
 - **Firebase project itself** — not created yet; needs the console steps in
   `docs/firebase-setup.md` + the six `VITE_FIREBASE_*` env vars (local
   `.env.local` and Vercel). Until then, enrollment is demo-only and the
   catalogue shows নমুনা data.
-- **Phase 7** — Admin dashboard (done — see above)
-- **Phase 8** — Payments (bKash/Nagad/SSLCommerz/Card/COD), bookstore orders, coupons
+- **Phase 8** — Payments + Bookstore (done — see above)
 - **Phase 9** — AI Study Assistant, notifications, support tickets
 - **Phase 10** — Security audit, testing, SEO, performance, production deployment
 
@@ -240,11 +273,12 @@ src/
   index.css           # Tailwind + reusable component classes
   styles/tokens.css   # Design tokens (source of truth)
   data/sample.ts      # Sample data (labelled নমুনা)
-  firebase/           # config, courses, enrollments, certificates, liveClasses, teacherStats, seed, profiles
-  lib/                # format helpers, toast context, roles, learn helpers
-  hooks/              # useTheme, useCourses (catalogue + enrollments), useLiveClasses, useTeacher
+  firebase/           # config, courses, enrollments, certificates, liveClasses, teacherStats, exams, admin, books, orders, cart, seed, profiles
+  lib/                # format helpers, toast context, roles, learn helpers, cart helpers
+  hooks/              # useTheme, useCourses (catalogue + enrollments), useLiveClasses, useTeacher, useAdmin, useExams, useBooks
   components/         # Header, Footer, cards, ui states
-  pages/              # Home + public pages + Dashboard, TeacherDashboard, Learn, Profile, MyCourses
+  contexts/           # AuthContext, CartContext
+  pages/              # Home + public pages + Dashboard, TeacherDashboard, AdminDashboard, Learn, Profile, MyCourses, Cart, Checkout, MyOrders
 docs/
   architecture.md     # Full 10-phase plan + ImgBB media plan
   firebase-setup.md   # Firebase console steps (Phases 2–3)

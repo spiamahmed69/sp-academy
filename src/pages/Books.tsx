@@ -1,42 +1,51 @@
 import { useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { BookOpen, ShoppingCart, Star } from 'lucide-react'
-import { books, getBookById, type Book } from '../data/sample'
-import { fakeDelay, formatBDT } from '../lib/format'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { BookOpen, CheckCircle2, ShoppingCart, Star } from 'lucide-react'
+import { bookSellingPrice } from '../firebase/books'
+import { formatBDT } from '../lib/format'
 import { useToast } from '../lib/toast'
+import { useCart } from '../contexts/CartContext'
+import { useBookById, useBooks } from '../hooks/useBooks'
 import { BookCard } from '../components/cards'
-import { Breadcrumbs, EmptyState, ErrorState, PageHero, SampleBadge, SkeletonCard } from '../components/ui'
-
-async function fetchBooks(): Promise<Book[]> {
-  await fakeDelay(500)
-  return books
-}
+import { Breadcrumbs, DemoNotice, EmptyState, ErrorState, PageHero, SampleBadge, SkeletonCard } from '../components/ui'
 
 export default function Books() {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('all')
-  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['books'], queryFn: fetchBooks })
+  const { data, isLoading, isError, refetch } = useBooks()
+  const books = data?.books ?? []
+  const source = data?.source ?? 'sample'
 
-  const cats = useMemo(() => ['all', ...Array.from(new Set((data ?? []).map((b) => b.category)))], [data])
+  const cats = useMemo(() => ['all', ...Array.from(new Set(books.map((b) => b.category)))], [books])
   const filtered = useMemo(() => {
-    let list = data ?? []
+    let list = books
     if (category !== 'all') list = list.filter((b) => b.category === category)
     if (query.trim()) {
       const q = query.trim().toLowerCase()
       list = list.filter((b) => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q))
     }
     return list
-  }, [data, category, query])
+  }, [books, category, query])
 
   return (
     <div>
       <PageHero
         eyebrow="বইয়ের দোকান"
         title="বইয়ের দোকান"
-        subtitle="পরীক্ষার প্রস্তুতির বই — দাম, স্টক ও লেখক তথ্য নমুনা। অর্ডার ও পেমেন্ট Phase 8-এ চালু হবে।"
+        subtitle={
+          source === 'firestore'
+            ? 'পরীক্ষার প্রস্তুতির বই — ক্যাশ অন ডেলিভারি বা অনলাইন পেমেন্টে অর্ডার করুন।'
+            : 'পরীক্ষার প্রস্তুতির বই — দাম, স্টক ও লেখক তথ্য নমুনা। অর্ডার এই ব্রাউজারেই ডেমো হিসেবে সংরক্ষিত হবে।'
+        }
       />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        {source === 'sample' && (
+          <DemoNotice>
+            ডেমো মোড — Firebase এখনো কনফিগার করা হয়নি। বইয়ের তালিকা নমুনা, আর অর্ডার এই ব্রাউজারেই ডেমো
+            হিসেবে সংরক্ষিত হবে (লেবেল: ডেমো অর্ডার)। আসল অর্ডার ও পেমেন্ট যাচাইকরণ Firebase + ব্যাকএন্ড
+            সেটআপের পর চালু হবে।
+          </DemoNotice>
+        )}
         <div className="mb-6 flex flex-col gap-3 sm:flex-row">
           <label htmlFor="book-search" className="sr-only">
             বই খুঁজুন
@@ -85,13 +94,27 @@ export default function Books() {
 
 export function BookDetails() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const { push } = useToast()
-  const book = id ? getBookById(id) : undefined
+  const { addItem, hasItem } = useCart()
+  const { data: book, isLoading, isError, refetch } = useBookById(id)
 
-  if (!book) {
+  if (isLoading) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <ErrorState title="বইটি পাওয়া যায়নি" message="এই লিংকের কোনো নমুনা বই নেই।" />
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="বই লোড হচ্ছে">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <ErrorState onRetry={() => refetch()} />
         <div className="mt-6 text-center">
           <Link to="/books" className="btn-primary text-sm">
             সব বই দেখুন
@@ -101,21 +124,49 @@ export function BookDetails() {
     )
   }
 
+  if (!book) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <ErrorState title="বইটি পাওয়া যায়নি" message="এই লিংকের কোনো বই নেই।" />
+        <div className="mt-6 text-center">
+          <Link to="/books" className="btn-primary text-sm">
+            সব বই দেখুন
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const inCart = hasItem('book', book.id)
+  const addToCart = () => {
+    if (book.stock <= 0) {
+      push('বইটি এখন স্টকে নেই।', 'error')
+      return
+    }
+    addItem({ kind: 'book', refId: book.id, title: book.title, unitPrice: bookSellingPrice(book), quantity: 1 })
+    push(`"${book.title}" কার্টে যোগ হয়েছে।`, 'success')
+    navigate('/cart')
+  }
+
   return (
     <div>
       <div className="hero-wave border-b border-blue-100 dark:border-slate-800">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <Breadcrumbs items={[{ label: 'বইয়ের দোকান', to: '/books' }, { label: book.title }]} />
           <div className="grid gap-8 md:grid-cols-3">
-            <div className="flex h-64 items-center justify-center rounded-3xl bg-[var(--color-primary)] md:h-auto">
-              <span className="flex h-44 w-32 rotate-[-4deg] flex-col justify-between rounded-r-lg rounded-l-sm bg-white p-4 shadow-xl">
-                <span className="text-sm leading-snug font-extrabold text-[var(--color-heading)]">{book.title}</span>
-                <span className="text-xs text-[var(--color-muted)]">{book.author}</span>
-              </span>
+            <div className="flex h-64 items-center justify-center overflow-hidden rounded-3xl bg-[var(--color-primary)] md:h-auto">
+              {book.coverImageUrl ? (
+                <img src={book.coverImageUrl} alt={`${book.title} — বইয়ের প্রচ্ছদ`} loading="lazy" className="h-full w-full object-cover" />
+              ) : (
+                <span className="flex h-44 w-32 rotate-[-4deg] flex-col justify-between rounded-r-lg rounded-l-sm bg-white p-4 shadow-xl">
+                  <span className="text-sm leading-snug font-extrabold text-[var(--color-heading)]">{book.title}</span>
+                  <span className="text-xs text-[var(--color-muted)]">{book.author}</span>
+                </span>
+              )}
             </div>
             <div className="md:col-span-2">
               <span className="inline-block">
-                <SampleBadge />
+                {book.source === 'sample' ? <SampleBadge /> : <SampleBadge label="লাইভ" />}
               </span>
               <h1 className="mt-2 text-3xl font-extrabold">{book.title}</h1>
               <p className="mt-2 text-[var(--color-body)]">
@@ -126,24 +177,25 @@ export function BookDetails() {
               </p>
               <p className="mt-4 leading-relaxed text-[var(--color-body)]">{book.description}</p>
               <div className="mt-5 flex items-baseline gap-2">
-                <span className="text-3xl font-extrabold text-[var(--color-cta-to)]">{formatBDT(book.discountPrice ?? book.price)}</span>
+                <span className="text-3xl font-extrabold text-[var(--color-cta-to)]">{formatBDT(bookSellingPrice(book))}</span>
                 {book.discountPrice && <span className="text-lg text-[var(--color-muted)] line-through">{formatBDT(book.price)}</span>}
               </div>
               <p className={`mt-1 text-sm font-bold ${book.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {book.stock > 0 ? `${book.stock}টি স্টকে আছে (নমুনা)` : 'স্টক শেষ (নমুনা)'}
+                {book.stock > 0 ? `${book.stock}টি স্টকে আছে${book.source === 'sample' ? ' (নমুনা)' : ''}` : 'স্টক শেষ'}
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
-                <button
-                  onClick={() => push(book.stock > 0 ? 'কার্ট ও অর্ডার Phase 8-এ চালু হবে — এটি ডেমো।' : 'বইটি এখন স্টকে নেই (নমুনা)।', 'info')}
-                  className="btn-cta"
-                  disabled={book.stock === 0}
-                >
-                  <ShoppingCart className="h-4 w-4" /> কার্টে যোগ করুন
+                <button onClick={addToCart} className="btn-cta" disabled={book.stock === 0}>
+                  {inCart ? <CheckCircle2 className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}{' '}
+                  {inCart ? 'কার্টে আছে — কার্ট দেখুন' : 'কার্টে যোগ করুন'}
                 </button>
                 <Link to="/books" className="btn-outline">
                   <BookOpen className="h-4 w-4" /> আরও বই দেখুন
                 </Link>
               </div>
+              <p className="mt-4 rounded-xl bg-blue-50 px-3 py-2 text-xs leading-relaxed text-[var(--color-body)] dark:bg-slate-800">
+                ডেলিভারি চার্জ ৳৬০ — ৳১০০০ বা তার বেশি বইয়ের অর্ডারে ডেলিভারি ফ্রি। ক্যাশ অন ডেলিভারিতে পণ্য
+                হাতে পেয়ে পরিশোধ করবেন; অনলাইন পেমেন্ট (বিকাশ/নগদ/কার্ড) যাচাইকরণ ব্যাকএন্ডে আসছে (Phase 10)।
+              </p>
             </div>
           </div>
         </div>

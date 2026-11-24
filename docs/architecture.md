@@ -191,6 +191,50 @@ the sample, not a real zero.
 `src/components/Header.tsx`, `src/firebase/profiles.ts` (`disabled` flag),
 `firestore.rules`, `docs/architecture.md`, `README.md`.
 
+## Phase 8 — DONE (this repo)
+
+**Scope:** bookstore + payments — Firestore book model (`books/{id}`,
+`src/firebase/books.ts` — title, author, publisher, category, price,
+discountPrice, rating, reviewsCount, stock, pages, description,
+coverImageUrl (URL field only — ImgBB uploads go through the backend ONLY
+in Phase 10, no upload and no key here), gradient, status), `/books` list +
+`/books/:id` details wired to Firestore when configured (labelled নমুনা
+sample otherwise), cart (`src/lib/cart.ts` pure helpers + `src/contexts/CartContext.tsx` —
+localStorage always, mirrored to Firestore `carts/{uid}` when signed in),
+checkout (`/checkout`: Zod-validated delivery form, payment method choice),
+orders (`orders/{id}`, `src/firebase/orders.ts`), order history (`/my-orders`),
+admin orders tab (`/admin` → অর্ডার: fulfilment status change), paid-course
+purchase via the cart (the course-details "ভর্তি হোন" button adds the
+course to the cart instead of faking a purchase), `firestore.rules` v7,
+seed helper (`seedSampleBooks`, admin-only, never auto-runs).
+
+**Honest payment state:** there is NO backend yet (Phase 10), so online
+payments (bKash / Nagad / card) CANNOT be verified — an order placed with
+one is created with paymentStatus `pending_verification` and the UI says
+plainly that no money has been taken, no payment is confirmed, and no
+transaction id exists. COD orders are created with `cod_due`. The client
+can NEVER set paymentStatus to `paid` (rules v7 block it) — only the
+backend may mark an order paid after gateway verification in Phase 10.
+A course in an order does NOT enroll the student; enrollment is activated
+server-side after verification (Phase 10). COD is not offered for
+course-only orders. Prices are re-derived from the catalogue at checkout
+(the cart's stored prices are never trusted) and stock is re-checked;
+the backend re-validates both in Phase 10. In demo mode orders are kept
+in this browser's localStorage only, labelled ডেমো অর্ডার.
+
+**Files:** `src/firebase/books.ts`, `src/firebase/books.test.ts`,
+`src/firebase/orders.ts`, `src/firebase/orders.test.ts`,
+`src/firebase/cart.ts`, `src/lib/cart.ts`, `src/lib/cart.test.ts`,
+`src/contexts/CartContext.tsx`, `src/hooks/useBooks.ts`,
+`src/pages/Cart.tsx`, `src/pages/Checkout.tsx`, `src/pages/MyOrders.tsx`,
+`src/pages/Books.tsx`, `src/pages/Courses.tsx`, `src/components/cards.tsx`
+(BookCard renders a cover image when `coverImageUrl` exists),
+`src/components/Header.tsx` (cart badge), `src/pages/AdminDashboard.tsx`
+(orders tab), `src/pages/Dashboard.tsx` (আমার অর্ডার link),
+`src/pages/MyOrders.tsx`, `src/App.tsx`, `src/firebase/seed.ts`
+(`buildBookSeedDocs` / `seedSampleBooks`), `firestore.rules`,
+`docs/architecture.md`, `README.md`.
+
 ## Progress tracking — docs/progress.json (NO LONGER UPDATED)
 
 `docs/progress.json` was the machine-readable source for the SP Academy
@@ -209,15 +253,15 @@ tracked in this document (`docs/architecture.md`) and in `README.md` instead.
 | 5 | Teacher dashboard — DONE | Own courses, enrollment stats, live-class scheduling, add-lesson form |
 | 6 | Examination system — DONE | Exam model (keys never reach students), attempt page + timer, submit-once, teacher evaluation, results wired to real attempts |
 | 7 | Admin dashboard — DONE | Users/roles, real-DB overview stats, course/exam/live-class moderation, reports (honest empty state) |
-| 8 | Payments + Bookstore | bKash / Nagad / SSLCommerz / Card / COD — server-side initiation, callback + webhook verification, idempotent processing, refunds; book catalog, cart, checkout, delivery tracking |
+| 8 | Payments + Bookstore — DONE | Book catalogue, cart, checkout (bKash/Nagad/card/COD — honest pending state, no fake payment), orders, admin orders tab |
 | 9 | AI + Support | AI Study Assistant via backend (keys server-side, rate limits, validation), notifications, support tickets |
 | 10 | Hardening + Launch | Security audit, automated tests (auth, roles, enrollment, exam, payments, uploads, rules), SEO/prerendering, performance, production deployment |
 
 ## Firestore collections (planned + live)
 
-Live since Phase 2–6: `users, roles, permissions, students, teachers,
+Live since Phase 2–8: `users, roles, permissions, students, teachers,
 courses, courseCategories, enrollments, certificates, liveClasses, exams,
-examKeys, examAttempts`, plus the `lessons` subcollection under each course
+examKeys, examAttempts, books, orders, carts`, plus the `lessons` subcollection under each course
 and the `questions` subcollection under each exam. Lesson progress lives on the enrollment doc
 (`completedLessonIds`, `progressPercent`) — no separate `lessonProgress`
 collection was needed. Certificates are read-only for the owner/admin
@@ -225,7 +269,7 @@ until the backend (Phase 10) issues them server-side. `classAttendance` is reser
 the rules (writes blocked) until a real live session exists to mark
 attendance against. Remaining planned collections: `chapters,
 questions, examAnswers, examResults,
-books, authors, publishers, carts, orders, payments, coupons,
+authors, publishers, payments, coupons,
 reviews, blogs, banners, notifications, supportTickets, settings, auditLogs`
 
 Rules: pagination on large collections, batched writes/transactions where needed,

@@ -144,15 +144,19 @@ export function TeacherCard({ teacher }: { teacher: Teacher }) {
   )
 }
 
-export function BookCard({ book }: { book: Book }) {
+export function BookCard({ book }: { book: Book & { coverImageUrl?: string | null } }) {
   const off = discountPercent(book.price, book.discountPrice)
   return (
     <article className="card card-hover flex flex-col overflow-hidden">
-      <Link to={`/books/${book.id}`} className="relative flex h-44 items-center justify-center" style={{ background: GRADIENTS[book.gradient] }} aria-label={book.title}>
-        <span className="flex h-28 w-20 rotate-[-4deg] flex-col justify-between rounded-r-lg rounded-l-sm bg-white/95 p-2.5 shadow-lg">
-          <span className="text-[11px] leading-tight font-extrabold text-[var(--color-heading)]">{book.title}</span>
-          <span className="text-[10px] text-[var(--color-muted)]">{book.author}</span>
-        </span>
+      <Link to={`/books/${book.id}`} className="relative flex h-44 items-center justify-center overflow-hidden" style={{ background: GRADIENTS[book.gradient] }} aria-label={book.title}>
+        {book.coverImageUrl ? (
+          <img src={book.coverImageUrl} alt={`${book.title} — বইয়ের প্রচ্ছদ`} loading="lazy" className="h-full w-full object-cover" />
+        ) : (
+          <span className="flex h-28 w-20 rotate-[-4deg] flex-col justify-between rounded-r-lg rounded-l-sm bg-white/95 p-2.5 shadow-lg">
+            <span className="text-[11px] leading-tight font-extrabold text-[var(--color-heading)]">{book.title}</span>
+            <span className="text-[10px] text-[var(--color-muted)]">{book.author}</span>
+          </span>
+        )}
         {off > 0 && (
           <span className="absolute top-3 right-3 rounded-full bg-red-500 px-2.5 py-1 text-xs font-extrabold text-white shadow">
             {off}% ছাড়

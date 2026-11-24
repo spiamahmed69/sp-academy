@@ -316,6 +316,9 @@ export default function Dashboard() {
                 <Link to="/books" className="text-[var(--color-primary)] hover:underline">
                   বুক স্টোর →
                 </Link>
+                <Link to="/my-orders" className="text-[var(--color-primary)] hover:underline">
+                  আমার অর্ডার →
+                </Link>
               </div>
             </div>
           </aside>

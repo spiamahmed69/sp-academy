@@ -23,7 +23,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import {
   Ban, BookOpen, CalendarDays, CheckCircle2, FileText, Flag, LayoutDashboard,
-  Radio, Search, ShieldAlert, ShieldCheck, Trash2, Users,
+  Radio, Search, ShieldAlert, ShieldCheck, ShoppingBag, Trash2, Users,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { getFirebase } from '../firebase/config'
@@ -40,13 +40,16 @@ import { setCourseStatus } from '../firebase/courses'
 import { deleteCourseAdmin } from '../firebase/admin'
 import { deleteExam, setExamStatus } from '../firebase/exams'
 import { cancelLiveClass } from '../firebase/liveClasses'
+import { ORDER_STATUSES, orderStatusLabel, paymentMethodLabel, paymentStatusLabel, setOrderStatus, type OrderStatus } from '../firebase/orders'
 import { useAdminCourses, useAdminExams, useAdminLiveClasses, useAdminOverview, useAdminUsers } from '../hooks/useAdmin'
+import { useAllOrders } from '../hooks/useBooks'
+import { formatBDT } from '../lib/format'
 import { ROLE_LABELS, ROLES, type Role } from '../lib/roles'
 import { useToast } from '../lib/toast'
 import { Breadcrumbs, DemoNotice, EmptyState, ErrorState, PageHero, SampleBadge, SkeletonCard } from '../components/ui'
 import type { UserProfile } from '../firebase/profiles'
 
-type Tab = 'overview' | 'users' | 'courses' | 'exams' | 'classes' | 'reports'
+type Tab = 'overview' | 'users' | 'courses' | 'exams' | 'classes' | 'orders' | 'reports'
 
 const TABS: { id: Tab; label: string; icon: typeof Users }[] = [
   { id: 'overview', label: 'সারসংক্ষেপ', icon: LayoutDashboard },
@@ -54,6 +57,7 @@ const TABS: { id: Tab; label: string; icon: typeof Users }[] = [
   { id: 'courses', label: 'কোর্স', icon: BookOpen },
   { id: 'exams', label: 'পরীক্ষা', icon: FileText },
   { id: 'classes', label: 'লাইভ ক্লাস', icon: Radio },
+  { id: 'orders', label: 'অর্ডার', icon: ShoppingBag },
   { id: 'reports', label: 'রিপোর্ট', icon: Flag },
 ]
 
@@ -88,6 +92,7 @@ export default function AdminDashboard() {
   const coursesQ = useAdminCourses()
   const examsQ = useAdminExams()
   const classesQ = useAdminLiveClasses()
+  const ordersQ = useAllOrders()
 
   const isDemo = !configured
   const isAdmin = canManageUsers(role)
@@ -193,6 +198,19 @@ export default function AdminDashboard() {
     onError: (err) => push(err instanceof Error ? err.message : 'ক্লাস বাতিল করা যায়নি।', 'error'),
   })
 
+  const orderStatusMutation = useMutation({
+    mutationFn: async ({ orderId, status }: { orderId: string; status: OrderStatus }) => {
+      const fb = getFirebase()
+      if (!fb) throw new Error('Firebase কনফিগার করা হয়নি।')
+      await setOrderStatus(fb.db, orderId, status)
+    },
+    onSuccess: () => {
+      push('অর্ডারের অবস্থা বদলানো হয়েছে।', 'success')
+      invalidate([['admin-orders']])
+    },
+    onError: (err) => push(err instanceof Error ? err.message : 'অর্ডারের অবস্থা বদলানো যায়নি।', 'error'),
+  })
+
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -289,7 +307,7 @@ export default function AdminDashboard() {
         subtitle={
           isDemo
             ? 'ডেমো প্রিভিউ — এখানকার সব তথ্য নমুনা। আসল পরিসংখ্যান ও ব্যবস্থাপনা Firebase সেটআপের পর চালু হবে।'
-            : 'প্ল্যাটফর্মের আসল তথ্য — ব্যবহারকারী, কোর্স, পরীক্ষা ও লাইভ ক্লাস এক জায়গায়।'
+            : 'প্ল্যাটফর্মের আসল তথ্য — ব্যবহারকারী, কোর্স, পরীক্ষা, লাইভ ক্লাস ও অর্ডার এক জায়গায়।'
         }
       />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -297,7 +315,7 @@ export default function AdminDashboard() {
 
         {isDemo && (
           <DemoNotice>
-            এটি <strong>ডেমো প্রিভিউ</strong> — নমুনা ব্যবহারকারী, কোর্স, পরীক্ষা ও ক্লাস দেখানো হচ্ছে। রোল বদল, প্রকাশনা
+            এটি <strong>ডেমো প্রিভিউ</strong> — নমুনা ব্যবহারকারী, কোর্স, পরীক্ষা, ক্লাস ও অর্ডার দেখানো হচ্ছে। রোল বদল, প্রকাশনা
             বা মোছার মতো আসল পরিবর্তন করতে Firebase সেটআপ + অ্যাডমিন লগইন দরকার।
           </DemoNotice>
         )}
@@ -647,6 +665,75 @@ export default function AdminDashboard() {
                       </button>
                     )}
                     {isDemo && <SampleBadge />}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+        {tab === 'orders' && (
+          <div className="card overflow-hidden">
+            <div className="border-b border-blue-100 p-4 dark:border-slate-700">
+              <h2 className="text-lg font-bold">অর্ডার ({(ordersQ.data?.orders ?? []).length.toLocaleString('bn-BD')})</h2>
+              <p className="mt-1 text-xs text-[var(--color-muted)]">
+                বই ও কোর্সের অর্ডার — ডেলিভারির অবস্থা বদলানো যায়। পেমেন্টের অবস্থা এখান থেকে বদলানো যায় না:
+                অনলাইন পেমেন্ট যাচাই করে ব্যাকএন্ড (Phase 10) &apos;পরিশোধিত&apos; করবে।
+              </p>
+            </div>
+            {ordersQ.isPending ? (
+              <div className="grid gap-4 p-4 sm:grid-cols-2">
+                <SkeletonCard />
+                <SkeletonCard />
+              </div>
+            ) : ordersQ.isError ? (
+              <div className="p-4">
+                <ErrorState onRetry={() => void ordersQ.refetch()} />
+              </div>
+            ) : (ordersQ.data?.orders ?? []).length === 0 ? (
+              <div className="p-4">
+                <EmptyState title="কোনো অর্ডার নেই" message="এখনো কোনো অর্ডার জমা হয়নি।" />
+              </div>
+            ) : (
+              <ul className="divide-y divide-blue-100 dark:divide-slate-700">
+                {(ordersQ.data?.orders ?? []).map((o) => (
+                  <li key={o.id} className="flex flex-wrap items-center gap-3 p-4">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[var(--color-primary)]">
+                      <ShoppingBag className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-[var(--color-heading)]">
+                        অর্ডার {o.orderNo} {o.source === 'sample' && <SampleBadge label="ডেমো অর্ডার" />}
+                      </p>
+                      <p className="mt-0.5 text-xs text-[var(--color-muted)]">
+                        {o.customer.name} · {o.customer.phone} · {o.items.map((it) => `${it.title} × ${it.quantity}`).join(', ')}
+                      </p>
+                      <p className="mt-0.5 text-xs text-[var(--color-muted)]">
+                        পেমেন্ট: {paymentMethodLabel(o.paymentMethod)} · {paymentStatusLabel(o.paymentStatus)} · মোট{' '}
+                        {formatBDT(o.total)}
+                      </p>
+                    </div>
+                    {isDemo ? (
+                      <span className="rounded-full bg-[var(--color-primary-soft)] px-3 py-1 text-xs font-bold text-[var(--color-primary)]">
+                        {orderStatusLabel(o.orderStatus)}
+                      </span>
+                    ) : (
+                      <label className="flex items-center gap-2 text-xs font-bold">
+                        <span className="sr-only">অর্ডারের অবস্থা</span>
+                        <select
+                          value={o.orderStatus}
+                          disabled={orderStatusMutation.isPending}
+                          onChange={(e) => orderStatusMutation.mutate({ orderId: o.id, status: e.target.value as OrderStatus })}
+                          className="cursor-pointer rounded-full border border-blue-100 bg-white px-3 py-1.5 text-xs font-bold outline-none disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900"
+                        >
+                          {ORDER_STATUSES.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -9,7 +9,8 @@
  * left untouched.
  */
 import { collection, doc, getDoc, getDocs, query, setDoc, where, type Firestore } from 'firebase/firestore'
-import { categories, courses, type Course } from '../data/sample'
+import { books, categories, courses, type Book, type Course } from '../data/sample'
+import { bookToDoc, type BookDoc } from './books'
 import { courseToDoc, type CourseCategoryDoc, type LessonDoc } from './courses'
 
 /** The 8 sample courses as Firestore docs (status 'published'). */
@@ -49,6 +50,23 @@ export function buildLessonSeedDocs(course: Course): Omit<LessonDoc, 'id' | 'cre
     })
   })
   return lessons
+}
+
+/** The 6 sample books as Firestore docs (status 'published'). */
+export function buildBookSeedDocs(): { id: string; doc: Omit<BookDoc, 'createdAt' | 'updatedAt'> }[] {
+  return books.map((book: Book) => ({ id: book.id, doc: bookToDoc(book, 'published') }))
+}
+
+/** Seed books only. Skips docs that already exist. */
+export async function seedSampleBooks(db: Firestore): Promise<{ books: number }> {
+  let bookCount = 0
+  for (const { id, doc: bookDoc } of buildBookSeedDocs()) {
+    const ref = doc(db, 'books', id)
+    if ((await getDoc(ref)).exists()) continue
+    await setDoc(ref, { ...bookDoc, createdAt: new Date(), updatedAt: new Date() })
+    bookCount++
+  }
+  return { books: bookCount }
 }
 
 /** Seed courses + categories + their lesson outlines. Skips docs that already exist. */

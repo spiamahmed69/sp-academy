@@ -9,6 +9,7 @@ import { categories, coursesByTeacher, getTeacherById } from '../data/sample'
 import { formatBDT } from '../lib/format'
 import { useToast } from '../lib/toast'
 import { useAuth } from '../contexts/AuthContext'
+import { useCart } from '../contexts/CartContext'
 import { getFirebase } from '../firebase/config'
 import type { LessonView } from '../firebase/courses'
 import {
@@ -167,6 +168,7 @@ export function CourseDetails() {
   const navigate = useNavigate()
   const { push } = useToast()
   const { user, configured } = useAuth()
+  const { addItem } = useCart()
   const { data: course, isLoading, isError, refetch } = useCourseBySlug(slug)
   const { data: lessons = [], isLoading: lessonsLoading } = useCourseLessons(course ?? null)
 
@@ -248,7 +250,13 @@ export function CourseDetails() {
 
   const enroll = async () => {
     if (!course.isFree) {
-      push('পেমেন্ট Phase 8-এ আসছে — এই কোর্সে এখন ভর্তি করা যাচ্ছে না। ভর্তি চালু হলে জানানো হবে।', 'info')
+      // Paid course → cart, then checkout. No fake purchase, no fake
+      // enrollment: the order stays 'pending' until payment verification
+      // (Phase 10 backend), and the UI says so at checkout.
+      const price = course.discountPrice && course.discountPrice > 0 && course.discountPrice < course.price ? course.discountPrice : course.price
+      addItem({ kind: 'course', refId: course.id, title: course.title, unitPrice: price, quantity: 1 })
+      push(`"${course.title}" কার্টে যোগ হয়েছে — চেকআউটে পেমেন্ট বেছে নিন।`, 'success')
+      navigate('/cart')
       return
     }
     if (configured && !user) {
@@ -349,7 +357,7 @@ export function CourseDetails() {
           {!configured && (
             <DemoNotice>
               ডেমো মোড — Firebase এখনো কনফিগার করা হয়নি। ফ্রি কোর্সে ভর্তি এখানে ডেমো হিসেবে এই ব্রাউজারেই
-              সংরক্ষিত হবে; পেইড কোর্সে ভর্তি Phase 8-এ (পেমেন্ট) চালু হবে।
+              সংরক্ষিত হবে; পেইড কোর্সের অর্ডারও ডেমো অর্ডার হিসেবে এই ব্রাউজারেই থাকবে।
             </DemoNotice>
           )}
 
@@ -481,7 +489,7 @@ export function CourseDetails() {
               )}
             </div>
             <p className="mt-1 text-xs text-[var(--color-muted)]">
-              {course.isFree ? 'সম্পূর্ণ ফ্রি — কোনো পেমেন্ট লাগবে না।' : 'নমুনা দাম — আসল পেমেন্ট Phase 8-এ চালু হবে।'}
+              {course.isFree ? 'সম্পূর্ণ ফ্রি — কোনো পেমেন্ট লাগবে না।' : 'কার্টে যোগ করে চেকআউটে পেমেন্ট বেছে নিন (বিকাশ/নগদ/কার্ড/COD)।'}
             </p>
             {enrolled ? (
               <>
@@ -499,8 +507,9 @@ export function CourseDetails() {
               </button>
             )}
             {!course.isFree && !enrolled && (
-              <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-center text-xs leading-relaxed text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
-                পেইড কোর্সে ভর্তি এখনো চালু হয়নি — পেমেন্ট (বিকাশ/নগদ/কার্ড) Phase 8-এ আসছে।
+              <p className="mt-3 rounded-xl bg-blue-50 px-3 py-2 text-center text-xs leading-relaxed text-[var(--color-body)] dark:bg-slate-800">
+                ভর্তি বোতামে ক্লিক করলে কোর্সটি কার্টে যাবে। অনলাইন পেমেন্টের যাচাইকরণ ব্যাকএন্ডে আসছে
+                (Phase 10) — অর্ডার পেন্ডিং থাকবে, যাচাই হলে ভর্তি সক্রিয় হবে।
               </p>
             )}
             <button onClick={wishlist} className="btn-outline mt-3 w-full">

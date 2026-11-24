@@ -24,8 +24,12 @@ import TeacherDashboard from './pages/TeacherDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import Learn from './pages/Learn'
 import MyCourses from './pages/MyCourses'
+import MyOrders from './pages/MyOrders'
+import Cart from './pages/Cart'
+import Checkout from './pages/Checkout'
 import Profile from './pages/Profile'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { CartProvider } from './contexts/CartContext'
 import NotFound from './pages/NotFound'
 import Categories from './pages/Categories'
 
@@ -63,6 +67,7 @@ function Toasts() {
 export default function App() {
   const { theme, toggle } = useTheme()
   return (
+    <CartProvider>
     <div className="flex min-h-screen flex-col bg-[var(--color-page)]">
       <ScrollToTop />
       <Header theme={theme} onToggleTheme={toggle} />
@@ -98,6 +103,10 @@ export default function App() {
           <Route path="/results" element={<Results />} />
           <Route path="/books" element={<Books />} />
           <Route path="/books/:id" element={<BookDetails />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          {/* /my-orders guards itself in-page: in demo mode it shows this browser's demo orders. */}
+          <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogDetails />} />
           <Route path="/about" element={<About />} />
@@ -134,5 +143,6 @@ export default function App() {
       <Footer />
       <Toasts />
     </div>
+    </CartProvider>
   )
 }

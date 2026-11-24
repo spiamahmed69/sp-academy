@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { GraduationCap, LayoutDashboard, LogIn, LogOut, Menu, Moon, Search, Sun, X } from 'lucide-react'
+import { GraduationCap, LayoutDashboard, LogIn, LogOut, Menu, Moon, Search, ShoppingCart, Sun, X } from 'lucide-react'
 import type { Theme } from '../hooks/useTheme'
 import { useAuth } from '../contexts/AuthContext'
+import { useCart } from '../contexts/CartContext'
 import { canAccess } from '../lib/roles'
 
 const NAV_LINKS = [
@@ -21,6 +22,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
   const [q, setQ] = useState('')
   const navigate = useNavigate()
   const { user, profile, role, logout } = useAuth()
+  const { count: cartCount } = useCart()
   const isTeacher = canAccess(role, ['teacher', 'admin', 'super_admin'])
   const isAdmin = canAccess(role, ['admin', 'super_admin'])
 
@@ -76,6 +78,15 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
             <Search className="h-4 w-4" />
           </button>
         </form>
+
+        <Link to="/cart" aria-label={`কার্ট — ${cartCount}টি আইটেম`} className="relative cursor-pointer rounded-full p-2 text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]">
+          <ShoppingCart className="h-5 w-5" />
+          {cartCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-cta-to)] px-1 text-[11px] font-extrabold text-white">
+              {cartCount}
+            </span>
+          )}
+        </Link>
 
         <button
           onClick={onToggleTheme}
@@ -165,6 +176,17 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
             ))}
             {user ? (
               <>
+                <Link to="/cart" onClick={() => setOpen(false)} className="mt-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]">
+                  আমার কার্ট
+                  {cartCount > 0 && (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-cta-to)] px-1.5 text-[11px] font-extrabold text-white">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+                <Link to="/my-orders" onClick={() => setOpen(false)} className="mt-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]">
+                  আমার অর্ডার
+                </Link>
                 <Link to="/dashboard" onClick={() => setOpen(false)} className="btn-primary mt-2 justify-center text-sm">
                   <LayoutDashboard className="h-4 w-4" /> ড্যাশবোর্ড
                 </Link>
@@ -195,9 +217,19 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
                 </Link>
               </>
             ) : (
-              <Link to="/login" onClick={() => setOpen(false)} className="btn-primary mt-2 justify-center text-sm">
-                <LogIn className="h-4 w-4" /> লগইন / রেজিস্টার
-              </Link>
+              <>
+                <Link to="/cart" onClick={() => setOpen(false)} className="mt-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]">
+                  আমার কার্ট
+                  {cartCount > 0 && (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-cta-to)] px-1.5 text-[11px] font-extrabold text-white">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+                <Link to="/login" onClick={() => setOpen(false)} className="btn-primary mt-2 justify-center text-sm">
+                  <LogIn className="h-4 w-4" /> লগইন / রেজিস্টার
+                </Link>
+              </>
             )}
           </nav>
         </div>

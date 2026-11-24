@@ -1,5 +1,5 @@
 /**
- * SP Academy — Firestore security rules (Phase 7 draft, v6).
+ * SP Academy — Firestore security rules (Phase 8 draft, v7).
  *
  * Principles:
  * - Auth is required for all writes; public reads only where the Phase 1
@@ -14,8 +14,21 @@
  *   or by the owning teacher (instructorId == uid) for their own courses.
  * - Enrollments: a user may create ONLY their own enrollment, ONLY for a
  *   free course (paymentStatus == 'free', pricePaid == 0) — paid enrollment
- *   is created server-side with payment verification (Phase 8). Owners may
+ *   is created server-side with payment verification (orders arrive in
+ *   Phase 8; the backend activates the enrollment in Phase 10). Owners may
  *   update only their progress fields, never price/payment/ownership.
+ * - Books (Phase 8): public read only when status == 'published'; writes
+ *   by admins only. Covers are URL fields (ImgBB via backend, Phase 10).
+ * - Orders (Phase 8): a signed-in user may create ONLY their own order,
+ *   with paymentStatus 'pending_verification' (bKash/Nagad/card) or
+ *   'cod_due' (COD) — NEVER 'paid'. Only the backend (Phase 10) may mark
+ *   an order paid after gateway verification, so no client can fake a
+ *   successful payment. Admins may change ONLY the fulfilment status
+ *   (pending → confirmed → shipped → delivered / cancelled) — never the
+ *   payment status, items, totals or customer. COD-for-course is blocked
+ *   client-side and re-checked by the backend in Phase 10.
+ * - Carts (Phase 8): carts/{uid} is the owner's private cart mirror —
+ *   read/write by the owner only.
  * - Certificates: read only by the owner or an admin; writes stay blocked
  *   until the backend (Phase 10) issues them server-side. No client can mint one.
  * - Exams (Phase 6): metadata is public when published; questions live in
@@ -192,7 +205,8 @@ service cloud.firestore {
       allow read: if isSelf(resource.data.userId) || isAdmin()
         || isCourseTeacherById(resource.data.courseId);
       // A client may create ONLY its own enrollment, ONLY for a free course.
-      // Paid enrollments are created server-side with payment verification (Phase 8).
+      // Paid enrollments are created server-side with payment verification
+      // (orders in Phase 8, activation in the Phase 10 backend).
       // A disabled account cannot enroll at all (Phase 7).
       allow create: if signedIn()
         && !isAccountDisabled()
@@ -316,9 +330,41 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+    // ---- books: public read when published; admin writes only ----
     match /books/{bookId} {
-      allow read: if true;
-      allow write: if false;
+      allow read: if resource.data.status == 'published' || isAdmin();
+      allow write: if isAdmin();
+    }
+    // ---- orders: own orders only; paymentStatus can NEVER be 'paid' from a client ----
+    match /orders/{orderId} {
+      allow read: if isSelf(resource.data.userId) || isAdmin();
+      allow create: if signedIn()
+        && !isAccountDisabled()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.orderNo is string
+        && request.resource.data.items is list
+        && request.resource.data.items.size() >= 1
+        && request.resource.data.items.size() <= 20
+        && request.resource.data.subtotal is number
+        && request.resource.data.deliveryFee is number
+        && request.resource.data.total is number
+        && request.resource.data.total >= 0
+        && request.resource.data.paymentMethod in ['bkash', 'nagad', 'card', 'cod']
+        && request.resource.data.paymentStatus in ['pending_verification', 'cod_due']
+        && request.resource.data.orderStatus == 'pending'
+        && request.resource.data.customer.name is string
+        && request.resource.data.customer.phone is string;
+      // Admins may change the fulfilment status only — never payment status,
+      // items, totals, customer or order number. 'paid' is set by the backend
+      // (Phase 10) after gateway verification; no client can fake it.
+      allow update: if isAdmin()
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(
+          ['userId', 'items', 'subtotal', 'deliveryFee', 'total', 'paymentMethod', 'paymentStatus', 'customer', 'orderNo', 'createdAt']);
+      allow delete: if isAdmin();
+    }
+    // ---- carts: the owner's private cart mirror (read/write by owner only) ----
+    match /carts/{uid} {
+      allow read, write: if isSelf(uid);
     }
     match /blogs/{blogId} {
       allow read: if true;
