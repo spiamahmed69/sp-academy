@@ -403,7 +403,8 @@ export function CourseDetails() {
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-3 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto grid w-full max-w-7xl flex-1 gap-8 px-4 py-10 sm:px-6 lg:grid-cols-3 lg:px-8">
         <div className="lg:col-span-2">
           {!configured && (
             <DemoNotice>
@@ -586,6 +587,7 @@ export function CourseDetails() {
             </ul>
           </div>
         </aside>
+        </div>
       </div>
     </div>
   )

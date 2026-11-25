@@ -155,9 +155,10 @@ export default function LiveClasses() {
         title="লাইভ ক্লাস"
         subtitle="সরাসরি শিক্ষকের সঙ্গে প্রশ্নোত্তর ও সমস্যা সমাধান। যোগদানের লিংক ক্লাস শুরুর আগে এখানে দেখা যাবে।"
       />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        {source === 'sample' && (
-          <DemoNotice>
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
+          {source === 'sample' && (
+            <DemoNotice>
             লাইভ ক্লাসের সময়সূচি, শিক্ষক ও ভর্তির সংখ্যা — সবই নমুনা। আসল ক্লাস শিডিউল করতে Firebase সেটআপ
             শেষ করে শিক্ষক অ্যাকাউন্টে লগইন করতে হবে।
           </DemoNotice>
@@ -226,6 +227,22 @@ export default function LiveClasses() {
             )}
           </>
         )}
+        <div className="min-h-10 flex-1" aria-hidden="true" />
+        <div className="rounded-3xl bg-[var(--color-primary-soft)] p-6 text-center sm:p-8">
+          <h2 className="text-xl font-extrabold">ক্লাসের প্রস্তুতি নিতে চান?</h2>
+          <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-[var(--color-body)]">
+            সংশ্লিষ্ট কোর্সে ভর্তি হোন, অথবা পরীক্ষা দিয়ে নিজেকে যাচাই করুন।
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <Link to="/courses" className="btn-primary text-sm">
+              সব কোর্স দেখুন
+            </Link>
+            <Link to="/exams" className="btn-outline bg-white text-sm">
+              পরীক্ষা দেখুন
+            </Link>
+          </div>
+        </div>
+        </div>
       </div>
     </div>
   )

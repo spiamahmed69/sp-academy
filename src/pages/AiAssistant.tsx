@@ -58,8 +58,9 @@ export default function AiAssistant() {
         title="পড়াশোনার সহায়ক"
         subtitle="কোর্স, ভর্তি, পরীক্ষা ও পেমেন্ট নিয়ে প্রশ্ন করুন — সহজ সহায়ক সাইটের নিজের তথ্য থেকে উত্তর দেবে।"
       />
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <Breadcrumbs items={[{ label: 'AI সহকারী' }]} />
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-10 sm:px-6">
+          <Breadcrumbs items={[{ label: 'AI সহকারী' }]} />
 
         <DemoNotice>
           এটি <strong>আসল AI নয়</strong> — একটি সহজ সহায়ক, যা শুধু SP Academy-র FAQ ও কোর্সের তালিকা থেকে উত্তর
@@ -154,6 +155,7 @@ export default function AiAssistant() {
               দেখুন।
             </p>
           </div>
+        </div>
         </div>
       </div>
     </div>

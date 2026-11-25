@@ -39,9 +39,10 @@ export default function Books() {
             : 'পরীক্ষার প্রস্তুতির বই — দাম, স্টক ও লেখক তথ্য নমুনা। অর্ডার এই ব্রাউজারেই ডেমো হিসেবে সংরক্ষিত হবে।'
         }
       />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        {source === 'sample' && (
-          <DemoNotice>
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
+          {source === 'sample' && (
+            <DemoNotice>
             ডেমো মোড — Firebase এখনো কনফিগার করা হয়নি। বইয়ের তালিকা নমুনা, আর অর্ডার এই ব্রাউজারেই ডেমো
             হিসেবে সংরক্ষিত হবে (লেবেল: ডেমো অর্ডার)। আসল অর্ডার ও পেমেন্ট যাচাইকরণ Firebase + ব্যাকএন্ড
             সেটআপের পর চালু হবে।
@@ -82,12 +83,30 @@ export default function Books() {
           <EmptyState title="কোনো বই পাওয়া যায়নি" message="অন্য নাম বা ক্যাটাগরি দিয়ে খুঁজে দেখুন।" />
         )}
         {!isLoading && !isError && filtered.length > 0 && (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((b) => (
-              <BookCard key={b.id} book={b} />
-            ))}
+          <>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filtered.map((b) => (
+                <BookCard key={b.id} book={b} />
+              ))}
+            </div>
+        <div className="min-h-10 flex-1" aria-hidden="true" />
+        <div className="rounded-3xl bg-[var(--color-primary-soft)] p-6 text-center sm:p-8">
+          <h2 className="text-xl font-extrabold">খুঁজে পাচ্ছেন না?</h2>
+          <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-[var(--color-body)]">
+            সব কোর্স দেখুন, অথবা AI সহায়ককে জিজ্ঞেস করুন কোন বই আপনার জন্য ভালো হবে।
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <Link to="/courses" className="btn-primary text-sm">
+              সব কোর্স দেখুন
+            </Link>
+            <Link to="/ai-assistant" className="btn-outline bg-white text-sm">
+              AI সহায়ককে জিজ্ঞেস করুন
+            </Link>
           </div>
+        </div>
+          </>
         )}
+        </div>
       </div>
     </div>
   )

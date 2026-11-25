@@ -35,9 +35,10 @@ export default function Exams() {
         title="অনলাইন পরীক্ষা"
         subtitle="MCQ, মডেল টেস্ট ও প্র্যাকটিস টেস্ট — এখন পরীক্ষা দেওয়া যায়। আসল পরীক্ষার উত্তরপত্র শিক্ষক মূল্যায়ন করেন; উত্তর-চাবি শিক্ষার্থীর কাছে কখনো যায় না।"
       />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        {data?.source === 'sample' && (
-          <DemoNotice>
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
+          {data?.source === 'sample' && (
+            <DemoNotice>
             Firebase এখনো কনফিগার করা হয়নি — নিচের পরীক্ষাগুলো নমুনা। নমুনা পরীক্ষার ফলাফল সাথে
             সাথেই দেখা যায়, শুধু এই ব্রাউজারে থাকে।
           </DemoNotice>
@@ -142,6 +143,22 @@ export default function Exams() {
             </div>
           </>
         )}
+        <div className="min-h-10 flex-1" aria-hidden="true" />
+        <div className="rounded-3xl bg-[var(--color-primary-soft)] p-6 text-center sm:p-8">
+          <h2 className="text-xl font-extrabold">পরীক্ষার প্রস্তুতি নিতে চান?</h2>
+          <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-[var(--color-body)]">
+            কোর্সে ভর্তি হয়ে প্রস্তুতি নিন, অথবা লাইভ ক্লাসে সরাসরি শিক্ষকের কাছে প্রশ্ন করুন।
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <Link to="/courses" className="btn-primary text-sm">
+              সব কোর্স দেখুন
+            </Link>
+            <Link to="/live-classes" className="btn-outline bg-white text-sm">
+              লাইভ ক্লাস দেখুন
+            </Link>
+          </div>
+        </div>
+        </div>
       </div>
     </div>
   )

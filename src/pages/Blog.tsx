@@ -11,11 +11,28 @@ export default function Blog() {
         title="ব্লগ"
         subtitle="পড়াশোনার কৌশল, ভর্তি প্রস্তুতি ও পরীক্ষার গাইড — লেখাগুলো নমুনা।"
       />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {blogPosts.map((p) => (
             <BlogCard key={p.slug} post={p} />
           ))}
+        </div>
+        <div className="min-h-10 flex-1" aria-hidden="true" />
+        <div className="rounded-3xl bg-[var(--color-primary-soft)] p-6 text-center sm:p-8">
+          <h2 className="text-xl font-extrabold">আরও পড়তে চান?</h2>
+          <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-[var(--color-body)]">
+            কোর্সে ভর্তি হয়ে হাতে-কলমে শিখুন, অথবা বইয়ের দোকান থেকে প্রস্তুতির বই নিন।
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <Link to="/courses" className="btn-primary text-sm">
+              সব কোর্স দেখুন
+            </Link>
+            <Link to="/books" className="btn-outline bg-white text-sm">
+              বইয়ের দোকান
+            </Link>
+          </div>
+        </div>
         </div>
       </div>
     </div>

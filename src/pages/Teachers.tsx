@@ -95,8 +95,9 @@ export function TeacherProfile() {
           </div>
         </div>
       </div>
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <h2 className="text-xl font-extrabold">শিক্ষক সম্পর্কে</h2>
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
+          <h2 className="text-xl font-extrabold">শিক্ষক সম্পর্কে</h2>
         <p className="card mt-4 p-5 leading-relaxed text-[var(--color-body)]">{teacher.bio}</p>
         <h2 className="mt-10 text-xl font-extrabold">এই শিক্ষকের কোর্স</h2>
         {taught.length === 0 ? (
@@ -108,6 +109,22 @@ export function TeacherProfile() {
             ))}
           </div>
         )}
+        <div className="min-h-10 flex-1" aria-hidden="true" />
+        <div className="rounded-3xl bg-[var(--color-primary-soft)] p-6 text-center sm:p-8">
+          <h2 className="text-xl font-extrabold">আরও শিক্ষক দেখুন</h2>
+          <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-[var(--color-body)]">
+            সব শিক্ষকের প্রোফাইল দেখুন, অথবা সব কোর্স থেকে আপনার পছন্দের কোর্স বেছে নিন।
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <Link to="/teachers" className="btn-primary text-sm">
+              সব শিক্ষক দেখুন
+            </Link>
+            <Link to="/courses" className="btn-outline bg-white text-sm">
+              সব কোর্স দেখুন
+            </Link>
+          </div>
+        </div>
+        </div>
       </div>
     </div>
   )
