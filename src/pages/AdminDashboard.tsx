@@ -245,7 +245,8 @@ export default function AdminDashboard() {
     return (
       <div>
         <PageHero eyebrow="অ্যাডমিন" title="লগইন প্রয়োজন" subtitle="অ্যাডমিন ড্যাশবোর্ড দেখতে অ্যাডমিন অ্যাকাউন্ট দিয়ে লগইন করুন।" />
-        <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+        <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+          <div className="mx-auto flex w-full max-w-2xl px-4 py-10 sm:px-6 flex-1 flex-col">
           <div className="card p-6 text-center">
             <Link to="/login" className="btn-primary inline-flex">
               লগইন পেজে যান
@@ -253,6 +254,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+        </div>
     )
   }
 
@@ -260,7 +262,8 @@ export default function AdminDashboard() {
     return (
       <div>
         <PageHero eyebrow="অনুমতি নেই" title="এই পেজটি আপনার জন্য নয়" subtitle="অ্যাডমিন ড্যাশবোর্ড শুধু অ্যাডমিন ও সুপার অ্যাডমিনদের জন্য।" />
-        <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+        <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+          <div className="mx-auto flex w-full max-w-2xl px-4 py-10 sm:px-6 flex-1 flex-col">
           <div className="card flex flex-col items-center px-6 py-10 text-center" role="alert">
             <ShieldAlert className="mb-4 h-10 w-10 text-amber-500" />
             <p className="leading-relaxed text-[var(--color-body)]">
@@ -273,6 +276,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+        </div>
     )
   }
 
@@ -327,7 +331,8 @@ export default function AdminDashboard() {
             : 'প্ল্যাটফর্মের আসল তথ্য — ব্যবহারকারী, কোর্স, পরীক্ষা, লাইভ ক্লাস ও অর্ডার এক জায়গায়।'
         }
       />
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1 flex-col">
         <Breadcrumbs items={[{ label: 'অ্যাডমিন' }]} />
 
         {isDemo && (
@@ -912,5 +917,6 @@ export default function AdminDashboard() {
         )}
       </div>
     </div>
+      </div>
   )
 }

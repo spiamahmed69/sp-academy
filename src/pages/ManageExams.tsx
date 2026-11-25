@@ -114,8 +114,10 @@ export default function ManageExams() {
 
   if (!canManageExams(role)) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
         <ErrorState title="শুধু শিক্ষক ও অ্যাডমিনের জন্য" message="পরীক্ষা তৈরি ও পরিচালনা করতে শিক্ষক বা অ্যাডমিন হতে হবে। শিক্ষার্থীরা /exams পেজ থেকে পরীক্ষা দিতে পারবেন।" />
+        </div>
       </div>
     )
   }
@@ -289,7 +291,8 @@ export default function ManageExams() {
         title="পরীক্ষা তৈরি ও মূল্যায়ন"
         subtitle="প্রশ্ন তৈরি করুন, প্রকাশ করুন, আর জমা দেওয়া উত্তরপত্র মূল্যায়ন করুন।"
       />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
         {!configured && (
           <DemoNotice>
             Firebase এখনো কনফিগার করা হয়নি — এখানে তৈরি পরীক্ষা ডেমো হিসেবে শুধু এই ব্রাউজারে
@@ -541,5 +544,6 @@ export default function ManageExams() {
         )}
       </div>
     </div>
+      </div>
   )
 }

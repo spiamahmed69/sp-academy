@@ -59,7 +59,8 @@ export default function Profile() {
   return (
     <div>
       <PageHero eyebrow="অ্যাকাউন্ট" title="প্রোফাইল সেটিংস" subtitle="আপনার নাম ও মোবাইল নম্বর আপডেট করুন।" />
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-3xl px-4 py-10 sm:px-6 flex-1 flex-col">
         <Breadcrumbs items={[{ label: 'ড্যাশবোর্ড', to: '/dashboard' }, { label: 'প্রোফাইল' }]} />
         <div className="card p-6 sm:p-8">
           <div className="mb-6 flex flex-wrap items-center gap-4">
@@ -124,5 +125,6 @@ export default function Profile() {
         </div>
       </div>
     </div>
+      </div>
   )
 }

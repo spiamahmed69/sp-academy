@@ -50,7 +50,8 @@ export default function Results() {
         title="পরীক্ষার ফলাফল"
         subtitle="রোল নম্বর দিয়ে ফলাফল খুঁজুন ও মেধাতালিকা দেখুন। এই পেজের সব ফলাফল নমুনা।"
       />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
         <DemoNotice>
           নিচের রোল-খোঁজা ও মেধাতালিকা নমুনা — যেকোনো রোল নম্বর দিলে একই নমুনা ফলাফল
           দেখাবে। আপনার আসল ফলাফল উপরে "আমার ফলাফল" অংশে আছে।
@@ -175,5 +176,6 @@ export default function Results() {
         </div>
       </div>
     </div>
+      </div>
   )
 }

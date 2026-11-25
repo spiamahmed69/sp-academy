@@ -24,7 +24,8 @@ function AuthCard({ title, subtitle, children }: { title: string; subtitle: stri
   return (
     <div>
       <PageHero eyebrow="অ্যাকাউন্ট" title={title} subtitle={subtitle} />
-      <div className="mx-auto max-w-md px-4 py-10 sm:px-6">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-md px-4 py-10 sm:px-6 flex-1 flex-col">
         {configured ? (
           <DemoNotice>
             আসল লগইন চালু আছে — আপনার অ্যাকাউন্ট Firebase Authentication দিয়ে নিরাপদে পরিচালিত হয়।
@@ -49,6 +50,7 @@ function AuthCard({ title, subtitle, children }: { title: string; subtitle: stri
         </div>
       </div>
     </div>
+      </div>
   )
 }
 

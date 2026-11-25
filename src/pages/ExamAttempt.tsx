@@ -169,7 +169,8 @@ export default function ExamAttempt() {
     return (
       <div>
         <PageHero eyebrow="পরীক্ষা" title={exam.title} subtitle="উত্তরপত্র জমা দেওয়া হয়েছে।" />
-        <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+          <div className="mx-auto flex w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
           {isDemo && (
             <DemoNotice>
               এটি নমুনা পরীক্ষার ফলাফল — প্রশ্ন ও উত্তর নমুনা, ফলাফল শুধু এই ব্রাউজারে আছে।
@@ -182,6 +183,7 @@ export default function ExamAttempt() {
           </div>
         </div>
       </div>
+        </div>
     )
   }
 
@@ -190,7 +192,8 @@ export default function ExamAttempt() {
     return (
       <div>
         <PageHero eyebrow="পরীক্ষা" title={exam.title} subtitle="এই পরীক্ষাটি এখন দেওয়া যাচ্ছে না।" />
-        <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+          <div className="mx-auto flex w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
           <EmptyState
             title={phaseOfExam === 'upcoming' ? 'পরীক্ষা এখনো শুরু হয়নি' : exam.status === 'draft' ? 'পরীক্ষাটি এখনো প্রকাশিত হয়নি' : 'পরীক্ষার সময় শেষ হয়ে গেছে'}
             message={
@@ -202,14 +205,17 @@ export default function ExamAttempt() {
           <Link to="/exams" className="btn-primary mt-6 inline-flex text-sm">পরীক্ষার তালিকা</Link>
         </div>
       </div>
+        </div>
     )
   }
 
   if (questions.length === 0) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
         <ErrorState title="এই পরীক্ষায় এখনো প্রশ্ন যুক্ত হয়নি" message="শিক্ষক প্রশ্ন যুক্ত করলে পরীক্ষা দেওয়া যাবে।" />
         <Link to="/exams" className="btn-primary mt-6 inline-flex text-sm">পরীক্ষার তালিকা</Link>
+        </div>
       </div>
     )
   }
@@ -219,7 +225,8 @@ export default function ExamAttempt() {
     return (
       <div>
         <PageHero eyebrow="পরীক্ষা" title={exam.title} subtitle={`${exam.subject} · ${exam.durationMin} মিনিট · ${toBanglaDigits(exam.totalMarks)} নম্বর`} />
-        <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+          <div className="mx-auto flex w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
           {isDemo && (
             <DemoNotice>
               এটি নমুনা পরীক্ষা — প্রশ্ন ও উত্তর নমুনা কনটেন্ট। আসল পরীক্ষা নয়; ফলাফল শুধু এই ব্রাউজারে
@@ -271,6 +278,7 @@ export default function ExamAttempt() {
           </div>
         </div>
       </div>
+        </div>
     )
   }
 
@@ -293,7 +301,8 @@ export default function ExamAttempt() {
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_280px] lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_280px] lg:px-8 flex-1">
         <div className="card p-6">
           <p className="text-sm font-bold text-[var(--color-primary)]">
             প্রশ্ন {toBanglaDigits(current + 1)} / {toBanglaDigits(questions.length)} · {toBanglaDigits(currentQuestion.marks)} নম্বর
@@ -400,6 +409,7 @@ export default function ExamAttempt() {
         </aside>
       </div>
     </div>
+      </div>
   )
 }
 

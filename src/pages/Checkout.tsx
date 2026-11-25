@@ -134,17 +134,20 @@ export default function Checkout() {
     return (
       <div>
         <PageHero eyebrow="চেকআউট" title="চেকআউট" subtitle="অর্ডার সম্পন্ন করতে ডেলিভারির তথ্য ও পেমেন্টের মাধ্যম বেছে নিন।" />
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+          <div className="mx-auto flex w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
           <EmptyState title="কার্ট খালি" message="চেকআউট করতে প্রথমে কার্টে কিছু যোগ করুন।" />
         </div>
       </div>
+        </div>
     )
   }
 
   return (
     <div>
       <PageHero eyebrow="চেকআউট" title="চেকআউট" subtitle="অর্ডার সম্পন্ন করতে ডেলিভারির তথ্য ও পেমেন্টের মাধ্যম বেছে নিন।" />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
         <Breadcrumbs items={[{ label: 'কার্ট', to: '/cart' }, { label: 'চেকআউট' }]} />
         {isDemo && (
           <DemoNotice>
@@ -285,5 +288,6 @@ export default function Checkout() {
         </form>
       </div>
     </div>
+      </div>
   )
 }

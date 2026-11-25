@@ -94,7 +94,8 @@ export default function MyCourses() {
   return (
     <div>
       <PageHero eyebrow="আমার কোর্স" title="আমার কোর্সসমূহ" subtitle="আপনি যে কোর্সগুলোতে ভর্তি হয়েছেন — অগ্রগতিসহ এক জায়গায়।" />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
         <Breadcrumbs items={[{ label: 'আমার কোর্স' }]} />
 
         {!configured && (
@@ -190,5 +191,6 @@ export default function MyCourses() {
         )}
       </div>
     </div>
+      </div>
   )
 }

@@ -18,7 +18,8 @@ export function About() {
         title="SP Academy সম্পর্কে"
         subtitle="Learn Today, Lead Tomorrow — বাংলাদেশের শিক্ষার্থীদের জন্য মানসম্মত অনলাইন শিক্ষা।"
       />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
         <div className="grid gap-5 md:grid-cols-3">
           {[
             { icon: Target, title: 'আমাদের লক্ষ্য', text: 'দেশের প্রতিটি শিক্ষার্থীর কাছে মানসম্মত শিক্ষা পৌঁছে দেওয়া — শহর কিংবা গ্রাম, সবাই সমান সুযোগ পাবে।' },
@@ -46,6 +47,7 @@ export function About() {
         </div>
       </div>
     </div>
+      </div>
   )
 }
 
@@ -101,7 +103,8 @@ export function Contact() {
         title="আমাদের সঙ্গে যোগাযোগ করুন"
         subtitle="কোর্স, ভর্তি বা যেকোনো প্রশ্নে বার্তা পাঠান — লগইন করা থাকলে এটি সাপোর্ট টিকিট হিসেবে জমা হবে।"
       />
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-3 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-3 lg:px-8 flex-1">
         <div className="space-y-4">
           <div className="card flex items-start gap-3 p-5">
             <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-primary)]" />
@@ -174,8 +177,10 @@ export function Contact() {
         </form>
       </div>
 
+      </div>
       {user && (
-        <div className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+        <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+          <div className="mx-auto flex w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8 flex-1 flex-col">
           <div className="card p-6">
             <h2 className="text-lg font-bold">আমার সাপোর্ট টিকিট</h2>
             <p className="mt-1 text-sm text-[var(--color-muted)]">
@@ -214,6 +219,7 @@ export function Contact() {
             )}
           </div>
         </div>
+        </div>
       )}
     </div>
   )
@@ -233,7 +239,8 @@ export function Faq() {
   return (
     <div>
       <PageHero eyebrow="সাধারণ জিজ্ঞাসা" title="FAQ" subtitle="সবচেয়ে বেশি জিজ্ঞাসা করা প্রশ্নের উত্তর।" />
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-3xl px-4 py-10 sm:px-6 flex-1 flex-col">
         <div className="space-y-3">
           {FAQS.map((f, i) => (
             <div key={f.q} className="card overflow-hidden">
@@ -251,5 +258,6 @@ export function Faq() {
         </div>
       </div>
     </div>
+      </div>
   )
 }

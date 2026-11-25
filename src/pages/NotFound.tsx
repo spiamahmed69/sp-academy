@@ -3,7 +3,7 @@ import { Home, SearchX } from 'lucide-react'
 
 export default function NotFound() {
   return (
-    <div className="mx-auto flex max-w-2xl flex-col items-center px-4 py-24 text-center sm:px-6">
+    <div className="mx-auto flex max-w-2xl flex-1 flex-col items-center justify-center px-4 py-24 text-center sm:px-6">
       <span className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-primary-soft)]">
         <SearchX className="h-10 w-10 text-[var(--color-primary)]" />
       </span>

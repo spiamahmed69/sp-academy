@@ -365,7 +365,8 @@ export default function TeacherDashboard() {
     return (
       <div>
         <PageHero eyebrow="অনুমতি নেই" title="এই পেজটি আপনার জন্য নয়" subtitle="আপনার রোল দিয়ে এই পেজটি দেখা যাবে না।" />
-        <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+        <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+          <div className="mx-auto flex w-full max-w-2xl px-4 py-10 sm:px-6 flex-1 flex-col">
           <div className="card flex flex-col items-center px-6 py-10 text-center" role="alert">
             <ShieldAlert className="mb-4 h-10 w-10 text-amber-500" />
             <p className="leading-relaxed text-[var(--color-body)]">
@@ -379,6 +380,7 @@ export default function TeacherDashboard() {
           </div>
         </div>
       </div>
+        </div>
     )
   }
 
@@ -389,7 +391,8 @@ export default function TeacherDashboard() {
         title={`স্বাগতম, ${teacherName}!`}
         subtitle="আপনার কোর্স, শিক্ষার্থী ও লাইভ ক্লাস — সব এক জায়গায়।"
       />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
         <Breadcrumbs items={[{ label: 'ড্যাশবোর্ড', to: '/dashboard' }, { label: 'শিক্ষক ড্যাশবোর্ড' }]} />
         {isDemo && (
           <DemoNotice>
@@ -633,5 +636,6 @@ export default function TeacherDashboard() {
         </div>
       </div>
     </div>
+      </div>
   )
 }

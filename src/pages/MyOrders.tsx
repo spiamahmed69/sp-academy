@@ -36,7 +36,8 @@ export default function MyOrders() {
     return (
       <div>
         <PageHero eyebrow="আমার অর্ডার" title="লগইন প্রয়োজন" subtitle="আপনার অর্ডার দেখতে লগইন করুন।" />
-        <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+        <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+          <div className="mx-auto flex w-full max-w-2xl px-4 py-10 sm:px-6 flex-1 flex-col">
           <div className="card p-6 text-center">
             <Link to="/login" className="btn-primary inline-flex">
               লগইন পেজে যান
@@ -44,6 +45,7 @@ export default function MyOrders() {
           </div>
         </div>
       </div>
+        </div>
     )
   }
 
@@ -58,7 +60,8 @@ export default function MyOrders() {
             : 'ডেমো অর্ডার — এখানকার অর্ডার শুধু এই ব্রাউজারে সংরক্ষিত। আসল অর্ডার Firebase সেটআপের পর চালু হবে।'
         }
       />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
         <Breadcrumbs items={[{ label: 'আমার অর্ডার' }]} />
         {isPending && (
           <div className="grid gap-4 sm:grid-cols-2" aria-busy="true" aria-label="অর্ডার লোড হচ্ছে">
@@ -136,5 +139,6 @@ export default function MyOrders() {
         )}
       </div>
     </div>
+      </div>
   )
 }

@@ -4,7 +4,8 @@ function LegalLayout({ title, subtitle, children }: { title: string; subtitle: s
   return (
     <div>
       <PageHero eyebrow="আইনি তথ্য" title={title} subtitle={subtitle} />
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-3xl px-4 py-10 sm:px-6 flex-1 flex-col">
         <div className="card space-y-5 p-6 leading-relaxed text-[var(--color-body)] sm:p-8 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-[var(--color-heading)]">
           <p className="flex items-center gap-2 text-sm">
             <SampleBadge label="নমুনা নীতি" /> এই নীতিমালা নমুনা খসড়া — চূড়ান্ত আইনি সংস্করণ পরে প্রকাশ করা হবে।
@@ -13,6 +14,7 @@ function LegalLayout({ title, subtitle, children }: { title: string; subtitle: s
         </div>
       </div>
     </div>
+      </div>
   )
 }
 

@@ -12,7 +12,8 @@ export default function Cart() {
   return (
     <div>
       <PageHero eyebrow="কার্ট" title="আমার কার্ট" subtitle="বই ও কোর্স একসাথে অর্ডার করুন — চেকআউটে পেমেন্টের মাধ্যম বেছে নেবেন।" />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
         <Breadcrumbs items={[{ label: 'কার্ট' }]} />
         {items.length === 0 ? (
           <>
@@ -134,5 +135,6 @@ export default function Cart() {
         )}
       </div>
     </div>
+      </div>
   )
 }

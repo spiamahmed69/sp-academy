@@ -80,7 +80,8 @@ export default function Dashboard() {
         title={`স্বাগতম, ${profile?.displayName || 'শিক্ষার্থী'}!`}
         subtitle="আপনার শেখার অগ্রগতি, আসন্ন ক্লাস ও পরীক্ষা এক জায়গায় দেখুন।"
       />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 flex-1 flex-col">
         <Breadcrumbs items={[{ label: 'ড্যাশবোর্ড' }]} />
 
         <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -325,5 +326,6 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+      </div>
   )
 }

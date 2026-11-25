@@ -150,7 +150,8 @@ export default function Learn() {
 
   return (
     <div>
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1 flex-col">
         <Breadcrumbs items={[{ label: 'কোর্সসমূহ', to: '/courses' }, { label: course.title, to: `/courses/${course.slug}` }, { label: 'শিখুন' }]} />
         {!configured && (
           <DemoNotice>
@@ -339,5 +340,6 @@ export default function Learn() {
         </div>
       </div>
     </div>
+      </div>
   )
 }

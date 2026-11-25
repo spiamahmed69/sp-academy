@@ -27,7 +27,8 @@ export default function Notifications() {
   return (
     <div>
       <PageHero eyebrow="নোটিফিকেশন" title="আমার নোটিফিকেশন" subtitle="ভর্তি, পরীক্ষা, লাইভ ক্লাস, অর্ডার ও সাপোর্টের আপডেট এখানে দেখা যাবে।" />
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-3xl px-4 py-10 sm:px-6 flex-1 flex-col">
         <Breadcrumbs items={[{ label: 'নোটিফিকেশন' }]} />
 
         {isDemo && (
@@ -112,5 +113,6 @@ export default function Notifications() {
         </div>
       </div>
     </div>
+      </div>
   )
 }
