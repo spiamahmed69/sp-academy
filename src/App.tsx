@@ -96,7 +96,7 @@ export default function App() {
     <div className="flex min-h-screen flex-col bg-[var(--color-page)]">
       <ScrollToTop />
       <Header theme={theme} onToggleTheme={toggle} />
-      <main className="flex-1">
+      <main className="flex flex-1 flex-col">
         <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route path="/" element={<Home />} />

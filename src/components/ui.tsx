@@ -46,12 +46,18 @@ export function PageHero({
 }) {
   return (
     <section className="hero-wave border-b border-blue-100 dark:border-slate-800">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8">
         {eyebrow && (
-          <p className="mb-2 text-sm font-bold tracking-wide text-[var(--color-primary)] uppercase">{eyebrow}</p>
+          <span className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-[var(--color-primary)] shadow-sm">
+            <span className="h-2 w-2 rounded-full bg-[var(--color-cta)]" aria-hidden="true" />
+            {eyebrow}
+          </span>
         )}
-        <h1 className="text-3xl font-extrabold sm:text-4xl">{title}</h1>
-        {subtitle && <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--color-body)]">{subtitle}</p>}
+        <h1 className="mt-4 text-3xl font-extrabold sm:text-4xl lg:text-[44px] lg:leading-[1.2]">{title}</h1>
+        <span className="mt-4 block h-1.5 w-16 rounded-full bg-gradient-to-r from-[#ff8a1e] to-[#f97316]" aria-hidden="true" />
+        {subtitle && (
+          <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--color-body)] sm:text-base">{subtitle}</p>
+        )}
       </div>
     </section>
   )

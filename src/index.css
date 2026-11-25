@@ -126,6 +126,15 @@ input, select, textarea {
   background-size: 800px 100%;
 }
 
+/* Short pages stretch to the footer: each page root is a flex column that
+   fills the main area, so a page with little content ends at the footer
+   instead of leaving a big empty gap above it. */
+main > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   html { scroll-behavior: auto; }

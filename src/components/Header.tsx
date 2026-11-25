@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { Bell, GraduationCap, LayoutDashboard, LogIn, LogOut, Menu, Moon, Search, ShoppingCart, Sun, X } from 'lucide-react'
+import { Bell, LayoutDashboard, LogIn, LogOut, Menu, Moon, Search, ShoppingCart, Sun, X } from 'lucide-react'
 import type { Theme } from '../hooks/useTheme'
 import { useAuth } from '../contexts/AuthContext'
 import { useCart } from '../contexts/CartContext'
@@ -46,8 +46,8 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
     <header className="sticky top-3 z-50 px-3 sm:px-4">
       <div className="mx-auto flex max-w-7xl items-center gap-1.5 rounded-full border border-blue-100/70 bg-white px-2 py-2 shadow-[var(--shadow-pill)] sm:gap-3 sm:px-4 dark:border-slate-700 dark:bg-[#12233c]">
         <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="SP Academy হোম">
-          <span className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[var(--color-primary)] text-white">
-            <GraduationCap className="h-6 w-6" />
+          <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2396f6] to-[#1b7fe6] text-base font-extrabold text-white shadow-md sm:h-10 sm:w-10 sm:text-lg" aria-hidden="true">
+            SP
           </span>
           <span className="leading-tight">
             <span className="block text-base sm:text-[17px] font-extrabold text-[var(--color-heading)]">SP Academy</span>

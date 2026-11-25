@@ -13,11 +13,28 @@ export default function Teachers() {
         title="আমাদের শিক্ষক"
         subtitle="অভিজ্ঞ ও দক্ষ শিক্ষকদের কাছ থেকে শিখুন — সব প্রোফাইল নমুনা।"
       />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {teachers.map((t) => (
-            <TeacherCard key={t.id} teacher={t} />
-          ))}
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {teachers.map((t) => (
+              <TeacherCard key={t.id} teacher={t} />
+            ))}
+          </div>
+          <div className="min-h-10 flex-1" aria-hidden="true" />
+          <div className="rounded-3xl bg-[var(--color-primary-soft)] p-6 text-center sm:p-8">
+            <h2 className="text-xl font-extrabold">সঠিক শিক্ষক খুঁজে পাচ্ছেন না?</h2>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-[var(--color-body)]">
+              সব কোর্স দেখুন, অথবা AI সহায়ককে জিজ্ঞেস করুন কোন শিক্ষকের কোর্স আপনার জন্য ভালো হবে।
+            </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <Link to="/courses" className="btn-primary text-sm">
+                সব কোর্স দেখুন
+              </Link>
+              <Link to="/ai-assistant" className="btn-outline bg-white text-sm">
+                AI সহায়ককে জিজ্ঞেস করুন
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

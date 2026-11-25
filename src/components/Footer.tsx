@@ -13,7 +13,7 @@
  * (labels only, no payment integration here).
  */
 import { Link } from 'react-router-dom'
-import { Facebook, GraduationCap, Instagram, MapPin, Youtube } from 'lucide-react'
+import { Facebook, Instagram, MapPin, Youtube } from 'lucide-react'
 import { useToast } from '../lib/toast'
 
 const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
@@ -70,7 +70,7 @@ export default function Footer() {
   const { push } = useToast()
 
   return (
-    <footer className="mt-16">
+    <footer>
       <WaveTop />
       {/* Explicit hex background (not a var-based utility) so the navy
           footer can never render white-on-white. */}
@@ -78,8 +78,8 @@ export default function Footer() {
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-5 lg:px-8">
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2.5">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#01367f]">
-                <GraduationCap className="h-6 w-6" />
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-base font-extrabold text-[#01367f]">
+                SP
               </span>
               <span>
                 <span className="block text-xl leading-tight font-extrabold text-white">SP Academy</span>

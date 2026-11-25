@@ -73,8 +73,9 @@ export default function Courses() {
             : 'এসএসসি থেকে চাকরির প্রস্তুতি — সব কোর্স নমুনা, দাম নমুনা হিসেবে দেখানো হয়েছে।'
         }
       />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center">
+      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
+          <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center">
           <label htmlFor="course-search" className="sr-only">
             কোর্স খুঁজুন
           </label>
@@ -157,7 +158,8 @@ export default function Courses() {
                 <CourseCard key={c.id} course={c} />
               ))}
             </div>
-            <div className="mt-10 rounded-3xl bg-[var(--color-primary-soft)] p-6 text-center sm:p-8">
+            <div className="min-h-10 flex-1" aria-hidden="true" />
+            <div className="rounded-3xl bg-[var(--color-primary-soft)] p-6 text-center sm:p-8">
               <h2 className="text-xl font-extrabold">খুঁজে পাচ্ছেন না?</h2>
               <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-[var(--color-body)]">
                 ফ্রি কোর্স দিয়ে শুরু করুন, অথবা AI সহায়ককে জিজ্ঞেস করুন কোন কোর্স আপনার জন্য ভালো হবে।
@@ -173,6 +175,7 @@ export default function Courses() {
             </div>
           </>
         )}
+        </div>
       </div>
     </div>
   )
