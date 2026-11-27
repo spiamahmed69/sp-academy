@@ -1,11 +1,25 @@
-# SP Academy — Design System (Phase 1)
+# SP Academy — Design System (Phase 1 + Bondi-style landing v2, 2026-11-27)
 
 Original SP Academy identity, inspired by the layout language of
 [bondipathshala.education](https://bondipathshala.education) (pill navbar, light-blue
 hero with wavy edge, vivid category tiles, white course cards with orange CTA).
 No proprietary code, branding, text, logo, teacher, phone number, or exact design
-was copied. Tokens below are screenshot-pixel samples taken 2026-11-24 — close
+was copied. Tokens below are screenshot-pixel samples taken 2026-11-24 and
+re-measured 2026-11-27 from the live reference site — close
 tokens, not computed-style verified.
+
+**Bondi-style v2 (2026-11-27):** every public page now follows the reference
+landing pattern with SP Academy's own content — floating pill header (active
+link = pale-blue pill, blue Login + orange "ভর্তি হোন"), pale-blue page
+`#F2F7FF`, pill filter chips + scrolling promo marquee on listings, horizontal
+carousels with arrow buttons (popular courses, publications, testimonials),
+programme split sections (text/CTA + 2×2 course grid), tab-filtered teachers,
+free-classes featured-video + list layout, 8 free-resource icon cards,
+AI-assistant split section with chat mockup, deep-navy `#0B1B3A` footer (4
+columns incl. contact) and dark-navy login with orange heading. Shared pieces
+live in `src/components/ui.tsx` (`PageHero`, `PromoMarquee`, `FilterChips`,
+`CarouselRow`, `SectionHeading`, `Breadcrumbs`) so all 23 public pages share
+the same landing system.
 
 > **Rejected theme (do NOT use):** navy-blue + gold `#182C4C` / `#F0B84B`.
 > The user explicitly rejected it.
@@ -17,24 +31,26 @@ in the same file. All components must use these variables — no raw hex in comp
 
 | Token | Value | Usage |
 | --- | --- | --- |
-| `--color-page` | `#F5FAFE` → `#F4F9FE` | Page background |
+| `--color-page` | `#F2F7FF` | Page background |
 | `--color-surface` | `#FFFFFF` | Cards, panels |
-| `--color-surface-2` | `#EAF6FF` | Soft blue tint |
-| `--color-primary` | `#2396F6` | Primary blue (tabs, links, login) |
-| `--color-primary-dark` | `#1A7FD6` | Primary hover |
-| `--color-primary-light` | `#59B1F9` | Light blue accent |
-| `--color-primary-soft` | `#EAF6FF` | Soft blue backgrounds |
-| `--color-cta` / from / to | `#FD9A2A` / `#FF8A1E` → `#F97316` | Primary CTA gradient |
-| `--color-heading` | `#213549` (deep `#12283F`) | Headings |
+| `--color-surface-2` | `#E3EDFF` | Soft blue tint |
+| `--color-primary` | `#2F6BFF` | Primary blue (tabs, links, login) |
+| `--color-primary-dark` | `#1D4ED8` | Primary hover |
+| `--color-primary-light` | `#60A5FA` | Light blue accent |
+| `--color-primary-soft` | `#E3EDFF` | Soft blue backgrounds |
+| `--color-navy` | `#0B1B3A` | Deep navy (footer, login backdrop) |
+| `--color-teal` | `#14B8A6` | Teal accent (detail-page titles) |
+| `--color-cta` / from / to | `#FF7A1A` / `#FF8A1E` → `#F97316` | Primary CTA gradient |
+| `--color-heading` | `#12283F` (deep `#0B1B3A`) | Headings |
 | `--color-body` | `#5B6B82` | Body text |
 | `--color-muted` | `#7B8AA0` | Secondary text |
-| `--color-footer` | `#01367F` | Dark navy footer |
+| `--color-footer` | `#0B1B3A` | Dark navy footer |
 | `--color-wave-top` | `#CAEEFF` | Footer wave top |
-| `--color-wave-band` | `#1E9FF2` | Footer wave band |
-| `--color-hero-from` → `--to` | `#EAF6FF` → `#D6ECFC` | Hero gradient |
-| `--radius-card` | `16px` | Cards |
+| `--color-wave-band` | `#2F6BFF` | Footer wave band |
+| `--color-hero-from` → `--to` | `#EAF2FF` → `#DCE9FF` | Hero gradient |
+| `--radius-card` | `20px` | Cards |
 | `--radius-pill` | `9999px` | Buttons, nav, inputs |
-| `--radius-lg` | `20px` | Large panels |
+| `--radius-lg` | `24px` | Large panels |
 | `--shadow-card` / `-hover` | `0 6px 24px rgba(18,40,63,.08)` / `0 14px 36px rgba(18,40,63,.14)` | Card shadows |
 | `--shadow-pill` | `0 8px 30px rgba(18,40,63,.10)` | Floating nav shadow |
 | `--section-y` | `clamp(4rem, 8vw, 6rem)` | Section vertical spacing |

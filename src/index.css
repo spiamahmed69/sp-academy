@@ -98,6 +98,24 @@ input, select, textarea {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Bondi-style landing utilities (v2): promo marquee + horizontal carousels */
+@keyframes promo-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.promo-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: promo-marquee 32s linear infinite;
+}
+.promo-marquee:hover .promo-marquee-track { animation-play-state: paused; }
+
+.carousel-row {
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+.carousel-row > * { scroll-snap-align: start; }
+
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }

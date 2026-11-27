@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { Bell, LayoutDashboard, LogIn, LogOut, Menu, Moon, Search, ShoppingCart, Sun, X } from 'lucide-react'
+import { Bell, LayoutDashboard, LogIn, LogOut, Menu, Moon, Search, ShoppingCart, Sun, UserPlus, X } from 'lucide-react'
 import type { Theme } from '../hooks/useTheme'
 import { useAuth } from '../contexts/AuthContext'
 import { useCart } from '../contexts/CartContext'
@@ -44,9 +44,9 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
 
   return (
     <header className="sticky top-3 z-50 px-3 sm:px-4">
-      <div className="mx-auto flex max-w-7xl items-center gap-1.5 rounded-full border border-blue-100/70 bg-white px-2 py-2 shadow-[var(--shadow-pill)] sm:gap-3 sm:px-4 dark:border-slate-700 dark:bg-[#12233c]">
+      <div className="mx-auto flex max-w-7xl items-center gap-1.5 rounded-[24px] border border-blue-100/70 bg-white px-2 py-2 shadow-[var(--shadow-pill)] sm:gap-3 sm:px-4 dark:border-slate-700 dark:bg-[#12233c]">
         <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="SP Academy হোম">
-          <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2396f6] to-[#1b7fe6] text-base font-extrabold text-white shadow-md sm:h-10 sm:w-10 sm:text-lg" aria-hidden="true">
+          <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2f6bff] to-[#2563eb] text-base font-extrabold text-white shadow-md sm:h-10 sm:w-10 sm:text-lg" aria-hidden="true">
             SP
           </span>
           <span className="leading-tight">
@@ -63,7 +63,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
               className={({ isActive }) =>
                 `rounded-full px-2.5 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
                   isActive
-                    ? 'bg-[var(--color-primary)] text-white'
+                    ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary)]'
                     : 'text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]'
                 }`
               }
@@ -191,9 +191,14 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
             </button>
           </>
         ) : (
-          <Link to="/login" className="btn-primary hidden !px-4 !py-2 text-sm sm:inline-flex">
-            <LogIn className="h-4 w-4" /> লগইন
-          </Link>
+          <>
+            <Link to="/login" className="btn-primary hidden !px-4 !py-2 text-sm sm:inline-flex">
+              <LogIn className="h-4 w-4" /> লগইন
+            </Link>
+            <Link to="/register" className="btn-cta hidden !px-4 !py-2 text-sm sm:inline-flex">
+              <UserPlus className="h-4 w-4" /> ভর্তি হোন
+            </Link>
+          </>
         )}
 
         <button
@@ -231,7 +236,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
                   `rounded-xl px-4 py-2.5 text-sm font-semibold ${
-                    isActive ? 'bg-[var(--color-primary)] text-white' : 'text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]'
+                    isActive ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary)]' : 'text-[var(--color-heading)] hover:bg-[var(--color-primary-soft)]'
                   }`
                 }
               >

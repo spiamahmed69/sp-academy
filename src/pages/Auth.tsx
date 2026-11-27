@@ -10,8 +10,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Chrome, GraduationCap, LogIn, Mail, UserPlus } from 'lucide-react'
-import { DemoNotice, PageHero } from '../components/ui'
+import { Chrome, LogIn, Mail, UserPlus } from 'lucide-react'
+import { DemoNotice } from '../components/ui'
 import { useToast } from '../lib/toast'
 import { useAuth } from '../contexts/AuthContext'
 import { isValidBdPhone } from '../lib/cart'
@@ -22,10 +22,18 @@ const inputCls =
 function AuthCard({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   const { configured } = useAuth()
   return (
-    <div>
-      <PageHero eyebrow="অ্যাকাউন্ট" title={title} subtitle={subtitle} />
-      <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
-        <div className="mx-auto flex w-full max-w-md px-4 py-10 sm:px-6 flex-1 flex-col">
+    /* Bondi-style login: full deep-navy backdrop, centred card, orange
+       heading — SP Academy's own form and copy inside. */
+    <div className="flex flex-1 flex-col bg-[#0b1b3a]">
+      <div className="mx-auto w-full max-w-md px-4 pt-12 pb-6 text-center sm:px-6">
+        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-lg font-extrabold text-[#0b1b3a] shadow-lg">
+          SP
+        </span>
+        <h1 className="mt-4 text-3xl font-extrabold text-[#ff7a1a] sm:text-4xl">{title}</h1>
+        <p className="mt-2 text-sm leading-relaxed text-blue-100">{subtitle}</p>
+        <p className="mt-1 text-xs font-medium text-blue-200">SP Academy — Learn Today, Lead Tomorrow</p>
+      </div>
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-12 sm:px-6">
         {configured ? (
           <DemoNotice>
             আসল লগইন চালু আছে — আপনার অ্যাকাউন্ট Firebase Authentication দিয়ে নিরাপদে পরিচালিত হয়।
@@ -36,21 +44,9 @@ function AuthCard({ title, subtitle, children }: { title: string; subtitle: stri
             হয় না। সেটআপের নির্দেশনা <code>docs/firebase-setup.md</code>-এ আছে।
           </DemoNotice>
         )}
-        <div className="card p-6 sm:p-8">
-          <div className="mb-6 flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary)] text-white">
-              <GraduationCap className="h-6 w-6" />
-            </span>
-            <div>
-              <p className="font-extrabold">SP Academy</p>
-              <p className="text-xs text-[var(--color-muted)]">Learn Today, Lead Tomorrow</p>
-            </div>
-          </div>
-          {children}
-        </div>
+        <div className="card p-6 sm:p-8">{children}</div>
       </div>
     </div>
-      </div>
   )
 }
 

@@ -25,7 +25,8 @@ import {
 } from '../firebase/enrollments'
 import { useCourseBySlug, useCourses, useCourseLessons } from '../hooks/useCourses'
 import { CourseCard } from '../components/cards'
-import { Breadcrumbs, DemoNotice, EmptyState, ErrorState, PageHero, SampleBadge, SkeletonCard } from '../components/ui'
+import { Breadcrumbs, DemoNotice, EmptyState, ErrorState, FilterChips, PageHero, PromoMarquee, SampleBadge, SkeletonCard } from '../components/ui'
+import { CourseCoverArt } from '../components/CoverArt'
 
 export default function Courses() {
   const [params, setParams] = useSearchParams()
@@ -72,7 +73,15 @@ export default function Courses() {
             ? 'এসএসসি থেকে চাকরির প্রস্তুতি — লাইভ কোর্স তালিকা।'
             : 'এসএসসি থেকে চাকরির প্রস্তুতি — সব কোর্স নমুনা, দাম নমুনা হিসেবে দেখানো হয়েছে।'
         }
-      />
+      >
+        <PromoMarquee
+          items={[
+            'ফ্রি কোর্স দিয়ে শুরু করুন — কোনো পেমেন্ট লাগবে না',
+            'প্রথম কোর্সে ভর্তিতে নমুনা ছাড় (নমুনা অফার)',
+            'লাইভ ক্লাসে সরাসরি প্রশ্ন করার সুযোগ',
+          ]}
+        />
+      </PageHero>
       <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
         <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
           <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -108,15 +117,13 @@ export default function Courses() {
           </div>
         </div>
 
-        <div className="mb-8 flex flex-wrap gap-2" role="tablist" aria-label="ক্যাটাগরি ফিল্টার">
-          <button onClick={() => applyCategory('all')} className={`shrink-0 cursor-pointer rounded-full px-4 py-2 text-sm font-bold ${category === 'all' ? 'bg-[var(--color-primary)] text-white' : 'bg-white text-[var(--color-heading)] shadow-sm dark:bg-[#12233c]'}`}>
-            সবগুলো
-          </button>
-          {categories.map((c) => (
-            <button key={c.id} onClick={() => applyCategory(c.id)} className={`shrink-0 cursor-pointer rounded-full px-4 py-2 text-sm font-bold ${category === c.id ? 'bg-[var(--color-primary)] text-white' : 'bg-white text-[var(--color-heading)] shadow-sm dark:bg-[#12233c]'}`}>
-              {c.name}
-            </button>
-          ))}
+        <div className="mb-8">
+          <FilterChips
+            label="ক্যাটাগরি ফিল্টার"
+            value={category}
+            onChange={applyCategory}
+            options={[{ id: 'all', label: 'সবগুলো' }, ...categories.map((c) => ({ id: c.id, label: c.name }))]}
+          />
         </div>
 
         {isLoading && (
@@ -525,7 +532,14 @@ export function CourseDetails() {
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="card p-6">
+          <div className="card overflow-hidden">
+            <div className="relative h-40 overflow-hidden">
+              <CourseCoverArt course={course} />
+              <span className="absolute top-3 right-3 rounded-full bg-[#ff7a1a] px-2.5 py-1 text-xs font-extrabold text-white shadow">
+                {course.isFree ? 'ফ্রি' : 'ছাড় চলছে (নমুনা)'}
+              </span>
+            </div>
+            <div className="p-6">
             <div className="flex items-baseline gap-2">
               {course.isFree ? (
                 <span className="text-3xl font-extrabold text-green-600">ফ্রি</span>
@@ -571,7 +585,22 @@ export function CourseDetails() {
             <button onClick={() => void shareCourse()} className="btn-outline mt-3 w-full">
               <Share2 className="h-4 w-4" /> শেয়ার করুন
             </button>
-            <ul className="mt-6 space-y-2.5 text-sm text-[var(--color-body)]">
+            <div className="mt-6 grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-2xl bg-[var(--color-primary-soft)] p-3">
+                <p className="text-base font-extrabold text-[var(--color-primary)]">{course.students.toLocaleString('bn-BD')}</p>
+                <p className="text-[11px] text-[var(--color-muted)]">শিক্ষার্থী</p>
+              </div>
+              <div className="rounded-2xl bg-[var(--color-primary-soft)] p-3">
+                <p className="text-base font-extrabold text-[var(--color-primary)]">{toBanglaDigits(totalLessons)}</p>
+                <p className="text-[11px] text-[var(--color-muted)]">লেসন</p>
+              </div>
+              <div className="rounded-2xl bg-[var(--color-primary-soft)] p-3">
+                <p className="text-base font-extrabold text-[var(--color-primary)]">{toBanglaDigits(course.durationWeeks)}</p>
+                <p className="text-[11px] text-[var(--color-muted)]">সপ্তাহ</p>
+              </div>
+            </div>
+            <h3 className="mt-6 font-bold text-[var(--color-teal)]">এই কোর্সে যা যা থাকছে</h3>
+            <ul className="mt-3 space-y-2.5 text-sm text-[var(--color-body)]">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-600" /> {toBanglaDigits(course.lessons)}টি লেসন
               </li>
@@ -585,6 +614,7 @@ export function CourseDetails() {
                 <GraduationCap className="h-4 w-4 text-[var(--color-primary)]" /> যেকোনো ডিভাইসে শেখা যায়
               </li>
             </ul>
+            </div>
           </div>
         </aside>
         </div>

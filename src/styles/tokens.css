@@ -1,35 +1,53 @@
-/* SP Academy design tokens — reference-inspired (bondipathshala.education layout
-   language), original SP Academy identity. Screenshot-pixel samples, 2026-11-24.
+/* SP Academy design tokens — Bondi-style landing system (v2, 2026-11-27).
+   Layout language inspired by bondipathshala.education (floating pill nav,
+   pill buttons/chips, pale-blue page, vivid category tiles, white cards with
+   orange prices/CTAs, deep-navy footer/login) — SP Academy's own branding,
+   text, teachers and content only. Nothing copied: no reference text, logo,
+   teacher, phone number or artwork.
+   Palette values are screenshot-pixel samples from the live reference site,
+   2026-11-27 — close tokens, not computed-style verified.
    Do NOT use the rejected navy+gold theme (#182C4C / #F0B84B). */
 @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Page & surfaces */
-  --color-page: #f5fafe;
-  --color-page-2: #f4f9fe;
+  /* Page & surfaces — pale blue like the reference landing pages */
+  --color-page: #f2f7ff;
+  --color-page-2: #eaf2ff;
   --color-surface: #ffffff;
-  --color-surface-2: #eaf6ff;
-  /* Brand blues (reference-inspired) */
-  --color-primary: #2396f6;
-  --color-primary-dark: #1a7fd6;
-  --color-primary-light: #59b1f9;
-  --color-primary-soft: #eaf6ff;
-  /* CTA orange */
-  --color-cta: #fd9a2a;
+  --color-surface-2: #e3edff;
+  /* Brand blues (reference-measured) */
+  --color-primary: #2f6bff;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-light: #60a5fa;
+  --color-primary-soft: #e3edff;
+  /* Deep navy — dark sections, footer, login backdrop */
+  --color-navy: #0b1b3a;
+  --color-navy-2: #111c33;
+  /* CTA orange (reference-measured) */
+  --color-cta: #ff7a1a;
   --color-cta-from: #ff8a1e;
   --color-cta-to: #f97316;
+  /* Teal accent (course-detail titles, includes lists) */
+  --color-teal: #14b8a6;
+  /* Pastel category tints */
+  --color-tint-blue: #e3edff;
+  --color-tint-peach: #ffe7d3;
+  --color-tint-mint: #d9f2ec;
+  --color-tint-lavender: #e9e2ff;
+  --color-tint-pink: #ffe1ec;
+  --color-tint-green: #ddf3e2;
   /* Text */
-  --color-heading: #213549;
-  --color-heading-deep: #12283f;
+  --color-heading: #12283f;
+  --color-heading-deep: #0b1b3a;
   --color-body: #5b6b82;
   --color-muted: #7b8aa0;
   /* Footer */
-  --color-footer: #01367f;
+  --color-footer: #0b1b3a;
   --color-wave-top: #caeeff;
-  --color-wave-band: #1e9ff2;
+  --color-wave-band: #2f6bff;
   /* Hero */
-  --color-hero-from: #eaf6ff;
-  --color-hero-to: #d6ecfc;
+  --color-hero-from: #eaf2ff;
+  --color-hero-to: #dce9ff;
   /* Category gradients */
   --grad-cat-blue: linear-gradient(135deg, #38bdf8, #2563eb);
   --grad-cat-green: linear-gradient(135deg, #4ade80, #16a34a);
@@ -40,12 +58,12 @@
   --grad-cat-pink: linear-gradient(135deg, #f472b6, #db2777);
   --grad-cat-amber: linear-gradient(135deg, #fbbf24, #d97706);
   /* Radii, shadows, spacing */
-  --radius-card: 16px;
+  --radius-card: 20px;
   --radius-pill: 9999px;
-  --radius-lg: 20px;
-  --shadow-card: 0 6px 24px rgba(18, 40, 63, 0.08);
-  --shadow-card-hover: 0 14px 36px rgba(18, 40, 63, 0.14);
-  --shadow-pill: 0 8px 30px rgba(18, 40, 63, 0.1);
+  --radius-lg: 24px;
+  --shadow-card: 0 6px 24px rgba(11, 27, 58, 0.08);
+  --shadow-card-hover: 0 14px 36px rgba(11, 27, 58, 0.14);
+  --shadow-pill: 0 8px 30px rgba(11, 27, 58, 0.1);
   --section-y: clamp(4rem, 8vw, 6rem);
   --container: 80rem;
   /* Fonts */

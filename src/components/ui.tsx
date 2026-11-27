@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertTriangle, FlaskConical, SearchX } from 'lucide-react'
+import { AlertTriangle, ChevronLeft, ChevronRight, FlaskConical, SearchX } from 'lucide-react'
 
 export function SampleBadge({ label = 'নমুনা' }: { label?: string }) {
   return (
@@ -25,9 +25,12 @@ export function SectionHeading({
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div className="max-w-2xl">
         {eyebrow && (
-          <p className="mb-2 text-sm font-bold tracking-wide text-[var(--color-primary)] uppercase">{eyebrow}</p>
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-soft)] px-3.5 py-1.5 text-xs font-extrabold tracking-wide text-[var(--color-primary)] uppercase">
+            <span className="h-2 w-2 rounded-full bg-[var(--color-cta)]" aria-hidden="true" />
+            {eyebrow}
+          </p>
         )}
-        <h2 className="text-2xl font-bold sm:text-3xl lg:text-4xl">{title}</h2>
+        <h2 className="text-2xl font-bold sm:text-3xl lg:text-[34px] lg:leading-[1.2]">{title}</h2>
         {subtitle && <p className="mt-2 text-[15px] leading-relaxed text-[var(--color-body)]">{subtitle}</p>}
       </div>
       {action}
@@ -39,14 +42,21 @@ export function PageHero({
   eyebrow,
   title,
   subtitle,
+  crumbs,
+  actions,
+  children,
 }: {
   eyebrow?: string
   title: string
   subtitle?: string
+  crumbs?: { label: string; to?: string }[]
+  actions?: ReactNode
+  children?: ReactNode
 }) {
   return (
     <section className="hero-wave border-b border-blue-100 dark:border-slate-800">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8">
+        {crumbs && crumbs.length > 0 && <Breadcrumbs items={crumbs} />}
         {eyebrow && (
           <span className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-[var(--color-primary)] shadow-sm">
             <span className="h-2 w-2 rounded-full bg-[var(--color-cta)]" aria-hidden="true" />
@@ -58,8 +68,98 @@ export function PageHero({
         {subtitle && (
           <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--color-body)] sm:text-base">{subtitle}</p>
         )}
+        {actions && <div className="mt-6 flex flex-wrap gap-3">{actions}</div>}
+        {children}
       </div>
     </section>
+  )
+}
+
+/** Bondi-style scrolling promo pill (landing pages + listings). Items are
+ *  SP Academy's own offers/notices — never a copied promo code. */
+export function PromoMarquee({ items }: { items: string[] }) {
+  if (items.length === 0) return null
+  const doubled = [...items, ...items]
+  return (
+    <div className="promo-marquee mt-6 overflow-hidden rounded-full border border-orange-200 bg-white/80 py-2 shadow-sm dark:border-slate-700 dark:bg-[#12233c]" role="note" aria-label="অফার ও ঘোষণা">
+      <div className="promo-marquee-track">
+        {doubled.map((item, i) => (
+          <span key={i} className="flex shrink-0 items-center gap-2 px-4 text-sm font-bold whitespace-nowrap text-[var(--color-heading)]" aria-hidden={i >= items.length}>
+            <span className="h-2 w-2 rounded-full bg-[var(--color-cta)]" aria-hidden="true" />
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Bondi-style pill filter chips. Active chip is solid blue; the rest are
+ *  white outline pills. */
+export function FilterChips({
+  options,
+  value,
+  onChange,
+  label,
+}: {
+  options: { id: string; label: string }[]
+  value: string
+  onChange: (id: string) => void
+  label?: string
+}) {
+  return (
+    <div className="flex flex-wrap gap-2" role="tablist" aria-label={label ?? 'ফিল্টার'}>
+      {options.map((o) => (
+        <button
+          key={o.id}
+          type="button"
+          role="tab"
+          aria-selected={value === o.id}
+          onClick={() => onChange(o.id)}
+          className={`shrink-0 cursor-pointer rounded-full px-4 py-2 text-sm font-bold transition-colors ${
+            value === o.id
+              ? 'bg-[var(--color-primary)] text-white shadow-md'
+              : 'bg-white text-[var(--color-heading)] shadow-sm hover:bg-[var(--color-primary-soft)] dark:bg-[#12233c]'
+          }`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+/** Bondi-style horizontal carousel with arrow buttons (popular courses,
+ *  publications, testimonials). Children should be fixed-width cards. */
+export function CarouselRow({ children, label }: { children: ReactNode; label: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const scrollBy = (dir: 1 | -1) => {
+    ref.current?.scrollBy({ left: dir * 360, behavior: 'smooth' })
+  }
+  return (
+    <div className="relative">
+      <div ref={ref} className="carousel-row no-scrollbar -mx-1 flex gap-6 overflow-x-auto px-1 pb-2" aria-label={label}>
+        {children}
+      </div>
+      <div className="mt-4 hidden justify-end gap-2 sm:flex">
+        <button
+          type="button"
+          onClick={() => scrollBy(-1)}
+          aria-label={`${label} — আগেরগুলো দেখুন`}
+          className="cursor-pointer rounded-full border border-blue-100 bg-white p-2.5 text-[var(--color-primary)] shadow-sm hover:bg-[var(--color-primary-soft)] dark:border-slate-700 dark:bg-[#12233c]"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => scrollBy(1)}
+          aria-label={`${label} — পরেরগুলো দেখুন`}
+          className="cursor-pointer rounded-full border border-blue-100 bg-white p-2.5 text-[var(--color-primary)] shadow-sm hover:bg-[var(--color-primary-soft)] dark:border-slate-700 dark:bg-[#12233c]"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -137,7 +237,7 @@ export function DemoNotice({ children }: { children?: ReactNode }) {
 
 export function Breadcrumbs({ items }: { items: { label: string; to?: string }[] }) {
   return (
-    <nav aria-label="ব্রেডক্রাম্ব" className="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-[var(--color-muted)]">
+    <nav aria-label="ব্রেডক্রাম্ব" className="mb-6 inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm text-[var(--color-muted)] shadow-sm dark:bg-[#12233c]">
       <Link to="/" className="hover:text-[var(--color-primary)]">
         হোম
       </Link>

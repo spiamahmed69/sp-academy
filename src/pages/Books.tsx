@@ -8,7 +8,7 @@ import { useCart } from '../contexts/CartContext'
 import { useBookById, useBooks } from '../hooks/useBooks'
 import { BookCard } from '../components/cards'
 import { BookCoverArt } from '../components/CoverArt'
-import { Breadcrumbs, DemoNotice, EmptyState, ErrorState, PageHero, SampleBadge, SkeletonCard } from '../components/ui'
+import { Breadcrumbs, DemoNotice, EmptyState, ErrorState, FilterChips, PageHero, PromoMarquee, SampleBadge, SkeletonCard } from '../components/ui'
 
 export default function Books() {
   const [query, setQuery] = useState('')
@@ -38,7 +38,15 @@ export default function Books() {
             ? 'পরীক্ষার প্রস্তুতির বই — ক্যাশ অন ডেলিভারি বা অনলাইন পেমেন্টে অর্ডার করুন।'
             : 'পরীক্ষার প্রস্তুতির বই — দাম, স্টক ও লেখক তথ্য নমুনা। অর্ডার এই ব্রাউজারেই ডেমো হিসেবে সংরক্ষিত হবে।'
         }
-      />
+      >
+        <PromoMarquee
+          items={[
+            'বইয়ের অর্ডারে ক্যাশ অন ডেলিভারি',
+            '৳১০০০ বা তার বেশি অর্ডারে ডেলিভারি ফ্রি (নমুনা নিয়ম)',
+            'নতুন বইয়ের খবর নিউজলেটারে পান',
+          ]}
+        />
+      </PageHero>
       <div className="flex flex-1 flex-col bg-[var(--color-page-2)] dark:bg-slate-900/40">
         <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
           {source === 'sample' && (
@@ -59,16 +67,14 @@ export default function Books() {
             placeholder="বই বা লেখকের নাম লিখুন..."
             className="flex-1 rounded-full border border-blue-100 bg-white px-5 py-3 text-sm outline-none focus:border-[var(--color-primary)] dark:border-slate-700 dark:bg-[#12233c]"
           />
-          <label htmlFor="book-category" className="sr-only">
-            ক্যাটাগরি
-          </label>
-          <select id="book-category" value={category} onChange={(e) => setCategory(e.target.value)} className="cursor-pointer rounded-full border border-blue-100 bg-white px-4 py-3 text-sm outline-none dark:border-slate-700 dark:bg-[#12233c]">
-            {cats.map((c) => (
-              <option key={c} value={c}>
-                {c === 'all' ? 'সব ক্যাটাগরি' : c}
-              </option>
-            ))}
-          </select>
+        </div>
+        <div className="mb-8">
+          <FilterChips
+            label="বইয়ের ক্যাটাগরি ফিল্টার"
+            value={category}
+            onChange={setCategory}
+            options={cats.map((c) => ({ id: c, label: c === 'all' ? 'সব ক্যাটাগরি' : c }))}
+          />
         </div>
 
         {isLoading && (

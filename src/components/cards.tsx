@@ -9,21 +9,31 @@ import { discountPercent, formatBDT, toBanglaDigits } from '../lib/format'
 import { SampleBadge } from './ui'
 import { BookCoverArt, CATEGORY_ICONS, CourseCoverArt, CoverPattern, TeacherAvatar } from './CoverArt'
 
-export function CategoryTile({ category }: { category: Category }) {
+export function CategoryTile({ category, compact = false }: { category: Category; compact?: boolean }) {
   const Icon = CATEGORY_ICONS[category.icon] ?? BookOpen
   return (
     <Link
       to={`/courses?category=${category.id}`}
-      className="group relative block overflow-hidden rounded-3xl p-4 pb-7 sm:p-5 sm:pb-8 text-white shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1.5"
+      className="group relative block overflow-hidden rounded-3xl p-4 pb-7 text-white shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1.5 sm:p-5 sm:pb-8"
       style={{ background: GRADIENTS[category.gradient] }}
     >
       <CoverPattern />
-      <span className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20">
+      <span className={`relative flex items-center justify-center rounded-2xl bg-white/20 ${compact ? 'h-11 w-11' : 'h-12 w-12'}`}>
         <Icon className="h-6 w-6" />
       </span>
-      <h3 className="relative mt-4 text-lg font-bold text-white">{category.name}</h3>
-      <p className="relative mt-1 text-sm text-white/85">{category.description}</p>
-      <p className="relative mt-3 text-xs font-bold text-white/90">{toBanglaDigits(category.courseCount)}টি কোর্স (নমুনা)</p>
+      {/* Bondi-style white label pill with the category name */}
+      <span className="relative mt-4 inline-block rounded-full bg-white px-3.5 py-1.5 text-sm font-extrabold text-[var(--color-heading)] shadow-sm">
+        {category.name}
+      </span>
+      {!compact && (
+        <>
+          <p className="relative mt-2 text-sm text-white/85">{category.description}</p>
+          <p className="relative mt-3 text-xs font-bold text-white/90">{toBanglaDigits(category.courseCount)}টি কোর্স (নমুনা)</p>
+        </>
+      )}
+      {compact && (
+        <p className="relative mt-2 text-xs font-bold text-white/90">{toBanglaDigits(category.courseCount)}টি কোর্স (নমুনা)</p>
+      )}
       <svg viewBox="0 0 100 12" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 h-3 w-full" aria-hidden="true">
         <path d="M0,12 Q12,2 25,10 T50,8 T75,10 T100,6 L100,12 Z" fill="rgba(255,255,255,0.35)" />
       </svg>
@@ -44,7 +54,7 @@ export function CourseCard({ course }: { course: Course }) {
           </span>
         </span>
         {off > 0 && (
-          <span className="absolute top-3 right-3 rounded-full bg-red-500 px-2.5 py-1 text-xs font-extrabold text-white shadow">
+          <span className="absolute top-3 right-3 rounded-full bg-[#ff7a1a] px-2.5 py-1 text-xs font-extrabold text-white shadow">
             {toBanglaDigits(off)}% ছাড়
           </span>
         )}
@@ -70,9 +80,15 @@ export function CourseCard({ course }: { course: Course }) {
           </Link>
         </h3>
         <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-[var(--color-body)]">{course.description}</p>
-        <p className="mt-3 flex items-center gap-1.5 text-sm text-[var(--color-body)]">
-          <Users className="h-4 w-4" /> {teacher?.name ?? 'নমুনা শিক্ষক'} · {course.students.toLocaleString('bn-BD')} শিক্ষার্থী
+        <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--color-body)]">
+          <span className="flex items-center gap-1">
+            <PlayCircle className="h-4 w-4" /> {toBanglaDigits(course.lessons)}টি লেসন
+          </span>
+          <span className="flex items-center gap-1">
+            <Users className="h-4 w-4" /> {course.students.toLocaleString('bn-BD')} শিক্ষার্থী
+          </span>
         </p>
+        <p className="mt-1 text-sm text-[var(--color-body)]">{teacher?.name ?? 'নমুনা শিক্ষক'}</p>
         <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-700">
           <div>
             {course.isFree ? (
@@ -147,12 +163,15 @@ export function BookCard({ book }: { book: Book & { coverImageUrl?: string | nul
           <BookCoverArt book={book} />
         )}
         {off > 0 && (
-          <span className="absolute top-3 right-3 rounded-full bg-red-500 px-2.5 py-1 text-xs font-extrabold text-white shadow">
+          <span className="absolute top-3 right-3 rounded-full bg-[#ff7a1a] px-2.5 py-1 text-xs font-extrabold text-white shadow">
             {toBanglaDigits(off)}% ছাড়
           </span>
         )}
         <span className="absolute top-3 left-3">
           <SampleBadge />
+        </span>
+        <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-extrabold text-[var(--color-primary)] shadow">
+          প্রিভিউ দেখুন
         </span>
       </Link>
       <div className="flex flex-1 flex-col p-5">

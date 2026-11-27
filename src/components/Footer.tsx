@@ -1,5 +1,5 @@
 /**
- * Footer — dark navy (#01367F) with readable white text.
+ * Footer — deep navy (#0B1B3A) with readable white text.
  *
  * Structure follows the reference site's footer pattern (dark navy wavy
  * footer, brand + link columns + social icons + payment strip + bottom
@@ -61,7 +61,7 @@ function WaveTop() {
   return (
     <svg viewBox="0 0 1440 90" preserveAspectRatio="none" className="wave-bottom" aria-hidden="true">
       <path d="M0,60 C240,10 480,90 720,55 C960,20 1200,80 1440,45 L1440,90 L0,90 Z" fill="#caeeff" />
-      <path d="M0,75 C240,35 480,95 720,70 C960,45 1200,90 1440,60 L1440,90 L0,90 Z" fill="#1e9ff2" opacity="0.55" />
+      <path d="M0,75 C240,35 480,95 720,70 C960,45 1200,90 1440,60 L1440,90 L0,90 Z" fill="#2f6bff" opacity="0.55" />
     </svg>
   )
 }
@@ -74,11 +74,11 @@ export default function Footer() {
       <WaveTop />
       {/* Explicit hex background (not a var-based utility) so the navy
           footer can never render white-on-white. */}
-      <div className="bg-[#01367f] text-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-5 lg:px-8">
-          <div className="lg:col-span-2">
+      <div className="bg-[#0b1b3a] text-white">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
+          <div>
             <Link to="/" className="flex items-center gap-2.5">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-base font-extrabold text-[#01367f]">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-base font-extrabold text-[#0b1b3a]">
                 SP
               </span>
               <span>
@@ -89,9 +89,6 @@ export default function Footer() {
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-blue-100">
               বাংলাদেশের শিক্ষার্থীদের জন্য অনলাইন শিক্ষা প্ল্যাটফর্ম — কোর্স, লাইভ ক্লাস, পরীক্ষা, বই ও AI
               স্টাডি সহায়তা এক জায়গায়।
-            </p>
-            <p className="mt-4 flex items-center gap-2 text-sm text-blue-100">
-              <MapPin className="h-4 w-4 shrink-0" /> ঢাকা, বাংলাদেশ
             </p>
             <div className="mt-5 flex gap-2">
               {SOCIALS.map((s) => (
@@ -123,6 +120,19 @@ export default function Footer() {
               </ul>
             </div>
           ))}
+
+          <div>
+            <h3 className="mb-4 text-base font-bold text-white">যোগাযোগ</h3>
+            <p className="flex items-start gap-2 text-sm leading-relaxed text-blue-100">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0" /> ঢাকা, বাংলাদেশ
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-blue-100">
+              ফোন ও ইমেইল ঠিকানা শীঘ্রই যুক্ত হচ্ছে — আপাতত যোগাযোগ পেজ থেকে বার্তা পাঠান।
+            </p>
+            <Link to="/contact" className="mt-4 inline-block rounded-full bg-white px-4 py-2 text-sm font-bold text-[#0b1b3a] transition-transform hover:-translate-y-0.5">
+              যোগাযোগ করুন
+            </Link>
+          </div>
         </div>
 
         <div className="border-t border-white/15">
