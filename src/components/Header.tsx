@@ -73,7 +73,7 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
           ))}
         </nav>
 
-        <form onSubmit={submitSearch} className="ml-auto hidden items-center xl:flex" role="search">
+        <form onSubmit={submitSearch} className="ml-auto hidden items-center 2xl:flex" role="search">
           <label htmlFor="header-search" className="sr-only">
             কোর্স খুঁজুন
           </label>
@@ -192,10 +192,10 @@ export default function Header({ theme, onToggleTheme }: { theme: Theme; onToggl
           </>
         ) : (
           <>
-            <Link to="/login" className="btn-primary hidden !px-4 !py-2 text-sm sm:inline-flex">
+            <Link to="/login" className="btn-primary hidden shrink-0 !px-4 !py-2 text-sm sm:inline-flex">
               <LogIn className="h-4 w-4" /> লগইন
             </Link>
-            <Link to="/register" className="btn-cta hidden !px-4 !py-2 text-sm sm:inline-flex">
+            <Link to="/register" className="btn-cta hidden shrink-0 !px-4 !py-2 text-sm sm:inline-flex">
               <UserPlus className="h-4 w-4" /> ভর্তি হোন
             </Link>
           </>

@@ -16,8 +16,12 @@ body {
   overflow-x: hidden;
 }
 
+/* Headings inherit the body text colour (light/dark aware). Do NOT set
+   `color` here: this rule is unlayered, so in Tailwind v4 it would beat
+   every heading colour utility (e.g. the orange login heading and the
+   white footer headings) — that bug shipped in the Bondi v2 deploy
+   (2026-11-27) and made those headings render dark on dark backgrounds. */
 h1, h2, h3, h4 {
-  color: var(--color-heading);
   line-height: 1.25;
 }
 
